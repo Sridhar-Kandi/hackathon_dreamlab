@@ -1,0 +1,78 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>Dream-1 eval · dream_hold_fill</title><style>
+:root{--surface:#fcfcfb;--page:#f9f9f7;--ink:#0b0b0b;--ink2:#52514e;--muted:#898781;--line:#e4e3df}
+@media (prefers-color-scheme:dark){:root{--surface:#1a1a19;--page:#0d0d0d;--ink:#f0efec;--ink2:#c3c2b7;--muted:#898781;--line:#383835}}
+*{box-sizing:border-box} body{margin:0;background:var(--page);color:var(--ink);font:14px/1.45 system-ui,Segoe UI,sans-serif}
+main{max-width:1180px;margin:0 auto;padding:28px 24px 60px} h1{font-size:22px;margin:0 0 4px} h2{font-size:15px;margin:0 0 12px}
+.sub{color:var(--ink2)} .live{color:var(--ink)} section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;margin-top:18px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:8px;padding:14px} .cfg{color:var(--ink2);font-size:12.5px;min-height:34px}
+.hero{font-size:34px;font-weight:650;margin:6px 0 2px;font-variant-numeric:tabular-nums} .pct{font-size:16px;color:var(--ink2);margin-left:8px;font-weight:500}
+.ci{font-size:12px;color:var(--muted)} .ci-track{position:relative;height:8px;background:var(--line);border-radius:4px;margin:6px 0 4px}
+.ci-range{position:absolute;top:0;height:8px;background:var(--muted);border-radius:4px;opacity:.55}
+.ci-dot{position:absolute;top:-2px;width:3px;height:12px;margin-left:-1px;background:var(--ink)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:10px 0 0;font-size:12.5px} dt{color:var(--muted)} dd{margin:0;font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:12px;font-size:12.5px;color:var(--ink2)}
+.key i,figcaption i,.filters i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.bar-row{display:grid;grid-template-columns:300px 1fr;gap:12px;align-items:center;margin:6px 0} .bar-label{font-size:12.5px;color:var(--ink2)}
+.bar{display:flex;height:24px;gap:2px} .seg{position:relative;border-radius:2px;min-width:3px;display:flex;align-items:center;justify-content:center}
+.seg span{font-size:11.5px;color:#fff;font-weight:600} .seg:hover{outline:2px solid var(--ink)}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--surface);padding:4px 8px;border-radius:4px;font-size:12px;display:none;z-index:5}
+.paired{margin:0;color:var(--ink2)} .paired b{color:var(--ink)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px} .filters button{border:1px solid var(--line);background:none;color:var(--ink2);border-radius:14px;padding:3px 10px;cursor:pointer;font:inherit;font-size:12.5px}
+.filters button.on{border-color:var(--ink);color:var(--ink)}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(520px,1fr));gap:14px} figure{margin:0} figure img{width:100%;border-radius:6px;display:block}
+figcaption{font-size:12.5px;color:var(--ink2);margin-top:4px} figcaption b{color:var(--ink)}
+details summary{cursor:pointer;color:var(--ink2)} table{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:10px}
+td,th{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line)} th{color:var(--muted);font-weight:500}
+.o-success{background:#008300} @media (prefers-color-scheme:dark){.o-success{background:#0ca30c}}
+.o-touched_no_lift{background:#eb6834} @media (prefers-color-scheme:dark){.o-touched_no_lift{background:#d95926}}
+.o-wrong_object{background:#e87ba4} @media (prefers-color-scheme:dark){.o-wrong_object{background:#d55181}}
+.o-wrong_destination{background:#6250d6} @media (prefers-color-scheme:dark){.o-wrong_destination{background:#9085e9}}
+.o-lifted_missed_goal{background:#2a78d6} @media (prefers-color-scheme:dark){.o-lifted_missed_goal{background:#3987e5}}
+.o-at_goal_not_settled{background:#1baf7a} @media (prefers-color-scheme:dark){.o-at_goal_not_settled{background:#199e70}}
+.o-never_touched{background:#eda100} @media (prefers-color-scheme:dark){.o-never_touched{background:#c98500}}
+.o-fell_off_table{background:#e34948} @media (prefers-color-scheme:dark){.o-fell_off_table{background:#e66767}}
+.o-partial{background:#1baf7a} @media (prefers-color-scheme:dark){.o-partial{background:#199e70}}
+.o-wrong_order{background:#e87ba4} @media (prefers-color-scheme:dark){.o-wrong_order{background:#d55181}}
+.o-undone{background:#6250d6} @media (prefers-color-scheme:dark){.o-undone{background:#9085e9}}
+.o-error{background:#898781} @media (prefers-color-scheme:dark){.o-error{background:#898781}}
+</style></head><body><main>
+<h1>Dream-1 evaluation · dream_hold_fill</h1>
+<div class="sub">hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · dream-1-beta · Dream YAM Sim · graded from MuJoCo ground truth · 12 trials · finished · est. cost $1.25</div>
+<section><h2>Success rate by configuration</h2><div class="cards"><div class="card"><div class="cfg">hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</div>
+<div class="hero">2/12<span class="pct">17%</span></div>
+<div class="ci" title="95% Wilson interval"><div class="ci-track"><div class="ci-range" style="left:4.7%;width:40.1%"></div>
+<div class="ci-dot" style="left:16.7%"></div></div><span>95% range 5%–45%</span></div>
+<dl><dt>Lifted</dt><dd>6/12</dd><dt>Calls/trial</dt><dd>77.9</dd><dt>Cost/success</dt><dd>$0.623</dd>
+</dl></div></div></section>
+<section><h2>What happened in each trial</h2><div class="legend"><span class="key"><i class="o-success"></i>Success</span><span class="key"><i class="o-touched_no_lift"></i>Touched, no lift</span><span class="key"><i class="o-error"></i>Error</span></div><div class="bar-row"><div class="bar-label">hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</div><div class="bar"><div class="seg o-success" style="flex:2" data-tip="Success: 2/12 (17%)"><span>2</span></div><div class="seg o-touched_no_lift" style="flex:2" data-tip="Touched, no lift: 2/12 (17%)"><span>2</span></div><div class="seg o-error" style="flex:2" data-tip="Error: 2/12 (17%)"><span>2</span></div></div></div></section>
+<section><h2>Recorded trials</h2><div class="filters"><button data-f="all" class="on">All</button><button data-f="success"><i class="o-success"></i>Success</button><button data-f="touched_no_lift"><i class="o-touched_no_lift"></i>Touched, no lift</button><button data-f="error"><i class="o-error"></i>Error</button></div>
+<div class="gallery"><figure data-outcome="success"><img loading="lazy" src="frames/hold_the_white_cup_up_by_its_handle_with_a24_plain_s305.gif" alt="trial seed 305">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 305 ·
+24 rows/reply · lift 14.8 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/hold_the_white_cup_up_by_its_handle_with_a24_plain_s309.gif" alt="trial seed 309">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 309 ·
+24 rows/reply · lift 10.8 cm</figcaption></figure><figure data-outcome="cup_never_held"><img loading="lazy" src="frames/hold_the_white_cup_up_by_its_handle_with_a24_plain_s301.gif" alt="trial seed 301">
+<figcaption><i class="o-cup_never_held"></i><b>cup_never_held</b> · seed 301 ·
+24 rows/reply · lift 8.0 cm</figcaption></figure><figure data-outcome="held_cup_no_tube"><img loading="lazy" src="frames/hold_the_white_cup_up_by_its_handle_with_a24_plain_s300.gif" alt="trial seed 300">
+<figcaption><i class="o-held_cup_no_tube"></i><b>held_cup_no_tube</b> · seed 300 ·
+24 rows/reply · lift 0.1 cm</figcaption></figure><figure data-outcome="held_cup_no_tube"><img loading="lazy" src="frames/hold_the_white_cup_up_by_its_handle_with_a24_plain_s303.gif" alt="trial seed 303">
+<figcaption><i class="o-held_cup_no_tube"></i><b>held_cup_no_tube</b> · seed 303 ·
+24 rows/reply · lift 0.0 cm</figcaption></figure><figure data-outcome="never_together"><img loading="lazy" src="frames/hold_the_white_cup_up_by_its_handle_with_a24_plain_s304.gif" alt="trial seed 304">
+<figcaption><i class="o-never_together"></i><b>never_together</b> · seed 304 ·
+24 rows/reply · lift 6.1 cm</figcaption></figure><figure data-outcome="never_together"><img loading="lazy" src="frames/hold_the_white_cup_up_by_its_handle_with_a24_plain_s307.gif" alt="trial seed 307">
+<figcaption><i class="o-never_together"></i><b>never_together</b> · seed 307 ·
+24 rows/reply · lift 12.8 cm</figcaption></figure><figure data-outcome="never_together"><img loading="lazy" src="frames/hold_the_white_cup_up_by_its_handle_with_a24_plain_s308.gif" alt="trial seed 308">
+<figcaption><i class="o-never_together"></i><b>never_together</b> · seed 308 ·
+24 rows/reply · lift 4.3 cm</figcaption></figure><figure data-outcome="touched_no_lift"><img loading="lazy" src="frames/hold_the_white_cup_up_by_its_handle_with_a24_plain_s302.gif" alt="trial seed 302">
+<figcaption><i class="o-touched_no_lift"></i><b>Touched, no lift</b> · seed 302 ·
+24 rows/reply · lift 0.2 cm</figcaption></figure><figure data-outcome="touched_no_lift"><img loading="lazy" src="frames/hold_the_white_cup_up_by_its_handle_with_a24_plain_s306.gif" alt="trial seed 306">
+<figcaption><i class="o-touched_no_lift"></i><b>Touched, no lift</b> · seed 306 ·
+24 rows/reply · lift 0.2 cm</figcaption></figure></div></section>
+<section><details><summary>All trials as a table</summary><table><tr><th>Configuration</th><th>Seed</th><th>Outcome</th><th>Max lift cm</th><th>Calls</th><th>Retries</th><th>Error</th></tr><tr><td>hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</td><td>300</td><td>held_cup_no_tube</td><td>0.1</td><td>100</td><td>0</td><td></td></tr><tr><td>hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</td><td>301</td><td>cup_never_held</td><td>8.0</td><td>100</td><td>0</td><td></td></tr><tr><td>hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</td><td>302</td><td>Touched, no lift</td><td>0.2</td><td>100</td><td>0</td><td></td></tr><tr><td>hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</td><td>303</td><td>Error</td><td>0.0</td><td>0</td><td>0</td><td>DreamProtocolError: could not reach Dream Labs at https://api.dreamlabs.ai:443: An established connection was aborted by the software in your host machine; check this computer&#x27;s internet connection, or DREAM_GATEWAY_URL (not set in the environment or in C:\Users\PranavPrakashMenon\.dreamlabs\credent</td></tr><tr><td>hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</td><td>303</td><td>held_cup_no_tube</td><td>0.0</td><td>100</td><td>0</td><td></td></tr><tr><td>hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</td><td>304</td><td>never_together</td><td>6.1</td><td>100</td><td>0</td><td></td></tr><tr><td>hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</td><td>305</td><td>Error</td><td>0.0</td><td>0</td><td>0</td><td>DreamProtocolError: could not reach Dream Labs at https://api.dreamlabs.ai:443: An established connection was aborted by the software in your host machine; check this computer&#x27;s internet connection, or DREAM_GATEWAY_URL (not set in the environment or in C:\Users\PranavPrakashMenon\.dreamlabs\credent</td></tr><tr><td>hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</td><td>305</td><td>Success</td><td>14.8</td><td>69</td><td>0</td><td></td></tr><tr><td>hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</td><td>306</td><td>Touched, no lift</td><td>0.2</td><td>100</td><td>0</td><td></td></tr><tr><td>hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</td><td>307</td><td>never_together</td><td>12.8</td><td>100</td><td>0</td><td></td></tr><tr><td>hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</td><td>308</td><td>never_together</td><td>4.3</td><td>100</td><td>0</td><td></td></tr><tr><td>hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm · 24 rows/reply · plain</td><td>309</td><td>Success</td><td>10.8</td><td>66</td><td>0</td><td></td></tr></table></details></section>
+</main><div id="tip"></div><script>
+const tip=document.getElementById('tip');
+document.querySelectorAll('[data-tip]').forEach(el=>{el.addEventListener('mousemove',ev=>{tip.textContent=el.dataset.tip;tip.style.display='block';tip.style.left=(ev.clientX+12)+'px';tip.style.top=(ev.clientY+12)+'px'});el.addEventListener('mouseleave',()=>tip.style.display='none')});
+document.querySelectorAll('.filters button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filters button').forEach(x=>x.classList.toggle('on',x===b));
+document.querySelectorAll('figure').forEach(f=>f.style.display=(b.dataset.f==='all'||f.dataset.outcome===b.dataset.f)?'':'none')}));
+</script></body></html>

@@ -1,0 +1,50 @@
+40 trials to run (0 already done), 3 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\orange_rows\results.jsonl
+[1/40    42s] act=32 seed=100 wrong_object         lift=0.0cm calls=25 'put orange into the bowl'
+[2/40    59s] act=16 seed=100 wrong_object         lift=0.0cm calls=50 'put orange into the bowl'
+[3/40    60s] act=16 seed=101 touched_no_lift      lift=4.9cm calls=50 'put orange into the bowl'
+[4/40    82s] act=32 seed=101 wrong_object         lift=0.0cm calls=25 'put orange into the bowl'
+[5/40    93s] act=32 seed=102 touched_no_lift      lift=0.0cm calls=25 'put orange into the bowl'
+[6/40   114s] act=16 seed=102 lifted_missed_goal   lift=10.9cm calls=50 'put orange into the bowl'
+[7/40   119s] act=16 seed=103 success              lift=11.2cm calls=32 'put orange into the bowl'
+[8/40   125s] act=32 seed=103 success              lift=11.6cm calls=17 'put orange into the bowl'
+[9/40   160s] act=32 seed=104 wrong_object         lift=0.0cm calls=25 'put orange into the bowl'
+[10/40   161s] act=16 seed=104 success              lift=10.2cm calls=44 'put orange into the bowl'
+[11/40   177s] act=16 seed=105 wrong_object         lift=0.0cm calls=50 'put orange into the bowl'
+[12/40   197s] act=32 seed=105 wrong_object         lift=0.0cm calls=25 'put orange into the bowl'
+[13/40   211s] act=16 seed=106 wrong_object         lift=0.0cm calls=50 'put orange into the bowl'
+[14/40   215s] act=32 seed=106 touched_no_lift      lift=0.5cm calls=25 'put orange into the bowl'
+[15/40   248s] act=32 seed=107 touched_no_lift      lift=0.0cm calls=25 'put orange into the bowl'
+[16/40   256s] act=16 seed=107 touched_no_lift      lift=4.3cm calls=50 'put orange into the bowl'
+[17/40   264s] act=16 seed=108 success              lift=9.4cm calls=41 'put orange into the bowl'
+[18/40   285s] act=32 seed=108 wrong_object         lift=0.0cm calls=25 'put orange into the bowl'
+[19/40   294s] act=16 seed=109 success              lift=11.5cm calls=33 'put orange into the bowl'
+[20/40   302s] act=32 seed=109 lifted_missed_goal   lift=6.9cm calls=25 'put orange into the bowl'
+[21/40   334s] act=32 seed=110 wrong_object         lift=0.0cm calls=25 'put orange into the bowl'
+[22/40   344s] act=16 seed=110 lifted_missed_goal   lift=7.0cm calls=50 'put orange into the bowl'
+[23/40   346s] act=16 seed=111 success              lift=9.8cm calls=37 'put orange into the bowl'
+[24/40   361s] act=32 seed=111 success              lift=10.9cm calls=16 'put orange into the bowl'
+[25/40   382s] act=16 seed=112 success              lift=14.4cm calls=31 'put orange into the bowl'
+[26/40   389s] act=32 seed=112 at_goal_not_settled  lift=12.9cm calls=25 'put orange into the bowl'
+[27/40   417s] act=16 seed=113 touched_no_lift      lift=0.9cm calls=50 'put orange into the bowl'
+[28/40   420s] act=32 seed=113 touched_no_lift      lift=1.7cm calls=25 'put orange into the bowl'
+[29/40   429s] act=16 seed=114 success              lift=10.0cm calls=34 'put orange into the bowl'
+[30/40   451s] act=32 seed=114 touched_no_lift      lift=3.7cm calls=25 'put orange into the bowl'
+[31/40   455s] act=16 seed=115 success              lift=11.8cm calls=28 'put orange into the bowl'
+[32/40   466s] act=32 seed=115 touched_no_lift      lift=0.8cm calls=25 'put orange into the bowl'
+[33/40   481s] act=32 seed=116 success              lift=12.8cm calls=18 'put orange into the bowl'
+[34/40   489s] act=16 seed=116 success              lift=14.2cm calls=39 'put orange into the bowl'
+[35/40   500s] act=16 seed=117 success              lift=9.9cm calls=28 'put orange into the bowl'
+[36/40   514s] act=32 seed=117 touched_no_lift      lift=0.0cm calls=25 'put orange into the bowl'
+[37/40   540s] act=32 seed=118 wrong_object         lift=0.0cm calls=25 'put orange into the bowl'
+[38/40   547s] act=16 seed=118 wrong_object         lift=0.0cm calls=50 'put orange into the bowl'
+[39/40   566s] act=16 seed=119 wrong_object         lift=0.0cm calls=50 'put orange into the bowl'
+[40/40   568s] act=32 seed=119 wrong_object         lift=0.0cm calls=25 'put orange into the bowl'
+
+40 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\orange_rows
+
+prompt                                        act   n          success           lifted  touched  calls  $/trial  outcomes
+--------------------------------------------------------------------------------------------------------------------------
+put orange into the bowl                       16  20 10/20 [30%-70%] 12/20 [39%-78%]  15/20    42.4   0.0565  success:10, wrong_object:5, touched_no_lift:3, lifted_missed_goal:2
+put orange into the bowl                       32  20  3/20 [5%-36%]  5/20 [11%-47%]  12/20    23.8   0.0317  wrong_object:8, touched_no_lift:7, success:3, lifted_missed_goal:1, at_goal_not_settled:1
+
+Estimated total API cost: $1.76  (published Dream-1 rate; check platform balance)

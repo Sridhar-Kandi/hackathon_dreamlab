@@ -1,0 +1,31 @@
+20 trials to run (0 already done), 4 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\stack3\results.jsonl
+[1/20   129s] act=24 seed=300 partial              lift=3.3cm calls=125 'put the red block on the yellow block, t'
+[2/20   149s] act=24 seed=301 partial              lift=0.3cm calls=125 'put the red block on the yellow block, t'
+[3/20   153s] act=24 seed=300 partial              lift=0.5cm calls=121 'put the red block on the yellow block, t'
+[4/20   155s] act=24 seed=301 lifted_missed_goal   lift=14.2cm calls=121 'put the red block on the yellow block, t'
+[5/20   186s] act=24 seed=302 success              lift=14.5cm calls=55 'put the red block on the yellow block, t'
+[6/20   247s] act=24 seed=304 success              lift=14.4cm calls=65 'put the red block on the yellow block, t'
+[7/20   299s] act=24 seed=302 touched_no_lift      lift=0.7cm calls=123 'put the red block on the yellow block, t'
+[8/20   300s] act=24 seed=303 touched_no_lift      lift=0.7cm calls=125 'put the red block on the yellow block, t'
+[9/20   301s] act=24 seed=303 partial              lift=7.2cm calls=122 'put the red block on the yellow block, t'
+[10/20   324s] act=24 seed=304 success              lift=15.1cm calls=75 'put the red block on the yellow block, t'
+[11/20   375s] act=24 seed=305 success              lift=16.8cm calls=71 'put the red block on the yellow block, t'
+[12/20   421s] act=24 seed=305 wrong_order          lift=15.2cm calls=125 'put the red block on the yellow block, t'
+[13/20   425s] act=24 seed=307 success              lift=14.3cm calls=43 'put the red block on the yellow block, t'
+[14/20   437s] act=24 seed=306 wrong_order          lift=15.7cm calls=125 'put the red block on the yellow block, t'
+[15/20   460s] act=24 seed=306 partial              lift=14.0cm calls=121 'put the red block on the yellow block, t'
+[16/20   473s] act=24 seed=308 success              lift=14.4cm calls=43 'put the red block on the yellow block, t'
+[17/20   516s] act=24 seed=309 success              lift=14.5cm calls=56 'put the red block on the yellow block, t'
+[18/20   520s] act=24 seed=309 success              lift=16.1cm calls=45 'put the red block on the yellow block, t'
+[19/20   549s] act=24 seed=308 success              lift=15.3cm calls=101 'put the red block on the yellow block, t'
+[20/20   556s] act=24 seed=307 partial              lift=10.6cm calls=123 'put the red block on the yellow block, t'
+
+20 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\stack3
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+put the red block on the yellow block, then p grasp       24  10  4/10 [17%-69%]  7/10 [40%-89%]  10/10   102.3   0.1364  partial:4, success:4, lifted_missed_goal:1, touched_no_lift:1
+put the red block on the yellow block, then p plain       24  10  5/10 [24%-76%]  7/10 [40%-89%]  10/10    88.7   0.1183  success:5, partial:2, wrong_order:2, touched_no_lift:1
+
+Estimated total API cost: $2.55  (published Dream-1 rate; check platform balance)
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\stack3\report.html

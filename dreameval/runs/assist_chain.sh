@@ -1,0 +1,4 @@
+cd "C:/Users/PranavPrakashMenon/Desktop/Berlin HackLab/dreameval"
+PY="C:/Users/PranavPrakashMenon/dream-env/Scripts/python.exe"
+$PY sweep.py run --name assist_red_on_blue --scene blocks2 --prompt "put the red block on the blue block" --target red_block --goal on:blue_block --actions 24 --sim-seconds 90 --trials 15 --seed0 300 --modes plain assist assist_adaptive --max-retries 3 --workers 4 --record > runs/assist_red_on_blue.log 2>&1
+$PY sweep.py run --name assist_stack3 --scene blocks3 --prompt "put the red block on the yellow block, then put the blue block on the red block" --target red_block --goal on:yellow_block --sequence red_block:on:yellow_block,blue_block:on:red_block --actions 24 --sim-seconds 150 --trials 10 --seed0 300 --modes plain assist assist_adaptive --max-retries 3 --workers 4 --record > runs/assist_stack3.log 2>&1

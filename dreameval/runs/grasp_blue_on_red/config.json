@@ -1,0 +1,28 @@
+{
+  "cmd": "run",
+  "name": "grasp_blue_on_red",
+  "prompt": [
+    "put the blue block on the red block"
+  ],
+  "actions": [
+    24
+  ],
+  "trials": 20,
+  "seed0": 300,
+  "target": "blue_block",
+  "goal": "on:red_block",
+  "sim_seconds": 90.0,
+  "jitter_cm": 2,
+  "model": "dreamlabs/dream-1-beta",
+  "workers": 4,
+  "record": true,
+  "modes": [
+    "plain",
+    "grasp"
+  ],
+  "max_retries": 3,
+  "scene": "blocks2",
+  "sequence": null,
+  "retry_prompt": null,
+  "open": false
+}

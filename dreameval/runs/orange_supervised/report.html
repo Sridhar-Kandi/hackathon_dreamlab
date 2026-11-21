@@ -1,0 +1,142 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>Dream-1 eval · orange_supervised</title><style>
+:root{--surface:#fcfcfb;--page:#f9f9f7;--ink:#0b0b0b;--ink2:#52514e;--muted:#898781;--line:#e4e3df}
+@media (prefers-color-scheme:dark){:root{--surface:#1a1a19;--page:#0d0d0d;--ink:#f0efec;--ink2:#c3c2b7;--muted:#898781;--line:#383835}}
+*{box-sizing:border-box} body{margin:0;background:var(--page);color:var(--ink);font:14px/1.45 system-ui,Segoe UI,sans-serif}
+main{max-width:1180px;margin:0 auto;padding:28px 24px 60px} h1{font-size:22px;margin:0 0 4px} h2{font-size:15px;margin:0 0 12px}
+.sub{color:var(--ink2)} .live{color:var(--ink)} section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;margin-top:18px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:8px;padding:14px} .cfg{color:var(--ink2);font-size:12.5px;min-height:34px}
+.hero{font-size:34px;font-weight:650;margin:6px 0 2px;font-variant-numeric:tabular-nums} .pct{font-size:16px;color:var(--ink2);margin-left:8px;font-weight:500}
+.ci{font-size:12px;color:var(--muted)} .ci-track{position:relative;height:8px;background:var(--line);border-radius:4px;margin:6px 0 4px}
+.ci-range{position:absolute;top:0;height:8px;background:var(--muted);border-radius:4px;opacity:.55}
+.ci-dot{position:absolute;top:-2px;width:3px;height:12px;margin-left:-1px;background:var(--ink)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:10px 0 0;font-size:12.5px} dt{color:var(--muted)} dd{margin:0;font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:12px;font-size:12.5px;color:var(--ink2)}
+.key i,figcaption i,.filters i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.bar-row{display:grid;grid-template-columns:300px 1fr;gap:12px;align-items:center;margin:6px 0} .bar-label{font-size:12.5px;color:var(--ink2)}
+.bar{display:flex;height:24px;gap:2px} .seg{position:relative;border-radius:2px;min-width:3px;display:flex;align-items:center;justify-content:center}
+.seg span{font-size:11.5px;color:#fff;font-weight:600} .seg:hover{outline:2px solid var(--ink)}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--surface);padding:4px 8px;border-radius:4px;font-size:12px;display:none;z-index:5}
+.paired{margin:0;color:var(--ink2)} .paired b{color:var(--ink)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px} .filters button{border:1px solid var(--line);background:none;color:var(--ink2);border-radius:14px;padding:3px 10px;cursor:pointer;font:inherit;font-size:12.5px}
+.filters button.on{border-color:var(--ink);color:var(--ink)}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(520px,1fr));gap:14px} figure{margin:0} figure img{width:100%;border-radius:6px;display:block}
+figcaption{font-size:12.5px;color:var(--ink2);margin-top:4px} figcaption b{color:var(--ink)}
+details summary{cursor:pointer;color:var(--ink2)} table{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:10px}
+td,th{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line)} th{color:var(--muted);font-weight:500}
+.o-success{background:#008300} @media (prefers-color-scheme:dark){.o-success{background:#0ca30c}}
+.o-touched_no_lift{background:#eb6834} @media (prefers-color-scheme:dark){.o-touched_no_lift{background:#d95926}}
+.o-wrong_object{background:#e87ba4} @media (prefers-color-scheme:dark){.o-wrong_object{background:#d55181}}
+.o-wrong_destination{background:#6250d6} @media (prefers-color-scheme:dark){.o-wrong_destination{background:#9085e9}}
+.o-lifted_missed_goal{background:#2a78d6} @media (prefers-color-scheme:dark){.o-lifted_missed_goal{background:#3987e5}}
+.o-at_goal_not_settled{background:#1baf7a} @media (prefers-color-scheme:dark){.o-at_goal_not_settled{background:#199e70}}
+.o-never_touched{background:#eda100} @media (prefers-color-scheme:dark){.o-never_touched{background:#c98500}}
+.o-fell_off_table{background:#e34948} @media (prefers-color-scheme:dark){.o-fell_off_table{background:#e66767}}
+.o-error{background:#898781} @media (prefers-color-scheme:dark){.o-error{background:#898781}}
+</style></head><body><main>
+<h1>Dream-1 evaluation · orange_supervised</h1>
+<div class="sub">put orange into the bowl · dream-1-beta · Dream YAM Sim · graded from MuJoCo ground truth · 40 trials · finished · est. cost $1.94</div>
+<section><h2>Success rate by configuration</h2><div class="cards"><div class="card"><div class="cfg">put orange into the bowl · 24 rows/reply · plain</div>
+<div class="hero">13/20<span class="pct">65%</span></div>
+<div class="ci" title="95% Wilson interval"><div class="ci-track"><div class="ci-range" style="left:43.3%;width:38.6%"></div>
+<div class="ci-dot" style="left:65.0%"></div></div><span>95% range 43%–82%</span></div>
+<dl><dt>Lifted</dt><dd>14/20</dd><dt>Calls/trial</dt><dd>34.9</dd><dt>Cost/success</dt><dd>$0.071</dd>
+</dl></div><div class="card"><div class="cfg">put orange into the bowl · 24 rows/reply · supervised</div>
+<div class="hero">8/20<span class="pct">40%</span></div>
+<div class="ci" title="95% Wilson interval"><div class="ci-track"><div class="ci-range" style="left:21.9%;width:39.5%"></div>
+<div class="ci-dot" style="left:40.0%"></div></div><span>95% range 22%–61%</span></div>
+<dl><dt>Lifted</dt><dd>11/20</dd><dt>Calls/trial</dt><dd>37.8</dd><dt>Cost/success</dt><dd>$0.126</dd>
+<dt>Retries</dt><dd>6</dd></dl></div></div></section>
+<section><h2>What happened in each trial</h2><div class="legend"><span class="key"><i class="o-success"></i>Success</span><span class="key"><i class="o-touched_no_lift"></i>Touched, no lift</span><span class="key"><i class="o-wrong_object"></i>Wrong object</span><span class="key"><i class="o-lifted_missed_goal"></i>Lifted, missed goal</span><span class="key"><i class="o-fell_off_table"></i>Fell off table</span><span class="key"><i class="o-error"></i>Error</span></div><div class="bar-row"><div class="bar-label">put orange into the bowl · 24 rows/reply · plain</div><div class="bar"><div class="seg o-success" style="flex:13" data-tip="Success: 13/20 (65%)"><span>13</span></div><div class="seg o-touched_no_lift" style="flex:2" data-tip="Touched, no lift: 2/20 (10%)"><span>2</span></div><div class="seg o-wrong_object" style="flex:2" data-tip="Wrong object: 2/20 (10%)"><span>2</span></div><div class="seg o-fell_off_table" style="flex:1" data-tip="Fell off table: 1/20 (5%)"><span></span></div><div class="seg o-error" style="flex:2" data-tip="Error: 2/20 (10%)"><span>2</span></div></div></div><div class="bar-row"><div class="bar-label">put orange into the bowl · 24 rows/reply · supervised</div><div class="bar"><div class="seg o-success" style="flex:8" data-tip="Success: 8/20 (40%)"><span>8</span></div><div class="seg o-touched_no_lift" style="flex:4" data-tip="Touched, no lift: 4/20 (20%)"><span>4</span></div><div class="seg o-wrong_object" style="flex:3" data-tip="Wrong object: 3/20 (15%)"><span>3</span></div><div class="seg o-lifted_missed_goal" style="flex:2" data-tip="Lifted, missed goal: 2/20 (10%)"><span>2</span></div><div class="seg o-fell_off_table" style="flex:1" data-tip="Fell off table: 1/20 (5%)"><span></span></div><div class="seg o-error" style="flex:2" data-tip="Error: 2/20 (10%)"><span>2</span></div></div></div></section>
+<section><h2>Paired on the same 20 start states</h2>
+<p class="paired">Only <b>put orange into the bowl · 24 rows/reply · plain</b> succeeded: <b>8</b> · only <b>put orange into the bowl · 24 rows/reply · supervised</b> succeeded: <b>3</b> ·
+both: 5 · neither: 4 · McNemar exact p = <b>0.2266</b></p></section><section><h2>Recorded trials</h2><div class="filters"><button data-f="all" class="on">All</button><button data-f="success"><i class="o-success"></i>Success</button><button data-f="touched_no_lift"><i class="o-touched_no_lift"></i>Touched, no lift</button><button data-f="wrong_object"><i class="o-wrong_object"></i>Wrong object</button><button data-f="lifted_missed_goal"><i class="o-lifted_missed_goal"></i>Lifted, missed goal</button><button data-f="fell_off_table"><i class="o-fell_off_table"></i>Fell off table</button><button data-f="error"><i class="o-error"></i>Error</button></div>
+<div class="gallery"><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s200.gif" alt="trial seed 200">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 200 ·
+24 rows/reply · lift 11.7 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s201.gif" alt="trial seed 201">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 201 ·
+24 rows/reply · lift 10.1 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s202.gif" alt="trial seed 202">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 202 ·
+24 rows/reply · lift 10.0 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s202.gif" alt="trial seed 202">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 202 ·
+24 rows/reply · supervised · lift 12.9 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s203.gif" alt="trial seed 203">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 203 ·
+24 rows/reply · lift 10.1 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s205.gif" alt="trial seed 205">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 205 ·
+24 rows/reply · lift 10.8 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s205.gif" alt="trial seed 205">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 205 ·
+24 rows/reply · supervised · lift 14.6 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s206.gif" alt="trial seed 206">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 206 ·
+24 rows/reply · lift 11.2 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s206.gif" alt="trial seed 206">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 206 ·
+24 rows/reply · supervised · lift 11.4 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s207.gif" alt="trial seed 207">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 207 ·
+24 rows/reply · lift 9.6 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s208.gif" alt="trial seed 208">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 208 ·
+24 rows/reply · supervised · lift 10.8 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s209.gif" alt="trial seed 209">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 209 ·
+24 rows/reply · lift 13.5 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s209.gif" alt="trial seed 209">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 209 ·
+24 rows/reply · supervised · lift 10.5 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s210.gif" alt="trial seed 210">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 210 ·
+24 rows/reply · lift 9.8 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s211.gif" alt="trial seed 211">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 211 ·
+24 rows/reply · supervised · lift 11.0 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s211.gif" alt="trial seed 211">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 211 ·
+24 rows/reply · lift 11.3 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s212.gif" alt="trial seed 212">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 212 ·
+24 rows/reply · supervised · lift 10.1 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s214.gif" alt="trial seed 214">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 214 ·
+24 rows/reply · supervised · lift 12.1 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s215.gif" alt="trial seed 215">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 215 ·
+24 rows/reply · lift 7.8 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s216.gif" alt="trial seed 216">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 216 ·
+24 rows/reply · lift 12.5 cm</figcaption></figure><figure data-outcome="success"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s218.gif" alt="trial seed 218">
+<figcaption><i class="o-success"></i><b>Success</b> · seed 218 ·
+24 rows/reply · lift 9.8 cm</figcaption></figure><figure data-outcome="error"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s217.gif" alt="trial seed 217">
+<figcaption><i class="o-error"></i><b>Error</b> · seed 217 ·
+24 rows/reply · lift 5.9 cm</figcaption></figure><figure data-outcome="error"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s218.gif" alt="trial seed 218">
+<figcaption><i class="o-error"></i><b>Error</b> · seed 218 ·
+24 rows/reply · supervised · lift 5.4 cm</figcaption></figure><figure data-outcome="error"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s219.gif" alt="trial seed 219">
+<figcaption><i class="o-error"></i><b>Error</b> · seed 219 ·
+24 rows/reply · lift 0.0 cm</figcaption></figure><figure data-outcome="error"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s219.gif" alt="trial seed 219">
+<figcaption><i class="o-error"></i><b>Error</b> · seed 219 ·
+24 rows/reply · supervised · lift 1.7 cm</figcaption></figure><figure data-outcome="fell_off_table"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s207.gif" alt="trial seed 207">
+<figcaption><i class="o-fell_off_table"></i><b>Fell off table</b> · seed 207 ·
+24 rows/reply · supervised · lift 10.7 cm</figcaption></figure><figure data-outcome="fell_off_table"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s214.gif" alt="trial seed 214">
+<figcaption><i class="o-fell_off_table"></i><b>Fell off table</b> · seed 214 ·
+24 rows/reply · lift 7.4 cm</figcaption></figure><figure data-outcome="lifted_missed_goal"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s200.gif" alt="trial seed 200">
+<figcaption><i class="o-lifted_missed_goal"></i><b>Lifted, missed goal</b> · seed 200 ·
+24 rows/reply · supervised · lift 8.8 cm · supervisor: apple at 24s</figcaption></figure><figure data-outcome="lifted_missed_goal"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s204.gif" alt="trial seed 204">
+<figcaption><i class="o-lifted_missed_goal"></i><b>Lifted, missed goal</b> · seed 204 ·
+24 rows/reply · supervised · lift 11.0 cm · supervisor: apple at 20s</figcaption></figure><figure data-outcome="touched_no_lift"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s201.gif" alt="trial seed 201">
+<figcaption><i class="o-touched_no_lift"></i><b>Touched, no lift</b> · seed 201 ·
+24 rows/reply · supervised · lift 2.3 cm</figcaption></figure><figure data-outcome="touched_no_lift"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s203.gif" alt="trial seed 203">
+<figcaption><i class="o-touched_no_lift"></i><b>Touched, no lift</b> · seed 203 ·
+24 rows/reply · supervised · lift 0.9 cm</figcaption></figure><figure data-outcome="touched_no_lift"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s212.gif" alt="trial seed 212">
+<figcaption><i class="o-touched_no_lift"></i><b>Touched, no lift</b> · seed 212 ·
+24 rows/reply · lift 4.2 cm</figcaption></figure><figure data-outcome="touched_no_lift"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s213.gif" alt="trial seed 213">
+<figcaption><i class="o-touched_no_lift"></i><b>Touched, no lift</b> · seed 213 ·
+24 rows/reply · lift 3.7 cm</figcaption></figure><figure data-outcome="touched_no_lift"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s213.gif" alt="trial seed 213">
+<figcaption><i class="o-touched_no_lift"></i><b>Touched, no lift</b> · seed 213 ·
+24 rows/reply · supervised · lift 3.3 cm</figcaption></figure><figure data-outcome="touched_no_lift"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s217.gif" alt="trial seed 217">
+<figcaption><i class="o-touched_no_lift"></i><b>Touched, no lift</b> · seed 217 ·
+24 rows/reply · supervised · lift 0.8 cm · supervisor: apple at 33s</figcaption></figure><figure data-outcome="wrong_object"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s204.gif" alt="trial seed 204">
+<figcaption><i class="o-wrong_object"></i><b>Wrong object</b> · seed 204 ·
+24 rows/reply · lift 0.0 cm</figcaption></figure><figure data-outcome="wrong_object"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_plain_s208.gif" alt="trial seed 208">
+<figcaption><i class="o-wrong_object"></i><b>Wrong object</b> · seed 208 ·
+24 rows/reply · lift 0.0 cm</figcaption></figure><figure data-outcome="wrong_object"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s210.gif" alt="trial seed 210">
+<figcaption><i class="o-wrong_object"></i><b>Wrong object</b> · seed 210 ·
+24 rows/reply · supervised · lift 0.0 cm · supervisor: apple at 50s</figcaption></figure><figure data-outcome="wrong_object"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s215.gif" alt="trial seed 215">
+<figcaption><i class="o-wrong_object"></i><b>Wrong object</b> · seed 215 ·
+24 rows/reply · supervised · lift 0.0 cm · supervisor: apple at 41s</figcaption></figure><figure data-outcome="wrong_object"><img loading="lazy" src="frames/put_orange_into_the_bowl_a24_supervised_s216.gif" alt="trial seed 216">
+<figcaption><i class="o-wrong_object"></i><b>Wrong object</b> · seed 216 ·
+24 rows/reply · supervised · lift 0.0 cm · supervisor: apple at 33s</figcaption></figure></div></section>
+<section><details><summary>All trials as a table</summary><table><tr><th>Configuration</th><th>Seed</th><th>Outcome</th><th>Max lift cm</th><th>Calls</th><th>Retries</th><th>Error</th></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>200</td><td>Success</td><td>11.7</td><td>50</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>201</td><td>Success</td><td>10.1</td><td>20</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>202</td><td>Success</td><td>10.0</td><td>48</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>203</td><td>Success</td><td>10.1</td><td>21</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>204</td><td>Wrong object</td><td>0.0</td><td>50</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>205</td><td>Success</td><td>10.8</td><td>33</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>206</td><td>Success</td><td>11.2</td><td>22</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>207</td><td>Success</td><td>9.6</td><td>22</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>208</td><td>Wrong object</td><td>0.0</td><td>50</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>209</td><td>Success</td><td>13.5</td><td>23</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>210</td><td>Success</td><td>9.8</td><td>21</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>211</td><td>Success</td><td>11.3</td><td>41</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>212</td><td>Touched, no lift</td><td>4.2</td><td>50</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>213</td><td>Touched, no lift</td><td>3.7</td><td>50</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>214</td><td>Fell off table</td><td>7.4</td><td>50</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>215</td><td>Success</td><td>7.8</td><td>48</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>216</td><td>Success</td><td>12.5</td><td>21</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>217</td><td>Error</td><td>5.9</td><td>46</td><td>0</td><td>DreamAuthError: DreamAPI refused the inference request: DA-1000 UNAUTHORIZED (disabled): &#x27;Hackathon test&#x27;; called https://api.dreamlabs.ai:443 (the built-in production default for DREAM_GATEWAY_URL: no such line in the environment or in C:\Users\PranavPrakashMenon\.dreamlabs\credentials; a key from </td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>218</td><td>Success</td><td>9.8</td><td>30</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · plain</td><td>219</td><td>Error</td><td>0.0</td><td>1</td><td>0</td><td>DreamAuthError: DreamAPI refused the inference request: DA-1000 UNAUTHORIZED (disabled): &#x27;Hackathon test&#x27;; called https://api.dreamlabs.ai:443 (the built-in production default for DREAM_GATEWAY_URL: no such line in the environment or in C:\Users\PranavPrakashMenon\.dreamlabs\credentials; a key from </td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>200</td><td>Lifted, missed goal</td><td>8.8</td><td>49</td><td>1</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>201</td><td>Touched, no lift</td><td>2.3</td><td>50</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>202</td><td>Success</td><td>12.9</td><td>34</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>203</td><td>Touched, no lift</td><td>0.9</td><td>50</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>204</td><td>Lifted, missed goal</td><td>11.0</td><td>49</td><td>1</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>205</td><td>Success</td><td>14.6</td><td>20</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>206</td><td>Success</td><td>11.4</td><td>21</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>207</td><td>Fell off table</td><td>10.7</td><td>50</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>208</td><td>Success</td><td>10.8</td><td>21</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>209</td><td>Success</td><td>10.5</td><td>22</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>210</td><td>Wrong object</td><td>0.0</td><td>49</td><td>1</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>211</td><td>Success</td><td>11.0</td><td>23</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>212</td><td>Success</td><td>10.1</td><td>47</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>213</td><td>Touched, no lift</td><td>3.3</td><td>50</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>214</td><td>Success</td><td>12.1</td><td>30</td><td>0</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>215</td><td>Wrong object</td><td>0.0</td><td>49</td><td>1</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>216</td><td>Wrong object</td><td>0.0</td><td>49</td><td>1</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>217</td><td>Touched, no lift</td><td>0.8</td><td>49</td><td>1</td><td></td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>218</td><td>Error</td><td>5.4</td><td>30</td><td>0</td><td>DreamAuthError: DreamAPI refused the inference request: DA-1000 UNAUTHORIZED (disabled): &#x27;Hackathon test&#x27;; called https://api.dreamlabs.ai:443 (the built-in production default for DREAM_GATEWAY_URL: no such line in the environment or in C:\Users\PranavPrakashMenon\.dreamlabs\credentials; a key from </td></tr><tr><td>put orange into the bowl · 24 rows/reply · supervised</td><td>219</td><td>Error</td><td>1.7</td><td>14</td><td>0</td><td>DreamAuthError: DreamAPI refused the inference request: DA-1000 UNAUTHORIZED (disabled): &#x27;Hackathon test&#x27;; called https://api.dreamlabs.ai:443 (the built-in production default for DREAM_GATEWAY_URL: no such line in the environment or in C:\Users\PranavPrakashMenon\.dreamlabs\credentials; a key from </td></tr></table></details></section>
+</main><div id="tip"></div><script>
+const tip=document.getElementById('tip');
+document.querySelectorAll('[data-tip]').forEach(el=>{el.addEventListener('mousemove',ev=>{tip.textContent=el.dataset.tip;tip.style.display='block';tip.style.left=(ev.clientX+12)+'px';tip.style.top=(ev.clientY+12)+'px'});el.addEventListener('mouseleave',()=>tip.style.display='none')});
+document.querySelectorAll('.filters button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filters button').forEach(x=>x.classList.toggle('on',x===b));
+document.querySelectorAll('figure').forEach(f=>f.style.display=(b.dataset.f==='all'||f.dataset.outcome===b.dataset.f)?'':'none')}));
+</script></body></html>

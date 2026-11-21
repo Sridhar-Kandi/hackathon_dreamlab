@@ -1,0 +1,27 @@
+{
+  "cmd": "run",
+  "name": "dream_hold_fill",
+  "prompt": [
+    "hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm"
+  ],
+  "actions": [
+    24
+  ],
+  "trials": 10,
+  "seed0": 300,
+  "target": "red_tube",
+  "goal": "in:cup",
+  "sim_seconds": 120.0,
+  "jitter_cm": 2.0,
+  "model": "dreamlabs/dream-1-beta",
+  "workers": 2,
+  "record": true,
+  "modes": [
+    "plain"
+  ],
+  "max_retries": 2,
+  "scene": "hold_fill",
+  "sequence": null,
+  "retry_prompt": null,
+  "open": false
+}

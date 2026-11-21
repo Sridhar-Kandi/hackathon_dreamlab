@@ -1,0 +1,27 @@
+{
+  "cmd": "run",
+  "name": "hanoi_oracle",
+  "prompt": [
+    "solve the tower of hanoi"
+  ],
+  "actions": [
+    24
+  ],
+  "trials": 8,
+  "seed0": 300,
+  "target": "blue_block",
+  "goal": "on:pad_c",
+  "sim_seconds": 240.0,
+  "jitter_cm": 2.0,
+  "model": "oracle",
+  "workers": 8,
+  "record": true,
+  "modes": [
+    "plain"
+  ],
+  "max_retries": 2,
+  "scene": "hanoi",
+  "sequence": null,
+  "retry_prompt": null,
+  "open": false
+}

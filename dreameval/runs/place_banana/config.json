@@ -1,0 +1,29 @@
+{
+  "cmd": "run",
+  "name": "place_banana",
+  "prompt": [
+    "put banana on plate"
+  ],
+  "actions": [
+    24
+  ],
+  "trials": 15,
+  "seed0": 100,
+  "target": "banana",
+  "goal": "on_plate",
+  "sim_seconds": 60.0,
+  "jitter_cm": 2,
+  "model": "dreamlabs/dream-1-beta",
+  "workers": 3,
+  "record": true,
+  "modes": [
+    "plain",
+    "assist_place",
+    "place_only"
+  ],
+  "max_retries": 3,
+  "scene": "stock",
+  "sequence": null,
+  "retry_prompt": null,
+  "open": false
+}

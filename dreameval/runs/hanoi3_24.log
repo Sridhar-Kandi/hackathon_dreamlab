@@ -1,0 +1,17 @@
+4 trials to run (23 already done), 4 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\hanoi3\results.jsonl
+[1/4   323s] act=24 seed=306 illegal_move         lift=14.8cm calls=350 'solve the tower of hanoi: move the three'
+[2/4   336s] act=24 seed=307 illegal_move         lift=5.2cm calls=350 'solve the tower of hanoi: move the three'
+[3/4   387s] act=24 seed=308 illegal_move         lift=12.8cm calls=350 'solve the tower of hanoi: move the three'
+[4/4   388s] act=24 seed=309 illegal_move         lift=8.7cm calls=350 'solve the tower of hanoi: move the three'
+
+27 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\hanoi3
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+solve the tower of hanoi: move the three bloc plain       24  10  0/10 [0%-28%] 10/10 [72%-100%]  10/10   350.0   0.4667  illegal_move:9, partial_then_off_pad:1
+solve the tower of hanoi: move the three bloc stepwise    24   6  0/6  [0%-39%]  6/6  [61%-100%]   6/6    350.0   0.4667  partial_then_off_pad:3, partial:2, illegal_move:1
+solve the tower of hanoi: move the three bloc plain       48   6  0/6  [0%-39%]  4/6  [30%-90%]   6/6    175.0   0.2333  touched_no_lift:2, partial:2, illegal_move:1, partial_then_off_pad:1
+solve the tower of hanoi: move the three bloc stepwise    48   5  0/5  [0%-43%]  2/5  [12%-77%]   5/5    175.0   0.2333  touched_no_lift:3, partial:2
+
+Estimated total API cost: $10.03  (published Dream-1 rate; check platform balance)
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\hanoi3\report.html

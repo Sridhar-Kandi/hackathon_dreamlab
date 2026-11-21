@@ -1,0 +1,48 @@
+{
+  "task": "put the red block on the blue block",
+  "scene": "blocks2",
+  "target": "red_block",
+  "goal": "on:blue_block",
+  "model": "dreamlabs/dream-1-beta",
+  "actions": 24,
+  "sim_seconds": 90.0,
+  "seed": 300,
+  "jitter_cm": 2.0,
+  "outcome": "lifted_missed_goal",
+  "success": false,
+  "rows": 1800,
+  "first_contact_row": 250,
+  "lifted_row": 352,
+  "goal_row": null,
+  "max_lift_cm": 19.6,
+  "contact_rows": 1515,
+  "arm_table_rows": 0,
+  "final_pos": [
+    0.0514,
+    0.1388,
+    0.839
+  ],
+  "final_bowl_dist_cm": 18.6,
+  "ended_at": "air",
+  "final_plate_dist_cm": 32.8,
+  "other_objects_touched": {},
+  "touched_other_first": null,
+  "calls": 129,
+  "median_rtt_s": 0.526,
+  "wall_s": 109.8,
+  "est_cost_usd": 0.172,
+  "error": null,
+  "supervised": "assist_adaptive",
+  "short_replies": 112,
+  "retries": 1,
+  "interventions": [
+    {
+      "row": 253,
+      "reason": "depth_too_high",
+      "arm": "right",
+      "info": 1.2,
+      "obj": "red_block"
+    }
+  ],
+  "recording": "runs\\test\\assist_s300.gif"
+}

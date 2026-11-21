@@ -1,0 +1,50 @@
+38 trials to run (7 already done), 4 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\assist_red_on_blue\results.jsonl
+[1/38    81s] act=24 seed=302 touched_no_lift      lift=0.4cm calls=75 'put the red block on the blue block'
+[2/38   100s] act=24 seed=302 lifted_missed_goal   lift=7.9cm calls=72 'put the red block on the blue block'
+[3/38   113s] act=24 seed=301 lifted_missed_goal   lift=15.1cm calls=101 'put the red block on the blue block'
+[4/38   117s] act=24 seed=303 success              lift=8.8cm calls=32 'put the red block on the blue block'
+[5/38   117s] act=24 seed=302 lifted_missed_goal   lift=8.3cm calls=89 'put the red block on the blue block'
+[6/38   188s] act=24 seed=305 lifted_missed_goal   lift=7.9cm calls=75 'put the red block on the blue block'
+[7/38   192s] act=24 seed=304 lifted_missed_goal   lift=8.4cm calls=69 'put the red block on the blue block'
+[8/38   204s] act=24 seed=304 lifted_missed_goal   lift=8.5cm calls=95 'put the red block on the blue block'
+[9/38   205s] act=24 seed=303 lifted_missed_goal   lift=12.0cm calls=104 'put the red block on the blue block'
+[10/38   233s] act=24 seed=306 success              lift=7.5cm calls=30 'put the red block on the blue block'
+[11/38   244s] act=24 seed=306 success              lift=8.8cm calls=34 'put the red block on the blue block'
+[12/38   246s] act=24 seed=305 success              lift=7.7cm calls=52 'put the red block on the blue block'
+[13/38   291s] act=24 seed=305 lifted_missed_goal   lift=9.3cm calls=94 'put the red block on the blue block'
+[14/38   314s] act=24 seed=307 touched_no_lift      lift=0.4cm calls=75 'put the red block on the blue block'
+[15/38   322s] act=24 seed=307 lifted_missed_goal   lift=8.9cm calls=70 'put the red block on the blue block'
+[16/38   322s] act=24 seed=307 success              lift=11.1cm calls=37 'put the red block on the blue block'
+[17/38   342s] act=24 seed=306 lifted_missed_goal   lift=9.5cm calls=119 'put the red block on the blue block'
+[18/38   397s] act=24 seed=308 lifted_missed_goal   lift=6.8cm calls=75 'put the red block on the blue block'
+[19/38   405s] act=24 seed=308 lifted_missed_goal   lift=12.8cm calls=73 'put the red block on the blue block'
+[20/38   432s] act=24 seed=309 touched_no_lift      lift=4.6cm calls=75 'put the red block on the blue block'
+[21/38   468s] act=24 seed=310 success              lift=8.6cm calls=27 'put the red block on the blue block'
+[22/38   468s] act=24 seed=309 lifted_missed_goal   lift=5.9cm calls=70 'put the red block on the blue block'
+[23/38   481s] act=24 seed=308 lifted_missed_goal   lift=12.6cm calls=132 'put the red block on the blue block'
+[24/38   510s] act=24 seed=311 success              lift=11.7cm calls=27 'put the red block on the blue block'
+[25/38   523s] act=24 seed=309 lifted_missed_goal   lift=18.1cm calls=108 'put the red block on the blue block'
+[26/38   546s] act=24 seed=310 lifted_missed_goal   lift=9.8cm calls=74 'put the red block on the blue block'
+[27/38   551s] act=24 seed=311 success              lift=7.1cm calls=35 'put the red block on the blue block'
+[28/38   578s] act=24 seed=310 lifted_missed_goal   lift=12.9cm calls=107 'put the red block on the blue block'
+[29/38   626s] act=24 seed=312 touched_no_lift      lift=2.9cm calls=75 'put the red block on the blue block'
+[30/38   635s] act=24 seed=312 lifted_missed_goal   lift=9.8cm calls=70 'put the red block on the blue block'
+[31/38   653s] act=24 seed=311 touched_no_lift      lift=1.2cm calls=101 'put the red block on the blue block'
+[32/38   663s] act=24 seed=313 success              lift=7.0cm calls=25 'put the red block on the blue block'
+[33/38   690s] act=24 seed=312 lifted_missed_goal   lift=8.4cm calls=105 'put the red block on the blue block'
+[34/38   698s] act=24 seed=313 lifted_missed_goal   lift=9.8cm calls=75 'put the red block on the blue block'
+[35/38   737s] act=24 seed=314 lifted_missed_goal   lift=7.0cm calls=75 'put the red block on the blue block'
+[36/38   743s] act=24 seed=313 lifted_missed_goal   lift=9.8cm calls=97 'put the red block on the blue block'
+[37/38   766s] act=24 seed=314 lifted_missed_goal   lift=8.7cm calls=70 'put the red block on the blue block'
+[38/38   783s] act=24 seed=314 lifted_missed_goal   lift=7.6cm calls=99 'put the red block on the blue block'
+
+45 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\assist_red_on_blue
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+put the red block on the blue block           assist      24  15  6/15 [20%-64%] 15/15 [80%-100%]  15/15    55.9   0.0745  lifted_missed_goal:9, success:6
+put the red block on the blue block           assist_adaptive  24  15  1/15 [1%-30%] 14/15 [70%-99%]  15/15    98.9   0.1318  lifted_missed_goal:13, success:1, touched_no_lift:1
+put the red block on the blue block           plain       24  15  6/15 [20%-64%] 11/15 [48%-89%]  15/15    56.3   0.0751  success:6, lifted_missed_goal:5, touched_no_lift:4
+
+Estimated total API cost: $4.22  (published Dream-1 rate; check platform balance)
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\assist_red_on_blue\report.html

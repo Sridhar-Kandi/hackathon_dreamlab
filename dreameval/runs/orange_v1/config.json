@@ -1,0 +1,21 @@
+{
+  "cmd": "run",
+  "name": "orange_v1",
+  "prompt": [
+    "put orange into the bowl",
+    "pick up the orange and put it in the bowl"
+  ],
+  "actions": [
+    48,
+    24,
+    12
+  ],
+  "trials": 6,
+  "seed0": 0,
+  "target": "orange",
+  "goal": "inside_bowl",
+  "sim_seconds": 40,
+  "jitter_cm": 2,
+  "model": "dreamlabs/dream-1-beta",
+  "workers": 3
+}

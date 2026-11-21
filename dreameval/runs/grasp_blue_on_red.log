@@ -1,0 +1,51 @@
+40 trials to run (0 already done), 4 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\grasp_blue_on_red\results.jsonl
+[1/40    45s] act=24 seed=301 success              lift=10.1cm calls=28 'put the blue block on the red block'
+[2/40    45s] act=24 seed=300 success              lift=11.5cm calls=25 'put the blue block on the red block'
+[3/40    45s] act=24 seed=301 success              lift=10.6cm calls=26 'put the blue block on the red block'
+[4/40    71s] act=24 seed=300 success              lift=10.0cm calls=50 'put the blue block on the red block'
+[5/40    77s] act=24 seed=302 success              lift=10.0cm calls=25 'put the blue block on the red block'
+[6/40    77s] act=24 seed=303 success              lift=9.4cm calls=26 'put the blue block on the red block'
+[7/40    94s] act=24 seed=302 success              lift=12.1cm calls=41 'put the blue block on the red block'
+[8/40   113s] act=24 seed=304 success              lift=10.5cm calls=30 'put the blue block on the red block'
+[9/40   117s] act=24 seed=305 success              lift=12.7cm calls=20 'put the blue block on the red block'
+[10/40   127s] act=24 seed=303 success              lift=7.8cm calls=48 'put the blue block on the red block'
+[11/40   142s] act=24 seed=306 success              lift=10.5cm calls=20 'put the blue block on the red block'
+[12/40   143s] act=24 seed=305 success              lift=12.1cm calls=26 'put the blue block on the red block'
+[13/40   158s] act=24 seed=304 lifted_missed_goal   lift=11.3cm calls=75 'put the blue block on the red block'
+[14/40   164s] act=24 seed=306 success              lift=9.9cm calls=32 'put the blue block on the red block'
+[15/40   172s] act=24 seed=307 success              lift=11.2cm calls=26 'put the blue block on the red block'
+[16/40   189s] act=24 seed=308 success              lift=10.4cm calls=28 'put the blue block on the red block'
+[17/40   194s] act=24 seed=308 success              lift=12.3cm calls=26 'put the blue block on the red block'
+[18/40   208s] act=24 seed=309 success              lift=10.1cm calls=30 'put the blue block on the red block'
+[19/40   217s] act=24 seed=307 success              lift=9.9cm calls=68 'put the blue block on the red block'
+[20/40   251s] act=24 seed=311 success              lift=10.1cm calls=26 'put the blue block on the red block'
+[21/40   270s] act=24 seed=309 success              lift=13.6cm calls=69 'put the blue block on the red block'
+[22/40   272s] act=24 seed=310 success              lift=10.3cm calls=71 'put the blue block on the red block'
+[23/40   289s] act=24 seed=310 touched_no_lift      lift=0.1cm calls=75 'put the blue block on the red block'
+[24/40   302s] act=24 seed=312 success              lift=11.1cm calls=26 'put the blue block on the red block'
+[25/40   311s] act=24 seed=313 success              lift=10.6cm calls=17 'put the blue block on the red block'
+[26/40   341s] act=24 seed=311 lifted_missed_goal   lift=10.8cm calls=73 'put the blue block on the red block'
+[27/40   349s] act=24 seed=312 success              lift=11.5cm calls=66 'put the blue block on the red block'
+[28/40   385s] act=24 seed=313 touched_no_lift      lift=4.1cm calls=71 'put the blue block on the red block'
+[29/40   397s] act=24 seed=314 touched_no_lift      lift=1.2cm calls=75 'put the blue block on the red block'
+[30/40   401s] act=24 seed=314 success              lift=10.5cm calls=48 'put the blue block on the red block'
+[31/40   438s] act=24 seed=316 success              lift=9.3cm calls=28 'put the blue block on the red block'
+[32/40   439s] act=24 seed=315 touched_no_lift      lift=0.4cm calls=75 'put the blue block on the red block'
+[33/40   461s] act=24 seed=315 touched_no_lift      lift=0.0cm calls=75 'put the blue block on the red block'
+[34/40   487s] act=24 seed=316 touched_no_lift      lift=0.3cm calls=75 'put the blue block on the red block'
+[35/40   523s] act=24 seed=317 touched_no_lift      lift=0.2cm calls=75 'put the blue block on the red block'
+[36/40   526s] act=24 seed=317 touched_no_lift      lift=0.1cm calls=74 'put the blue block on the red block'
+[37/40   537s] act=24 seed=318 success              lift=11.1cm calls=46 'put the blue block on the red block'
+[38/40   539s] act=24 seed=318 touched_no_lift      lift=0.4cm calls=75 'put the blue block on the red block'
+[39/40   554s] act=24 seed=319 success              lift=10.0cm calls=26 'put the blue block on the red block'
+[40/40   612s] act=24 seed=319 touched_no_lift      lift=0.2cm calls=71 'put the blue block on the red block'
+
+40 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\grasp_blue_on_red
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+put the blue block on the red block           grasp       24  20 14/20 [48%-85%] 15/20 [53%-89%]  20/20    50.1   0.0669  success:14, touched_no_lift:5, lifted_missed_goal:1
+put the blue block on the red block           plain       24  20 14/20 [48%-85%] 15/20 [53%-89%]  20/20    44.2   0.0589  success:14, touched_no_lift:5, lifted_missed_goal:1
+
+Estimated total API cost: $2.52  (published Dream-1 rate; check platform balance)
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\grasp_blue_on_red\report.html

@@ -1,0 +1,2 @@
+C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runner.py:315: UserWarning: no one has checked what the model sees for these cameras and this robot: run python -m dream.check before the arms move for real. Checked another way? The person who looked (never an agent) records it: python -m dream.input_check 4932209e541e
+  reply = policy.get_action()

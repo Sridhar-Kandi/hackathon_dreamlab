@@ -1,0 +1,20 @@
+{
+  "cmd": "run",
+  "name": "banana_v1",
+  "prompt": [
+    "put banana on the plate"
+  ],
+  "actions": [
+    24,
+    48
+  ],
+  "trials": 20,
+  "seed0": 100,
+  "target": "banana",
+  "goal": "on_plate",
+  "sim_seconds": 40,
+  "jitter_cm": 2,
+  "model": "dreamlabs/dream-1-beta",
+  "workers": 3,
+  "record": false
+}

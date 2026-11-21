@@ -1,0 +1,26 @@
+{
+  "cmd": "run",
+  "name": "seq_apple_orange",
+  "prompt": [
+    "put the apple in the bowl, then put the orange in the bowl"
+  ],
+  "actions": [
+    24
+  ],
+  "trials": 10,
+  "seed0": 300,
+  "target": "orange",
+  "goal": "inside_bowl",
+  "sim_seconds": 90.0,
+  "jitter_cm": 2,
+  "model": "dreamlabs/dream-1-beta",
+  "workers": 3,
+  "record": true,
+  "modes": [
+    "plain"
+  ],
+  "scene": "stock",
+  "sequence": "apple:inside_bowl,orange:inside_bowl",
+  "retry_prompt": null,
+  "open": false
+}

@@ -1,0 +1,52 @@
+40 trials to run (0 already done), 4 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\orange_supervised\results.jsonl
+[1/40    30s] act=24 seed=201 success              lift=10.1cm calls=20 'put orange into the bowl'
+[2/40    61s] act=24 seed=200 success              lift=11.7cm calls=50 'put orange into the bowl'
+[3/40    65s] act=24 seed=201 touched_no_lift      lift=2.3cm calls=50 'put orange into the bowl'
+[4/40    66s] act=24 seed=200 lifted_missed_goal   lift=8.8cm calls=49 'put orange into the bowl'
+[5/40    84s] act=24 seed=202 success              lift=10.0cm calls=48 'put orange into the bowl'
+[6/40    92s] act=24 seed=203 success              lift=10.1cm calls=21 'put orange into the bowl'
+[7/40   102s] act=24 seed=202 success              lift=12.9cm calls=34 'put orange into the bowl'
+[8/40   123s] act=24 seed=203 touched_no_lift      lift=0.9cm calls=50 'put orange into the bowl'
+[9/40   141s] act=24 seed=204 wrong_object         lift=0.0cm calls=50 'put orange into the bowl'
+[10/40   142s] act=24 seed=205 success              lift=10.8cm calls=33 'put orange into the bowl'
+[11/40   146s] act=24 seed=205 success              lift=14.6cm calls=20 'put orange into the bowl'
+[12/40   151s] act=24 seed=204 lifted_missed_goal   lift=11.0cm calls=49 'put orange into the bowl'
+[13/40   165s] act=24 seed=206 success              lift=11.2cm calls=22 'put orange into the bowl'
+[14/40   167s] act=24 seed=206 success              lift=11.4cm calls=21 'put orange into the bowl'
+[15/40   174s] act=24 seed=207 success              lift=9.6cm calls=22 'put orange into the bowl'
+[16/40   194s] act=24 seed=208 success              lift=10.8cm calls=21 'put orange into the bowl'
+[17/40   203s] act=24 seed=209 success              lift=13.5cm calls=23 'put orange into the bowl'
+[18/40   210s] act=24 seed=207 fell_off_table       lift=10.7cm calls=50 'put orange into the bowl'
+[19/40   218s] act=24 seed=208 wrong_object         lift=0.0cm calls=50 'put orange into the bowl'
+[20/40   222s] act=24 seed=209 success              lift=10.5cm calls=22 'put orange into the bowl'
+[21/40   230s] act=24 seed=210 success              lift=9.8cm calls=21 'put orange into the bowl'
+[22/40   252s] act=24 seed=211 success              lift=11.0cm calls=23 'put orange into the bowl'
+[23/40   266s] act=24 seed=211 success              lift=11.3cm calls=41 'put orange into the bowl'
+[24/40   274s] act=24 seed=210 wrong_object         lift=0.0cm calls=49 'put orange into the bowl'
+[25/40   296s] act=24 seed=212 touched_no_lift      lift=4.2cm calls=50 'put orange into the bowl'
+[26/40   311s] act=24 seed=212 success              lift=10.1cm calls=47 'put orange into the bowl'
+[27/40   332s] act=24 seed=213 touched_no_lift      lift=3.7cm calls=50 'put orange into the bowl'
+[28/40   333s] act=24 seed=213 touched_no_lift      lift=3.3cm calls=50 'put orange into the bowl'
+[29/40   351s] act=24 seed=214 success              lift=12.1cm calls=30 'put orange into the bowl'
+[30/40   360s] act=24 seed=214 fell_off_table       lift=7.4cm calls=50 'put orange into the bowl'
+[31/40   380s] act=24 seed=216 success              lift=12.5cm calls=21 'put orange into the bowl'
+[32/40   394s] act=24 seed=215 wrong_object         lift=0.0cm calls=49 'put orange into the bowl'
+[33/40   396s] act=24 seed=215 success              lift=7.8cm calls=48 'put orange into the bowl'
+[34/40   423s] act=24 seed=216 wrong_object         lift=0.0cm calls=49 'put orange into the bowl'
+[35/40   435s] act=24 seed=218 success              lift=9.8cm calls=30 'put orange into the bowl'
+[36/40   438s] act=24 seed=219 error                lift=0.0cm calls=1 'put orange into the bowl' ERR DreamAuthError: DreamAPI refused the inference request: DA-1000 UNAUTHORIZED (di
+[37/40   440s] act=24 seed=217 error                lift=5.9cm calls=46 'put orange into the bowl' ERR DreamAuthError: DreamAPI refused the inference request: DA-1000 UNAUTHORIZED (di
+[38/40   455s] act=24 seed=219 error                lift=1.7cm calls=14 'put orange into the bowl' ERR DreamAuthError: DreamAPI refused the inference request: DA-1000 UNAUTHORIZED (di
+[39/40   456s] act=24 seed=217 touched_no_lift      lift=0.8cm calls=49 'put orange into the bowl'
+[40/40   456s] act=24 seed=218 error                lift=5.4cm calls=30 'put orange into the bowl' ERR DreamAuthError: DreamAPI refused the inference request: DA-1000 UNAUTHORIZED (di
+
+40 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\orange_supervised
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+put orange into the bowl                      plain       24  20 13/20 [43%-82%] 14/20 [48%-85%]  17/20    36.1   0.0465  success:13, wrong_object:2, touched_no_lift:2, error:2, fell_off_table:1
+put orange into the bowl                      supervised  24  20  8/20 [22%-61%] 11/20 [34%-74%]  17/20    39.6   0.0504  success:8, touched_no_lift:4, wrong_object:3, lifted_missed_goal:2, error:2, fell_off_table:1
+
+Estimated total API cost: $1.94  (published Dream-1 rate; check platform balance)
+4 errored trials, e.g.: DreamAuthError: DreamAPI refused the inference request: DA-1000 UNAUTHORIZED (disabled): 'Hackathon test'; called https://api.dreamlabs.ai:443 (the built-in production default for DREAM_GATEWAY_URL: no such line in the environment or in C:\Users\PranavPrakashMenon\.dreamlabs\credentials; a key from 
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\orange_supervised\report.html

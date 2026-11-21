@@ -1,0 +1,6 @@
+
+seed 5: flagged at 8.4s, left gripper heading to apple ({'apple': 5.1, 'orange': 15.9}) 
+  control      first touch: apple (left arm) at 4.8s           orange lifted: False intents(L R per chunk; a=apple o=orange -=neither): a- a- a- a- a- a- a- a- a- ao ao ao ao
+  hold_arm     first touch: orange (right arm) at 13.9s        orange lifted: False intents(L R per chunk; a=apple o=orange -=neither): a- -- a- a- -- a- a- a- ao ao ao ao ao
+  cover_apple  first touch: nothing                            orange lifted: False intents(L R per chunk; a=apple o=orange -=neither): -- -- -- -- -- -- -- -- o- o- o- o- o-
+  both         first touch: nothing                            orange lifted: False intents(L R per chunk; a=apple o=orange -=neither): -- -- -- -- -- -- -- -- -- -- -- -- --

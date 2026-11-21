@@ -1,0 +1,50 @@
+37 trials to run (8 already done), 3 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\place_orange\results.jsonl
+[1/37    64s] act=24 seed=102 success              lift=12.1cm calls=22 'put orange into bowl'
+[2/37    64s] act=24 seed=101 success              lift=10.3cm calls=17 'put orange into bowl'
+[3/37   101s] act=24 seed=102 success              lift=7.0cm calls=36 'put orange into bowl'
+[4/37   132s] act=24 seed=103 success              lift=10.7cm calls=34 'put orange into bowl'
+[5/37   148s] act=24 seed=104 success              lift=10.8cm calls=18 'put orange into bowl'
+[6/37   165s] act=24 seed=104 lifted_missed_goal   lift=9.8cm calls=50 'put orange into bowl'
+[7/37   178s] act=24 seed=104 success              lift=13.0cm calls=20 'put orange into bowl'
+[8/37   247s] act=24 seed=105 success              lift=12.5cm calls=34 'put orange into bowl'
+[9/37   253s] act=24 seed=105 wrong_object         lift=0.0cm calls=50 'put orange into bowl'
+[10/37   286s] act=24 seed=105 lifted_missed_goal   lift=7.4cm calls=50 'put orange into bowl'
+[11/37   290s] act=24 seed=106 success              lift=9.4cm calls=21 'put orange into bowl'
+[12/37   352s] act=24 seed=107 success              lift=11.2cm calls=30 'put orange into bowl'
+[13/37   365s] act=24 seed=106 touched_no_lift      lift=2.7cm calls=48 'put orange into bowl'
+[14/37   392s] act=24 seed=106 fell_off_table       lift=8.9cm calls=50 'put orange into bowl'
+[15/37   436s] act=24 seed=108 success              lift=8.8cm calls=21 'put orange into bowl'
+[16/37   448s] act=24 seed=107 success              lift=10.7cm calls=38 'put orange into bowl'
+[17/37   470s] act=24 seed=107 touched_no_lift      lift=0.0cm calls=50 'put orange into bowl'
+[18/37   509s] act=24 seed=109 success              lift=10.2cm calls=19 'put orange into bowl'
+[19/37   543s] act=24 seed=108 wrong_object         lift=0.0cm calls=50 'put orange into bowl'
+[20/37   557s] act=24 seed=108 lifted_missed_goal   lift=6.8cm calls=50 'put orange into bowl'
+[21/37   560s] act=24 seed=109 success              lift=11.8cm calls=21 'put orange into bowl'
+[22/37   595s] act=24 seed=109 success              lift=14.6cm calls=25 'put orange into bowl'
+[23/37   637s] act=24 seed=110 success              lift=11.1cm calls=18 'put orange into bowl'
+[24/37   653s] act=24 seed=110 fell_off_table       lift=7.7cm calls=50 'put orange into bowl'
+[25/37   668s] act=24 seed=110 wrong_object         lift=0.0cm calls=50 'put orange into bowl'
+[26/37   677s] act=24 seed=111 success              lift=11.4cm calls=21 'put orange into bowl'
+[27/37   720s] act=24 seed=111 success              lift=10.9cm calls=20 'put orange into bowl'
+[28/37   722s] act=24 seed=112 success              lift=11.6cm calls=19 'put orange into bowl'
+[29/37   745s] act=24 seed=111 success              lift=9.7cm calls=38 'put orange into bowl'
+[30/37   778s] act=24 seed=112 success              lift=12.9cm calls=15 'put orange into bowl'
+[31/37   789s] act=24 seed=113 success              lift=10.7cm calls=17 'put orange into bowl'
+[32/37   803s] act=24 seed=112 success              lift=10.9cm calls=28 'put orange into bowl'
+[33/37   827s] act=24 seed=113 success              lift=14.8cm calls=18 'put orange into bowl'
+[34/37   827s] act=24 seed=113 success              lift=11.2cm calls=18 'put orange into bowl'
+[35/37   886s] act=24 seed=114 fell_off_table       lift=10.7cm calls=50 'put orange into bowl'
+[36/37   907s] act=24 seed=114 lifted_missed_goal   lift=8.1cm calls=50 'put orange into bowl'
+[37/37   908s] act=24 seed=114 at_goal_not_settled  lift=10.8cm calls=45 'put orange into bowl'
+
+49 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\place_orange
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+put orange into bowl                          assist_place  24  17 10/17 [36%-78%] 12/17 [47%-87%]  13/17    34.9   0.0413  success:10, error:2, wrong_object:2, lifted_missed_goal:1, touched_no_lift:1, at_goal_not_settled:1
+put orange into bowl                          place_only  24  15 10/15 [42%-85%] 14/15 [70%-99%]  15/15    33.1   0.0441  success:10, lifted_missed_goal:3, fell_off_table:1, touched_no_lift:1
+put orange into bowl                          plain       24  17 10/17 [36%-78%] 13/17 [53%-90%]  13/17    32.9   0.0387  success:10, wrong_object:2, error:2, fell_off_table:2, lifted_missed_goal:1
+
+Estimated total API cost: $2.02  (published Dream-1 rate; check platform balance)
+4 errored trials, e.g.: DreamProtocolError: could not reach Dream Labs at https://api.dreamlabs.ai:443: An established connection was aborted by the software in your host machine; check this computer's internet connection, or DREAM_GATEWAY_URL (not set in the environment or in C:\Users\PranavPrakashMenon\.dreamlabs\credent
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\place_orange\report.html

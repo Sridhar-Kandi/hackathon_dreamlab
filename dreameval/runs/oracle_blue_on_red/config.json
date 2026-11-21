@@ -1,0 +1,27 @@
+{
+  "cmd": "run",
+  "name": "oracle_blue_on_red",
+  "prompt": [
+    "put the blue block on the red block"
+  ],
+  "actions": [
+    48
+  ],
+  "trials": 10,
+  "seed0": 300,
+  "target": "blue_block",
+  "goal": "on:red_block",
+  "sim_seconds": 60.0,
+  "jitter_cm": 2,
+  "model": "oracle",
+  "workers": 4,
+  "record": true,
+  "modes": [
+    "plain"
+  ],
+  "max_retries": 2,
+  "scene": "blocks2",
+  "sequence": null,
+  "retry_prompt": null,
+  "open": false
+}

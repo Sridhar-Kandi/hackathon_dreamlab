@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.dreamlabs/
+credentials
+*.env
+.env
+dreameval/runs/**/frames/
+dreameval/runs/demo/*.gif
+dreameval/runs/test/*.gif

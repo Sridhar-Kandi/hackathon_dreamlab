@@ -1,0 +1,27 @@
+{
+  "cmd": "run",
+  "name": "oracle_hold_fill",
+  "prompt": [
+    "oracle"
+  ],
+  "actions": [
+    24
+  ],
+  "trials": 8,
+  "seed0": 300,
+  "target": "red_tube",
+  "goal": "in:cup",
+  "sim_seconds": 45.0,
+  "jitter_cm": 2.0,
+  "model": "oracle",
+  "workers": 8,
+  "record": true,
+  "modes": [
+    "plain"
+  ],
+  "max_retries": 2,
+  "scene": "hold_fill",
+  "sequence": null,
+  "retry_prompt": null,
+  "open": false
+}

@@ -1,0 +1,26 @@
+{
+  "cmd": "run",
+  "name": "blocks2_check",
+  "prompt": [
+    "put the blue block on the red block"
+  ],
+  "actions": [
+    24
+  ],
+  "trials": 10,
+  "seed0": 300,
+  "target": "blue_block",
+  "goal": "on:red_block",
+  "sim_seconds": 60.0,
+  "jitter_cm": 2,
+  "model": "dreamlabs/dream-1-beta",
+  "workers": 3,
+  "record": true,
+  "modes": [
+    "plain"
+  ],
+  "scene": "blocks2",
+  "sequence": null,
+  "retry_prompt": null,
+  "open": false
+}

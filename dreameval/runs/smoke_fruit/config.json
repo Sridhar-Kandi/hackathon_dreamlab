@@ -1,0 +1,27 @@
+{
+  "cmd": "run",
+  "name": "smoke_fruit",
+  "prompt": [
+    "put banana on plate"
+  ],
+  "actions": [
+    24
+  ],
+  "trials": 2,
+  "seed0": 100,
+  "target": "banana",
+  "goal": "on_plate",
+  "sim_seconds": 60.0,
+  "jitter_cm": 2,
+  "model": "dreamlabs/dream-1-beta",
+  "workers": 2,
+  "record": false,
+  "modes": [
+    "assist_place"
+  ],
+  "max_retries": 2,
+  "scene": "stock",
+  "sequence": null,
+  "retry_prompt": null,
+  "open": false
+}

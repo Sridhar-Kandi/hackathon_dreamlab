@@ -1,0 +1,20 @@
+10 trials to run (0 already done), 5 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\dream_racks\results.jsonl
+[1/10   109s] act=24 seed=302 success              lift=13.8cm calls=55 'put the red tube in the red rack and the'
+[2/10   175s] act=24 seed=304 lifted_missed_goal   lift=10.2cm calls=100 'put the red tube in the red rack and the'
+[3/10   177s] act=24 seed=300 lifted_missed_goal   lift=9.1cm calls=100 'put the red tube in the red rack and the'
+[4/10   177s] act=24 seed=303 lifted_missed_goal   lift=9.1cm calls=100 'put the red tube in the red rack and the'
+[5/10   184s] act=24 seed=301 lifted_missed_goal   lift=8.9cm calls=100 'put the red tube in the red rack and the'
+[6/10   271s] act=24 seed=305 partial              lift=10.7cm calls=100 'put the red tube in the red rack and the'
+[7/10   307s] act=24 seed=308 partial              lift=9.6cm calls=100 'put the red tube in the red rack and the'
+[8/10   312s] act=24 seed=307 lifted_missed_goal   lift=14.1cm calls=100 'put the red tube in the red rack and the'
+[9/10   313s] act=24 seed=309 partial              lift=0.0cm calls=100 'put the red tube in the red rack and the'
+[10/10   315s] act=24 seed=306 partial              lift=12.3cm calls=100 'put the red tube in the red rack and the'
+
+10 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\dream_racks
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+put the red tube in the red rack and the blue plain       24  10  1/10 [2%-40%]  9/10 [60%-98%]   9/10    95.5   0.1273  lifted_missed_goal:5, partial:4, success:1
+
+Estimated total API cost: $1.27  (published Dream-1 rate; check platform balance)
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\dream_racks\report.html

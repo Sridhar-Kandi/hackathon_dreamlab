@@ -1,0 +1,20 @@
+10 trials to run (0 already done), 3 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\blocks2_check\results.jsonl
+[1/10    43s] act=24 seed=301 success              lift=8.5cm calls=26 'put the blue block on the red block'
+[2/10    49s] act=24 seed=300 success              lift=11.2cm calls=30 'put the blue block on the red block'
+[3/10    64s] act=24 seed=302 touched_no_lift      lift=0.3cm calls=50 'put the blue block on the red block'
+[4/10    79s] act=24 seed=303 success              lift=11.2cm calls=25 'put the blue block on the red block'
+[5/10   117s] act=24 seed=304 touched_no_lift      lift=0.1cm calls=50 'put the blue block on the red block'
+[6/10   122s] act=24 seed=305 touched_no_lift      lift=0.0cm calls=50 'put the blue block on the red block'
+[7/10   145s] act=24 seed=306 touched_no_lift      lift=0.3cm calls=50 'put the blue block on the red block'
+[8/10   181s] act=24 seed=307 success              lift=9.1cm calls=49 'put the blue block on the red block'
+[9/10   192s] act=24 seed=308 touched_no_lift      lift=0.1cm calls=50 'put the blue block on the red block'
+[10/10   214s] act=24 seed=309 touched_no_lift      lift=0.1cm calls=50 'put the blue block on the red block'
+
+10 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\blocks2_check
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+put the blue block on the red block           plain       24  10  4/10 [17%-69%]  4/10 [17%-69%]  10/10    43.0   0.0573  touched_no_lift:6, success:4
+
+Estimated total API cost: $0.57  (published Dream-1 rate; check platform balance)
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\blocks2_check\report.html

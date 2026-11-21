@@ -1,0 +1,25 @@
+{
+  "cmd": "run",
+  "name": "orange_supervised",
+  "prompt": [
+    "put orange into the bowl"
+  ],
+  "actions": [
+    24
+  ],
+  "trials": 20,
+  "seed0": 200,
+  "target": "orange",
+  "goal": "inside_bowl",
+  "sim_seconds": 60.0,
+  "jitter_cm": 2,
+  "model": "dreamlabs/dream-1-beta",
+  "workers": 4,
+  "record": true,
+  "modes": [
+    "plain",
+    "supervised"
+  ],
+  "retry_prompt": "pick up the orange, not the red apple, and put it in the bowl",
+  "open": true
+}

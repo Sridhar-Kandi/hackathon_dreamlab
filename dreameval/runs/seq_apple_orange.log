@@ -1,0 +1,20 @@
+10 trials to run (0 already done), 3 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\seq_apple_orange\results.jsonl
+[1/10    51s] act=24 seed=302 success              lift=12.5cm calls=29 'put the apple in the bowl, then put the '
+[2/10   119s] act=24 seed=301 partial              lift=10.1cm calls=75 'put the apple in the bowl, then put the '
+[3/10   127s] act=24 seed=303 success              lift=11.1cm calls=50 'put the apple in the bowl, then put the '
+[4/10   144s] act=24 seed=300 partial              lift=3.0cm calls=75 'put the apple in the bowl, then put the '
+[5/10   223s] act=24 seed=305 success              lift=10.4cm calls=60 'put the apple in the bowl, then put the '
+[6/10   232s] act=24 seed=304 partial              lift=5.7cm calls=75 'put the apple in the bowl, then put the '
+[7/10   272s] act=24 seed=306 partial              lift=7.8cm calls=75 'put the apple in the bowl, then put the '
+[8/10   300s] act=24 seed=308 success              lift=10.2cm calls=45 'put the apple in the bowl, then put the '
+[9/10   329s] act=24 seed=307 lifted_missed_goal   lift=9.2cm calls=75 'put the apple in the bowl, then put the '
+[10/10   372s] act=24 seed=309 partial              lift=10.5cm calls=75 'put the apple in the bowl, then put the '
+
+10 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\seq_apple_orange
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+put the apple in the bowl, then put the orang plain       24  10  4/10 [17%-69%]  8/10 [49%-94%]  10/10    63.4   0.0845  partial:5, success:4, lifted_missed_goal:1
+
+Estimated total API cost: $0.85  (published Dream-1 rate; check platform balance)
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\seq_apple_orange\report.html

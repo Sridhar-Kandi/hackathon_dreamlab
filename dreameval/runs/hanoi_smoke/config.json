@@ -1,0 +1,28 @@
+{
+  "cmd": "run",
+  "name": "hanoi_smoke",
+  "prompt": [
+    "solve the tower of hanoi: move the three blocks from the green pad to the black pad one at a time, never putting a bigger block on a smaller one"
+  ],
+  "actions": [
+    24
+  ],
+  "trials": 2,
+  "seed0": 300,
+  "target": "blue_block",
+  "goal": "on:pad_c",
+  "sim_seconds": 120.0,
+  "jitter_cm": 2.0,
+  "model": "dreamlabs/dream-1-beta",
+  "workers": 4,
+  "record": true,
+  "modes": [
+    "plain",
+    "stepwise"
+  ],
+  "max_retries": 2,
+  "scene": "hanoi",
+  "sequence": null,
+  "retry_prompt": null,
+  "open": false
+}

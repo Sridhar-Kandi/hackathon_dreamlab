@@ -1,0 +1,21 @@
+10 trials to run (0 already done), 5 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\dream_hold_fill\results.jsonl
+[1/10    17s] act=24 seed=303 error                lift=0.0cm calls=0 'hold the white cup up by its handle with' ERR DreamProtocolError: could not reach Dream Labs at https://api.dreamlabs.ai:443: 
+[2/10    29s] act=24 seed=305 error                lift=0.0cm calls=0 'hold the white cup up by its handle with' ERR DreamProtocolError: could not reach Dream Labs at https://api.dreamlabs.ai:443: 
+[3/10   177s] act=24 seed=304 never_together       lift=6.1cm calls=100 'hold the white cup up by its handle with'
+[4/10   177s] act=24 seed=301 cup_never_held       lift=8.0cm calls=100 'hold the white cup up by its handle with'
+[5/10   186s] act=24 seed=300 held_cup_no_tube     lift=0.1cm calls=100 'hold the white cup up by its handle with'
+[6/10   192s] act=24 seed=302 touched_no_lift      lift=0.2cm calls=100 'hold the white cup up by its handle with'
+[7/10   205s] act=24 seed=306 touched_no_lift      lift=0.2cm calls=100 'hold the white cup up by its handle with'
+[8/10   282s] act=24 seed=309 success              lift=10.8cm calls=66 'hold the white cup up by its handle with'
+[9/10   311s] act=24 seed=308 never_together       lift=4.3cm calls=100 'hold the white cup up by its handle with'
+[10/10   316s] act=24 seed=307 never_together       lift=12.8cm calls=100 'hold the white cup up by its handle with'
+
+10 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\dream_hold_fill
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+hold the white cup up by its handle with the  plain       24  10  1/10 [2%-40%]  5/10 [24%-76%]   8/10    95.8   0.1021  never_together:3, error:2, touched_no_lift:2, cup_never_held:1, held_cup_no_tube:1, success:1
+
+Estimated total API cost: $1.02  (published Dream-1 rate; check platform balance)
+2 errored trials, e.g.: DreamProtocolError: could not reach Dream Labs at https://api.dreamlabs.ai:443: An established connection was aborted by the software in your host machine; check this computer's internet connection, or DREAM_GATEWAY_URL (not set in the environment or in C:\Users\PranavPrakashMenon\.dreamlabs\credent
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\dream_hold_fill\report.html

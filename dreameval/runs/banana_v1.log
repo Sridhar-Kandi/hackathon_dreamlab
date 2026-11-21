@@ -1,0 +1,50 @@
+40 trials to run (0 already done), 3 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\banana_v1\results.jsonl
+[1/40    39s] act=48 seed=100 lifted_missed_goal   lift=12.3cm calls=17 'put banana on the plate'
+[2/40    47s] act=24 seed=101 lifted_missed_goal   lift=14.9cm calls=34 'put banana on the plate'
+[3/40    48s] act=24 seed=100 lifted_missed_goal   lift=7.2cm calls=34 'put banana on the plate'
+[4/40    77s] act=48 seed=101 touched_no_lift      lift=0.2cm calls=17 'put banana on the plate'
+[5/40    85s] act=48 seed=102 lifted_missed_goal   lift=14.7cm calls=17 'put banana on the plate'
+[6/40    94s] act=24 seed=102 touched_no_lift      lift=2.4cm calls=34 'put banana on the plate'
+[7/40   122s] act=48 seed=103 lifted_missed_goal   lift=11.9cm calls=17 'put banana on the plate'
+[8/40   133s] act=24 seed=103 lifted_missed_goal   lift=15.4cm calls=34 'put banana on the plate'
+[9/40   138s] act=24 seed=104 lifted_missed_goal   lift=13.9cm calls=34 'put banana on the plate'
+[10/40   160s] act=48 seed=104 touched_no_lift      lift=0.2cm calls=17 'put banana on the plate'
+[11/40   168s] act=48 seed=105 lifted_missed_goal   lift=10.6cm calls=17 'put banana on the plate'
+[12/40   178s] act=24 seed=105 lifted_missed_goal   lift=12.9cm calls=34 'put banana on the plate'
+[13/40   203s] act=48 seed=106 lifted_missed_goal   lift=7.3cm calls=17 'put banana on the plate'
+[14/40   208s] act=24 seed=106 lifted_missed_goal   lift=12.8cm calls=34 'put banana on the plate'
+[15/40   220s] act=24 seed=107 lifted_missed_goal   lift=12.7cm calls=34 'put banana on the plate'
+[16/40   241s] act=48 seed=107 lifted_missed_goal   lift=19.9cm calls=17 'put banana on the plate'
+[17/40   252s] act=24 seed=108 lifted_missed_goal   lift=8.8cm calls=34 'put banana on the plate'
+[18/40   254s] act=48 seed=108 touched_no_lift      lift=2.6cm calls=17 'put banana on the plate'
+[19/40   288s] act=24 seed=109 lifted_missed_goal   lift=15.5cm calls=34 'put banana on the plate'
+[20/40   296s] act=48 seed=109 touched_no_lift      lift=1.3cm calls=17 'put banana on the plate'
+[21/40   303s] act=24 seed=110 lifted_missed_goal   lift=11.0cm calls=34 'put banana on the plate'
+[22/40   327s] act=48 seed=110 lifted_missed_goal   lift=9.1cm calls=17 'put banana on the plate'
+[23/40   338s] act=48 seed=111 lifted_missed_goal   lift=7.8cm calls=17 'put banana on the plate'
+[24/40   346s] act=24 seed=111 lifted_missed_goal   lift=11.8cm calls=34 'put banana on the plate'
+[25/40   377s] act=48 seed=112 lifted_missed_goal   lift=8.9cm calls=17 'put banana on the plate'
+[26/40   378s] act=24 seed=112 lifted_missed_goal   lift=11.5cm calls=34 'put banana on the plate'
+[27/40   397s] act=24 seed=113 lifted_missed_goal   lift=15.4cm calls=34 'put banana on the plate'
+[28/40   409s] act=48 seed=113 lifted_missed_goal   lift=14.3cm calls=17 'put banana on the plate'
+[29/40   426s] act=24 seed=114 lifted_missed_goal   lift=14.8cm calls=34 'put banana on the plate'
+[30/40   429s] act=48 seed=114 lifted_missed_goal   lift=8.2cm calls=17 'put banana on the plate'
+[31/40   453s] act=24 seed=115 lifted_missed_goal   lift=10.6cm calls=34 'put banana on the plate'
+[32/40   462s] act=48 seed=115 lifted_missed_goal   lift=13.1cm calls=17 'put banana on the plate'
+[33/40   485s] act=24 seed=116 lifted_missed_goal   lift=14.3cm calls=34 'put banana on the plate'
+[34/40   486s] act=48 seed=116 lifted_missed_goal   lift=14.0cm calls=17 'put banana on the plate'
+[35/40   507s] act=24 seed=117 lifted_missed_goal   lift=12.2cm calls=34 'put banana on the plate'
+[36/40   519s] act=48 seed=117 touched_no_lift      lift=3.9cm calls=17 'put banana on the plate'
+[37/40   530s] act=24 seed=118 lifted_missed_goal   lift=12.9cm calls=34 'put banana on the plate'
+[38/40   539s] act=48 seed=118 lifted_missed_goal   lift=8.3cm calls=17 'put banana on the plate'
+[39/40   560s] act=48 seed=119 touched_no_lift      lift=5.0cm calls=17 'put banana on the plate'
+[40/40   561s] act=24 seed=119 lifted_missed_goal   lift=14.4cm calls=34 'put banana on the plate'
+
+40 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\banana_v1
+
+prompt                                        act   n          success           lifted  touched  calls  $/trial  outcomes
+--------------------------------------------------------------------------------------------------------------------------
+put banana on the plate                        24  20  0/20 [0%-16%] 19/20 [76%-99%]  20/20    34.0   0.0453  lifted_missed_goal:19, touched_no_lift:1
+put banana on the plate                        48  20  0/20 [0%-16%] 14/20 [48%-85%]  20/20    17.0   0.0227  lifted_missed_goal:14, touched_no_lift:6
+
+Estimated total API cost: $1.36  (published Dream-1 rate; check platform balance)

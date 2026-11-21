@@ -1,0 +1,28 @@
+{
+  "cmd": "run",
+  "name": "stack3",
+  "prompt": [
+    "put the red block on the yellow block, then put the blue block on the red block"
+  ],
+  "actions": [
+    24
+  ],
+  "trials": 10,
+  "seed0": 300,
+  "target": "red_block",
+  "goal": "on:yellow_block",
+  "sim_seconds": 150.0,
+  "jitter_cm": 2,
+  "model": "dreamlabs/dream-1-beta",
+  "workers": 4,
+  "record": true,
+  "modes": [
+    "plain",
+    "grasp"
+  ],
+  "max_retries": 3,
+  "scene": "blocks3",
+  "sequence": "red_block:on:yellow_block,blue_block:on:red_block",
+  "retry_prompt": null,
+  "open": false
+}

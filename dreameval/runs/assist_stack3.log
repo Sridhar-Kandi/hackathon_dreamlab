@@ -1,0 +1,42 @@
+29 trials to run (1 already done), 4 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\assist_stack3\results.jsonl
+[1/29    82s] act=24 seed=300 success              lift=17.0cm calls=65 'put the red block on the yellow block, t'
+[2/29    93s] act=24 seed=301 success              lift=14.0cm calls=80 'put the red block on the yellow block, t'
+[3/29   133s] act=24 seed=300 success              lift=15.9cm calls=102 'put the red block on the yellow block, t'
+[4/29   135s] act=24 seed=301 success              lift=15.6cm calls=41 'put the red block on the yellow block, t'
+[5/29   146s] act=24 seed=301 lifted_missed_goal   lift=13.1cm calls=121 'put the red block on the yellow block, t'
+[6/29   149s] act=24 seed=302 error                lift=15.2cm calls=46 'put the red block on the yellow block, t' ERR ValueError: left step 22 gripper: requested 1.055152; expected normalized openin
+[7/29   199s] act=24 seed=302 success              lift=13.7cm calls=55 'put the red block on the yellow block, t'
+[8/29   219s] act=24 seed=303 success              lift=18.1cm calls=51 'put the red block on the yellow block, t'
+[9/29   287s] act=24 seed=302 lifted_missed_goal   lift=10.6cm calls=120 'put the red block on the yellow block, t'
+[10/29   298s] act=24 seed=303 partial              lift=6.6cm calls=125 'put the red block on the yellow block, t'
+[11/29   303s] act=24 seed=303 success              lift=16.9cm calls=97 'put the red block on the yellow block, t'
+[12/29   355s] act=24 seed=304 success              lift=19.5cm calls=47 'put the red block on the yellow block, t'
+[13/29   361s] act=24 seed=304 wrong_order          lift=16.4cm calls=125 'put the red block on the yellow block, t'
+[14/29   424s] act=24 seed=305 success              lift=17.6cm calls=58 'put the red block on the yellow block, t'
+[15/29   428s] act=24 seed=305 success              lift=12.9cm calls=51 'put the red block on the yellow block, t'
+[16/29   429s] act=24 seed=304 partial              lift=16.2cm calls=120 'put the red block on the yellow block, t'
+[17/29   447s] act=24 seed=305 lifted_missed_goal   lift=11.6cm calls=125 'put the red block on the yellow block, t'
+[18/29   475s] act=24 seed=306 success              lift=12.4cm calls=43 'put the red block on the yellow block, t'
+[19/29   486s] act=24 seed=306 success              lift=16.1cm calls=49 'put the red block on the yellow block, t'
+[20/29   495s] act=24 seed=306 success              lift=13.6cm calls=52 'put the red block on the yellow block, t'
+[21/29   508s] act=24 seed=307 success              lift=15.0cm calls=53 'put the red block on the yellow block, t'
+[22/29   546s] act=24 seed=307 success              lift=17.3cm calls=52 'put the red block on the yellow block, t'
+[23/29   550s] act=24 seed=307 success              lift=17.0cm calls=58 'put the red block on the yellow block, t'
+[24/29   579s] act=24 seed=308 success              lift=19.3cm calls=57 'put the red block on the yellow block, t'
+[25/29   582s] act=24 seed=308 success              lift=14.0cm calls=76 'put the red block on the yellow block, t'
+[26/29   601s] act=24 seed=308 success              lift=17.1cm calls=47 'put the red block on the yellow block, t'
+[27/29   643s] act=24 seed=309 success              lift=17.4cm calls=56 'put the red block on the yellow block, t'
+[28/29   670s] act=24 seed=309 partial              lift=5.1cm calls=125 'put the red block on the yellow block, t'
+[29/29   703s] act=24 seed=309 lifted_missed_goal   lift=13.1cm calls=119 'put the red block on the yellow block, t'
+
+30 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\assist_stack3
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+put the red block on the yellow block, then p assist      24  10  7/10 [40%-89%] 10/10 [72%-100%]  10/10    79.5   0.1060  success:7, lifted_missed_goal:2, partial:1
+put the red block on the yellow block, then p assist_place  24  10  9/10 [60%-98%] 10/10 [72%-100%]  10/10    62.3   0.0831  success:9, lifted_missed_goal:1
+put the red block on the yellow block, then p plain       24  10  5/10 [24%-76%]  9/10 [60%-98%]  10/10    90.1   0.1143  success:5, partial:2, error:1, wrong_order:1, lifted_missed_goal:1
+
+Estimated total API cost: $3.03  (published Dream-1 rate; check platform balance)
+1 errored trials, e.g.: ValueError: left step 22 gripper: requested 1.055152; expected normalized opening 0..1. No rows executed.
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\assist_stack3\report.html

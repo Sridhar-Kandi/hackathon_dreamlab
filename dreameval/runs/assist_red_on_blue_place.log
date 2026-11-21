@@ -1,0 +1,28 @@
+15 trials to run (45 already done), 4 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\assist_red_on_blue\results.jsonl
+[1/15    31s] act=24 seed=303 success              lift=8.9cm calls=19 'put the red block on the blue block'
+[2/15    31s] act=24 seed=302 success              lift=8.5cm calls=21 'put the red block on the blue block'
+[3/15    33s] act=24 seed=300 success              lift=8.9cm calls=23 'put the red block on the blue block'
+[4/15    34s] act=24 seed=301 success              lift=10.2cm calls=23 'put the red block on the blue block'
+[5/15    55s] act=24 seed=307 success              lift=7.5cm calls=18 'put the red block on the blue block'
+[6/15    57s] act=24 seed=304 success              lift=8.7cm calls=20 'put the red block on the blue block'
+[7/15    57s] act=24 seed=305 success              lift=9.1cm calls=19 'put the red block on the blue block'
+[8/15    65s] act=24 seed=306 success              lift=9.2cm calls=23 'put the red block on the blue block'
+[9/15    72s] act=24 seed=308 success              lift=8.6cm calls=14 'put the red block on the blue block'
+[10/15    88s] act=24 seed=309 success              lift=10.1cm calls=25 'put the red block on the blue block'
+[11/15    89s] act=24 seed=310 success              lift=9.6cm calls=25 'put the red block on the blue block'
+[12/15    91s] act=24 seed=311 success              lift=11.6cm calls=24 'put the red block on the blue block'
+[13/15    96s] act=24 seed=312 success              lift=7.3cm calls=21 'put the red block on the blue block'
+[14/15   108s] act=24 seed=314 success              lift=7.4cm calls=17 'put the red block on the blue block'
+[15/15   152s] act=24 seed=313 lifted_missed_goal   lift=9.4cm calls=70 'put the red block on the blue block'
+
+60 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\assist_red_on_blue
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+put the red block on the blue block           assist      24  15  6/15 [20%-64%] 15/15 [80%-100%]  15/15    55.9   0.0745  lifted_missed_goal:9, success:6
+put the red block on the blue block           assist_adaptive  24  15  1/15 [1%-30%] 14/15 [70%-99%]  15/15    98.9   0.1318  lifted_missed_goal:13, success:1, touched_no_lift:1
+put the red block on the blue block           assist_place  24  15 14/15 [70%-99%] 15/15 [80%-100%]  15/15    24.1   0.0322  success:14, lifted_missed_goal:1
+put the red block on the blue block           plain       24  15  6/15 [20%-64%] 11/15 [48%-89%]  15/15    56.3   0.0751  success:6, lifted_missed_goal:5, touched_no_lift:4
+
+Estimated total API cost: $4.70  (published Dream-1 rate; check platform balance)
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\assist_red_on_blue\report.html

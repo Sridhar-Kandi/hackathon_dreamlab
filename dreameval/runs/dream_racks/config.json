@@ -1,0 +1,27 @@
+{
+  "cmd": "run",
+  "name": "dream_racks",
+  "prompt": [
+    "put the red tube in the red rack and the blue tube in the blue rack"
+  ],
+  "actions": [
+    24
+  ],
+  "trials": 10,
+  "seed0": 300,
+  "target": "red_tube",
+  "goal": "in:red_rack",
+  "sim_seconds": 120.0,
+  "jitter_cm": 2.0,
+  "model": "dreamlabs/dream-1-beta",
+  "workers": 5,
+  "record": true,
+  "modes": [
+    "plain"
+  ],
+  "max_retries": 2,
+  "scene": "racks",
+  "sequence": null,
+  "retry_prompt": null,
+  "open": false
+}

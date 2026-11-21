@@ -1,0 +1,32 @@
+20 trials to run (0 already done), 4 workers -> C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\red_on_blue\results.jsonl
+[1/20     6s] act=24 seed=300 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[2/20     7s] act=24 seed=300 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[3/20     7s] act=24 seed=301 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[4/20     7s] act=24 seed=301 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[5/20     8s] act=24 seed=302 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[6/20     8s] act=24 seed=302 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[7/20     8s] act=24 seed=303 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[8/20     8s] act=24 seed=303 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[9/20    10s] act=24 seed=304 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[10/20    10s] act=24 seed=304 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[11/20    10s] act=24 seed=305 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[12/20    10s] act=24 seed=305 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[13/20    12s] act=24 seed=306 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[14/20    12s] act=24 seed=307 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[15/20    12s] act=24 seed=306 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[16/20    12s] act=24 seed=307 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[17/20    14s] act=24 seed=309 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[18/20    14s] act=24 seed=308 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[19/20    14s] act=24 seed=309 error                lift=0.0cm calls=0 'put the red block on the blue block' ERR DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (p
+[20/20    49s] act=24 seed=308 success              lift=8.3cm calls=28 'put the red block on the blue block'
+
+20 trials in C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\red_on_blue
+
+prompt                                        mode       act   n          success           lifted  touched  calls  $/trial  outcomes
+-------------------------------------------------------------------------------------------------------------------------------------
+put the red block on the blue block           grasp       24  10  0/10 [0%-28%]  0/10 [0%-28%]   0/10     0.0   0.0000  error:10
+put the red block on the blue block           plain       24  10  1/10 [2%-40%]  1/10 [2%-40%]   1/10    28.0   0.0037  error:9, success:1
+
+Estimated total API cost: $0.04  (published Dream-1 rate; check platform balance)
+19 errored trials, e.g.: DreamServerError: DreamAPI refused the inference request: DA-2000 NO_CAPACITY (pool_full): Dream-1 is at max capacity right now
+Report: C:\Users\PranavPrakashMenon\Desktop\Berlin HackLab\dreameval\runs\red_on_blue\report.html
