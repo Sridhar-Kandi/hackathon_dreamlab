@@ -5,12 +5,15 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f3f0e8">
   <title>YAM Simulation Console</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 fill=%27%2316140f%27/%3E%3Cpath d=%27M10 3L6 13%27 stroke=%27%23ff5a1f%27 stroke-width=%272.5%27/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/style.css">
   <script defer src="/gsap.min.js"></script>
   <script defer src="/motion.js"></script>
   <script defer src="/app.js"></script>
+  <script defer src="/hero.js"></script>
 </head>
 <body>
+  <canvas id="backdrop" aria-hidden="true"></canvas>
   <a class="skip" href="#workspace">Skip to content</a>
   <header class="topbar">
     <a class="brand" href="#workspace" aria-label="YAM Simulation Console home">YAM<span>/</span>SIM CONSOLE</a>
@@ -26,6 +29,64 @@
   <main id="workspace" tabindex="-1">
     <div id="notice" role="alert" hidden></div>
     <section class="view" id="workspace-view" data-view="workspace" aria-label="Overview">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="hero-eyebrow"><span class="live-dot"></span>Dream-1 · YAM bimanual · simulator</p>
+          <h1 id="hero-title" class="hero-title">Find where the robot fails. <em>Teach it there.</em> Prove it worked.</h1>
+          <p class="hero-lede">One console for the whole loop: measure base Dream-1 on fixed seeds, turn its failures into training data, fine-tune, and compare every version on starts it has never seen.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#ladder">See the results</a>
+            <a class="button ghost" href="#setup">Run a task</a>
+          </div>
+          <dl class="hero-stats">
+            <div><dt>Trials graded</dt><dd data-count="trials">0</dd></div>
+            <div><dt>Model calls</dt><dd data-count="calls">0</dd></div>
+            <div><dt>Held-out pass · A → B</dt><dd><span data-count="rateA" data-suffix="%">0</span><i>→</i><span data-count="rateB" data-suffix="%">0</span></dd></div>
+          </dl>
+        </div>
+        <figure class="hero-arm" aria-label="Animated robot arm placing an orange into a bowl">
+          <svg viewBox="0 0 520 360" role="img">
+            <defs>
+              <pattern id="minor" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="rgba(243,240,232,.06)"/></pattern>
+              <pattern id="major" width="100" height="100" patternUnits="userSpaceOnUse"><rect width="100" height="100" fill="url(#minor)"/><path d="M100 0H0V100" fill="none" stroke="rgba(243,240,232,.12)"/></pattern>
+              <radialGradient id="glow"><stop offset="0" stop-color="#ff5a1f" stop-opacity=".35"/><stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/></radialGradient>
+            </defs>
+            <rect width="520" height="360" fill="url(#major)"/>
+            <circle id="arm-glow" cx="250" cy="250" r="90" fill="url(#glow)"/>
+            <path id="arm-trace" fill="none" stroke="#ff5a1f" stroke-width="1.5" stroke-dasharray="3 5" opacity=".7"/>
+            <line x1="20" y1="300" x2="500" y2="300" stroke="#f3f0e8" stroke-opacity=".5"/>
+            <g class="dim"><path d="M60 318H460M60 312V324M460 312V324"/><text x="260" y="336">reach 0.40 m</text></g>
+            <g id="bowl"><ellipse cx="390" cy="262" rx="60" ry="7" fill="#3b372f" stroke="#f3f0e8" stroke-opacity=".5" stroke-width="1.5"/></g>
+            <circle id="orange" cx="240" cy="286" r="14" fill="#ff8a2a" stroke="#16140f" stroke-width="2"/>
+            <g id="bowl-front"><path d="M330 262 Q334 300 390 300 Q446 300 450 262 A60 7 0 0 1 330 262Z" fill="#fbfaf6" stroke="#16140f" stroke-width="2"/></g>
+            <rect x="72" y="262" width="56" height="38" fill="#16140f" stroke="#f3f0e8" stroke-opacity=".6"/>
+            <g id="arm">
+              <line id="link1" stroke="#16140f" stroke-width="26" stroke-linecap="round"/>
+              <line id="link1-in" stroke="#f3f0e8" stroke-width="18" stroke-linecap="round"/>
+              <line id="link2" stroke="#16140f" stroke-width="22" stroke-linecap="round"/>
+              <line id="link2-in" stroke="#f3f0e8" stroke-width="14" stroke-linecap="round"/>
+              <circle id="shoulder" r="15" fill="#16140f" stroke="#ff5a1f" stroke-width="3"/>
+              <circle id="elbow" r="12" fill="#16140f" stroke="#ff5a1f" stroke-width="3"/>
+              <g id="gripper">
+                <rect x="-14" y="-6" width="28" height="12" fill="#16140f"/>
+                <rect id="finger-l" x="-4" y="4" width="5" height="20" fill="#16140f"/>
+                <rect id="finger-r" x="-1" y="4" width="5" height="20" fill="#16140f"/>
+              </g>
+            </g>
+          </svg>
+          <figcaption class="arm-readout">
+            <span>θ₁ <b id="ro-j1">0.0°</b></span><span>θ₂ <b id="ro-j2">0.0°</b></span>
+            <span>TCP <b id="ro-tcp">0, 0</b> mm</span><span>Grip <b id="ro-grip">100%</b></span><span class="ro-phase" id="ro-phase">home</span>
+          </figcaption>
+        </figure>
+        <ol class="pipeline" aria-label="Pipeline">
+          <li data-stage="profile"><span class="pl-num">01</span><h3>Profile</h3><p>Base Dream-1 on training seeds</p><strong class="pl-metric">—</strong></li>
+          <li data-stage="diagnose"><span class="pl-num">02</span><h3>Diagnose</h3><p>Label every failure from the physics</p><strong class="pl-metric">—</strong></li>
+          <li data-stage="teach"><span class="pl-num">03</span><h3>Teach</h3><p>Demos replay the exact failed starts</p><strong class="pl-metric">—</strong></li>
+          <li data-stage="finetune"><span class="pl-num">04</span><h3>Fine-tune</h3><p>Naive data vs harness-chosen data</p><strong class="pl-metric">—</strong><div class="pl-bars"></div></li>
+          <li data-stage="prove"><span class="pl-num">05</span><h3>Prove</h3><p>Every version, same held-out seeds</p><strong class="pl-metric">—</strong></li>
+        </ol>
+      </section>
       <section class="stage" aria-labelledby="stage-title">
         <div class="stage-head">
           <h1 id="stage-title">Latest recording</h1>
