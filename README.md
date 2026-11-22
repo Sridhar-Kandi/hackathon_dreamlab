@@ -82,6 +82,17 @@ Failures are separated into approach, grasp, placement and task-logic problems. 
 
 The goal is a specific decision after each run: adjust a setting, enable a module, or collect the expert trajectory for a difficult starting condition.
 
+### Example: Tower of Hanoi with Dream-1
+
+A three-block Tower of Hanoi (green pad to black pad, never a larger block on a smaller one, 420 s of simulated time) is a long-horizon test. In run `hanoi3`, base Dream-1 never solved it. The grader still says exactly how each attempt went: settled moves, the furthest legal state reached, and the first rule break.
+
+| 24 rows per reply, one move instruction at a time (seed 302) | 24 rows per reply, single instruction (seed 305) | 48 rows per reply, single instruction (seed 301) |
+| --- | --- | --- |
+| ![Dream-1 on Tower of Hanoi, 24 rows, stepwise, seed 302](docs/hanoi/hanoi-24rows-stepwise-seed302.gif) | ![Dream-1 on Tower of Hanoi, 24 rows, single prompt, seed 305](docs/hanoi/hanoi-24rows-single-prompt-seed305.gif) | ![Dream-1 on Tower of Hanoi, 48 rows, single prompt, seed 301](docs/hanoi/hanoi-48rows-single-prompt-seed301.gif) |
+| 7 legal moves, then a block left the pads | 8 moves, broke the size rule | Touched a block but never lifted it |
+
+Across the run (27 attempts, 0 solved): with 24 rows and a single instruction, 9 of 10 seeds broke the size rule. With one move instruction at a time at 24 rows, 1 of 6 broke it, and the rest stopped short or pushed a block off the pads. At the stock 48 rows, 5 of 11 attempts never lifted a block. The scripted expert solves the same puzzle in the optimal 7 moves, which makes Hanoi a candidate for the Success from failures loop below.
+
 ## 4. Turn failed starts into successful demonstrations
 
 The **Success from failures** controller closes the gap between diagnosis and data collection.
