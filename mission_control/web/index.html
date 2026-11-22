@@ -15,6 +15,7 @@
     <nav aria-label="Main navigation">
       <a href="#workspace" data-tab="workspace" aria-current="page">Overview</a>
       <a href="#runs" data-tab="runs">Run log</a>
+      <a href="#ladder" data-tab="ladder">Ladder</a>
       <a href="#compare" data-tab="compare">Compare</a>
       <a href="#datasets" data-tab="datasets">Datasets</a>
     </nav>
@@ -93,6 +94,13 @@
       <a class="back" href="#runs">&larr; Run log</a>
       <header class="page-header"><h1 id="run-title">Simulation run</h1><p id="run-subtitle"></p><div class="form-actions" id="run-actions"></div></header>
       <div id="run-content"></div>
+    </section>
+    <section class="view" data-view="ladder" aria-labelledby="ladder-title" hidden>
+      <header class="page-header"><h1 id="ladder-title">Difficulty ladder</h1>
+        <p>Several versions of the robot on the same starting positions, four tasks from one pick-and-place to Tower of Hanoi. Clean mode: one instruction per trial; the simulator only grades.</p>
+        <div class="form-actions"><label class="inline">Experiment <select id="ladder-collection"></select></label></div>
+      </header>
+      <div id="ladder-content" aria-live="polite"></div>
     </section>
     <section class="view" data-view="compare" aria-labelledby="compare-title" hidden>
       <header class="page-header"><h1 id="compare-title">Compare runs</h1><p>Pair trials that started from the same seed and see where the outcome changed.</p></header>

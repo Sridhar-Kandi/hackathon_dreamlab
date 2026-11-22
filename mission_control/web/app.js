@@ -699,10 +699,144 @@ async function loadDatasets() {
   holder.replaceChildren(panel("Choose successful episodes",controls),panel("Dream Labs",element("p",account,"section-copy"),feedback),...cards);
   holder.className = "stack";
 }
+/* Difficulty ladder: versions of the robot on identical seeds. */
+const armNames = {
+  teacher: "Scripted teacher", stock: "A · Stock (48 rows)", tuned: "B · Harness-tuned (24 rows)",
+  "ft-naive": "C1 · Fine-tuned, naive data", "ft-harness": "C2 · Fine-tuned, harness-chosen data"
+};
+function armName(arm) { return armNames[arm] || arm; }
+function percent(value) { return value == null ? "—" : Math.round(100 * value) + "%"; }
+function rateBar(arm) {
+  const wrap = element("div",null,"rate-cell");
+  const bar = element("div",null,"rate-bar");
+  const fill = element("div",null,"rate-fill");
+  fill.style.width = percent(arm.rate);
+  bar.append(fill);
+  if (arm.ci) {
+    const band = element("div",null,"rate-ci");
+    band.style.left = percent(arm.ci[0]);
+    band.style.width = Math.max(0,Math.round(100 * (arm.ci[1] - arm.ci[0]))) + "%";
+    bar.append(band);
+  }
+  wrap.append(element("strong",arm.passed + "/" + arm.graded),bar,
+    element("small",percent(arm.rate) + (arm.ci ? " (" + percent(arm.ci[0]) + "–" + percent(arm.ci[1]) + ")" : "")));
+  return wrap;
+}
+function ladderLevel(name, level, trials) {
+  const section = element("section",null,"ladder-level");
+  const head = element("div",null,"section-head");
+  head.append(element("h2",level.level + " · " + level.name),element("span",level.sim_seconds + " s limit · “" + level.task + "”","na"));
+  section.append(head);
+  const scoreRows = level.arms.map(arm => [
+    armName(arm.arm),
+    arm.clean ? "yes" : element("span","no · " + arm.steering.join("; "),"no"),
+    rateBar(arm), percent(arm.mean_progress),
+    arm.median_calls == null ? "—" : String(Math.round(arm.median_calls)),
+    seconds(arm.median_success_s), arm.cost_per_success == null ? "—" : "$" + arm.cost_per_success.toFixed(2),
+    Object.entries(arm.outcomes).map(([k,v]) => label(k) + " " + v).join(" · "),
+    ["contact","lift","settle"].map(stage => stage[0].toUpperCase() + " " + seconds(arm.stages[stage].median_s) +
+      " (" + arm.stages[stage].reached + "/" + arm.stages[stage].of + ")").join("  ")
+  ]);
+  section.append(table(["Version","Clean","Passed","Progress","Calls","Time to success","$ / success","Where trials ended","Stage timing"],scoreRows));
+  if (level.pairs.length) {
+    const pairRows = level.pairs.map(p => [armName(p.baseline) + " → " + armName(p.candidate),p.pairs,p.both,
+      p.only_candidate,p.only_baseline,p.neither,p.change_pts == null ? "—" : (p.change_pts > 0 ? "+" : "") + Math.round(p.change_pts) + " pts",
+      p.p.toFixed(3)]);
+    const pairs = element("div",null,"ladder-pairs");
+    pairs.append(element("h3","Matched on identical seeds"),
+      table(["Comparison","Pairs","Both pass","Only candidate","Only baseline","Both fail","Change","p (McNemar)"],pairRows));
+    section.append(pairs);
+  }
+  const arms = level.arms.map(arm => arm.arm);
+  const grid = element("div",null,"seed-grid");
+  grid.style.gridTemplateColumns = "6ch repeat(" + arms.length + ", minmax(0, 1fr))";
+  grid.append(element("span","Seed","grid-head"),...arms.map(arm => element("span",armName(arm),"grid-head")));
+  const viewer = element("div",null,"side-by-side");
+  for (const [seed,cells] of Object.entries(level.seeds)) {
+    const seedButton = element("button",seed,"grid-seed");
+    seedButton.type = "button";
+    seedButton.onclick = () => showSideBySide(viewer,name,level,seed,cells,arms);
+    grid.append(seedButton);
+    for (const arm of arms) {
+      const cell = cells[arm];
+      const mark = element("button",null,"grid-cell " + (!cell ? "empty-cell" : cell.success ? "pass" : "fail"));
+      mark.type = "button";
+      mark.textContent = !cell ? "" : cell.success ? "✓" + (cell.progress_of > 1 ? " " + cell.progress + "/" + cell.progress_of : "") :
+        label(cell.outcome) + (cell.progress_of > 1 ? " · " + cell.progress + "/" + cell.progress_of : "");
+      if (cell?.video) mark.classList.add("has-video");
+      mark.onclick = seedButton.onclick;
+      grid.append(mark);
+    }
+  }
+  const gridWrap = element("div",null,"ladder-grid");
+  gridWrap.append(element("h3","Every seed, every version (click a row for side-by-side video)"),grid);
+  section.append(gridWrap,viewer);
+  return section;
+}
+function showSideBySide(holder, name, level, seed, cells, arms) {
+  const panes = element("div",null,"sbs-panes");
+  const videos = [];
+  for (const arm of arms) {
+    const cell = cells[arm];
+    const pane = element("figure",null,"sbs-pane");
+    const caption = element("figcaption");
+    caption.append(element("strong",armName(arm)),
+      element("span",!cell ? "not run" : cell.success ? "passed" : label(cell.outcome),cell?.success ? "ok" : "no"));
+    if (cell?.video) {
+      const video = element("video");
+      Object.assign(video,{muted:true,playsInline:true,preload:"auto",src:"/ladder-media/" + encodeURIComponent(name) + "/" + encodeURIComponent(cell.trial)});
+      videos.push(video);
+      pane.append(video,caption);
+    } else pane.append(element("div","No video recorded for this trial","no-media"),caption);
+    panes.append(pane);
+  }
+  const controls = element("div",null,"controls");
+  const toggle = element("button","Play all");
+  const clock = element("span","0.00 s","clock");
+  const track = element("input");
+  Object.assign(track,{type:"range",min:0,max:level.sim_seconds,step:0.05,value:0});
+  track.className = "sbs-track";
+  toggle.onclick = () => {
+    const playing = videos.some(v => !v.paused);
+    for (const v of videos) playing ? v.pause() : v.play().catch(() => {});
+    toggle.textContent = playing ? "Play all" : "Pause all";
+  };
+  track.oninput = () => { for (const v of videos) v.currentTime = Math.min(Number(track.value),v.duration || 0); };
+  const tick = () => {
+    if (!holder.isConnected || !videos.length) return;
+    const t = Math.max(...videos.map(v => v.currentTime || 0));
+    clock.textContent = t.toFixed(2) + " s";
+    if (document.activeElement !== track) track.value = t;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  controls.append(toggle,clock,track,element("span",videos.length + " video" + (videos.length === 1 ? "" : "s"),"rate"));
+  holder.replaceChildren(element("h3","Seed " + seed + " · same start for every version"),panes,controls);
+  holder.scrollIntoView({behavior:"smooth",block:"start"});
+}
+async function loadLadder() {
+  const select = byId("ladder-collection");
+  const list = await api("/api/ladder");
+  const current = select.value;
+  select.replaceChildren();
+  for (const name of list.collections) addOption(select,name,name);
+  if (!list.collections.length) {
+    byId("ladder-content").replaceChildren(box("No ladder experiments yet. Run python -m mission_control.ladder run …"));
+    return;
+  }
+  select.value = list.collections.includes(current) ? current : (list.collections.includes("eval") ? "eval" : list.collections.at(-1));
+  const data = await api("/api/ladder/" + encodeURIComponent(select.value));
+  const s = data.summary;
+  const totals = element("p",s.trials + " trials · " + s.calls + " model calls · about $" + s.cost_usd.toFixed(2) +
+    " · start variation ±" + s.jitter_cm + " cm","section-copy");
+  byId("ladder-content").replaceChildren(totals,...s.levels.map(level => ladderLevel(data.name,level,data.trials)));
+}
+byId("ladder-collection").onchange = () => loadLadder().catch(error => notice(error.message));
+
 async function route() {
   const token = ++state.request;
   const [hash,id,trial] = location.hash.slice(1).split("/").map(decodeURIComponent);
-  const page = ["workspace","setup","runs","run","compare","datasets"].includes(hash) ? hash : "workspace";
+  const page = ["workspace","setup","runs","run","ladder","compare","datasets"].includes(hash) ? hash : "workspace";
   state.page = page;
   for (const section of document.querySelectorAll("[data-view]")) section.hidden = section.dataset.view !== page;
   for (const nav of document.querySelectorAll("[data-tab]")) {
@@ -723,6 +857,7 @@ async function route() {
     if (page === "runs") renderRunLog();
     if (page === "compare") compareOptions();
     if (page === "datasets") await loadDatasets();
+    if (page === "ladder") await loadLadder();
     for (const video of document.querySelectorAll("[data-view]:not([hidden]) video")) video.play().catch(() => {});
   } catch (error) { notice(error.message); }
 }

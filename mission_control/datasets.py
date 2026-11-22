@@ -43,7 +43,7 @@ class EpisodeRecorder:
                           state=[float(value) for side in ("right", "left") for value in state[side]],
                           action=[float(value) for arm in (right, left) for value in arm],
                           cameras={name: frame.decode("ascii") if isinstance(frame, bytes) else frame
-                                   for name, frame in cameras.items()})
+                                   for name, frame in (cameras or {}).items()})
             self.file.write(json.dumps(sample, allow_nan=False) + "\n")
             self.count += 1
         except (OSError, ValueError):
@@ -113,15 +113,16 @@ def export_episode(root, episode, index, task_ids, start_index):
             for frame, line in enumerate(stream):
                 row = json.loads(line)
                 state, action = row["state"], row["action"]
+                exported = frame % (FPS // EXPORT_FPS) == 0
                 if (row["frame"] != frame or row["timestamp"] != frame / FPS
                         or len(state) != 14 or len(action) != 14
                         or not all(math.isfinite(value) for value in (*state, *action))
-                        or set(row["cameras"]) != set(CAMERAS)):
+                        or (exported and set(row["cameras"]) != set(CAMERAS))):
                     raise ValueError(f"Incomplete sample at frame {frame}.")
                 raw_count += 1
                 # Dream Labs accepts 10 Hz for upsampling, so take synchronized
                 # observation/action pairs every other tick without interpolation.
-                if frame % (FPS // EXPORT_FPS):
+                if not exported:
                     continue
                 position = len(columns["frame_index"])
                 for role, (output, video) in outputs.items():

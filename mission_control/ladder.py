@@ -143,6 +143,9 @@ def latest(rows):
     """The newest row per (level, arm, seed)."""
     keep = {}
     for row in rows:
+        if row.get("model") == "oracle" and not row.get("steering"):
+            # Rows written before the teacher was labelled: it always reads simulator state.
+            row = {**row, "steering": ["scripted teacher reads simulator object positions"], "clean": False}
         keep[(row["level"], row["arm"], row["seed"])] = row
     return list(keep.values())
 
@@ -230,79 +233,122 @@ def fmt(value, unit="", digits=1):
     return "—" if value is None else f"{value:.{digits}f}{unit}"
 
 
-def report(args):
-    folder = root() / args.name
-    rows = [r for r in latest(read_rows(folder)) if not args.levels or r["level"] in args.levels]
+def summarize(rows):
+    """Per level and arm: grades, intervals, progress, labels, stage timing, cost; paired comparisons; per seed."""
     groups = defaultdict(list)
     for row in rows:
         groups[(row["level"], row["arm"])].append(row)
-    lines = [f"# Harness report: {args.name}", "",
-             f"Generated {execution.now()}. Clean mode (one instruction per trial, ground truth grades only). "
-             f"Start-position variation ±{JITTER_CM:g} cm. Success = every step placed, in order, and settled 1 s.", ""]
+    levels = []
     for level in sorted({level for level, _ in groups}):
         spec = LEVELS[level]
-        lines += [f"## {level} · {spec['name']}", f"Instruction: \"{spec['task']}\" · limit {spec['sim_seconds']} s sim", "",
-                  "| Arm | Clean | Passed | Rate (95% CI) | Mean progress | Median calls | Median sim s to success | Est. $ / success | Errors |",
-                  "|---|---|---|---|---|---|---|---|---|"]
-        arms = sorted(arm for lv, arm in groups if lv == level)
-        for arm in arms:
+        arm_names = sorted(arm for lv, arm in groups if lv == level)
+        arms = []
+        for arm in arm_names:
             items = groups[(level, arm)]
             graded = [r for r in items if r.get("outcome") != "error"]
             wins = sum(bool(r.get("success")) for r in graded)
             low, high = wilson(wins, len(graded))
             progress = [r.get("progress", int(bool(r.get("success")))) / r.get("progress_of", 1) for r in graded]
             cost = sum(r.get("est_cost_usd") or 0 for r in items)
-            clean = all(r.get("clean") for r in items)
-            lines.append(
-                f"| {arm} | {'yes' if clean else 'no (' + '; '.join(sorted({s for r in items for s in r.get('steering', [])})) + ')'} "
-                f"| {wins}/{len(graded)} | {fmt(100 * wins / len(graded) if graded else None, '%', 0)} "
-                f"({fmt(100 * low if graded else None, '', 0)}–{fmt(100 * high if graded else None, '%', 0)}) "
-                f"| {fmt(100 * sum(progress) / len(progress) if progress else None, '%', 0)} "
-                f"| {fmt(median([r.get('calls') for r in graded]), '', 0)} "
-                f"| {fmt(median([r.get('rows', 0) / 20 for r in graded if r.get('success')]), ' s')} "
-                f"| {fmt(cost / wins if wins else None, '', 2) if cost else '—'} | {len(items) - len(graded)} |")
-        lines += ["", "**Where trials ended (harness failure labels)**", ""]
-        for arm in arms:
-            counts = Counter(r.get("outcome") for r in groups[(level, arm)])
-            lines.append(f"- {arm}: " + ", ".join(f"{label} {n}" for label, n in counts.most_common()))
-        lines += ["", "**Stage timing, first step (median simulated seconds, trials reaching the stage)**", ""]
-        for arm in arms:
-            stages = [stage_times(r) for r in groups[(level, arm)] if r.get("outcome") != "error"]
-            parts = []
+            stages = [stage_times(r) for r in graded]
+            stage_summary = {}
             for index, name in enumerate(("contact", "lift", "settle")):
                 reached = [s[index] for s in stages if s[index] is not None]
-                parts.append(f"{name} {fmt(median(reached), ' s')} ({len(reached)}/{len(stages)})")
-            lines.append(f"- {arm}: " + " · ".join(parts))
-        if len(arms) > 1:
-            lines += ["", "**Paired on identical seeds (exact McNemar)**", "", "| Baseline → candidate | Pairs | Both pass | Only candidate | Only baseline | Both fail | Change | p |", "|---|---|---|---|---|---|---|---|"]
-            for i, a in enumerate(arms):
-                for b in arms[i + 1:]:
-                    first = {r["seed"]: r for r in groups[(level, a)] if r.get("outcome") != "error"}
-                    second = {r["seed"]: r for r in groups[(level, b)] if r.get("outcome") != "error"}
-                    shared = sorted(set(first) & set(second))
-                    both = sum(first[s]["success"] and second[s]["success"] for s in shared)
-                    only_b = sum(second[s]["success"] and not first[s]["success"] for s in shared)
-                    only_a = sum(first[s]["success"] and not second[s]["success"] for s in shared)
-                    neither = len(shared) - both - only_a - only_b
-                    change = 100 * (only_b - only_a) / len(shared) if shared else None
-                    lines.append(f"| {a} → {b} | {len(shared)} | {both} | {only_b} | {only_a} | {neither} "
-                                 f"| {fmt(change, ' pts', 0)} | {mcnemar(only_b, only_a):.3f} |")
-        lines += ["", "**Per seed**", "", "| Seed | " + " | ".join(arms) + " |", "|---|" + "---|" * len(arms)]
-        by_seed = defaultdict(dict)
-        for arm in arms:
+                stage_summary[name] = dict(reached=len(reached), of=len(stages), median_s=median(reached))
+            arms.append(dict(
+                arm=arm, label=items[0].get("arm_label"), clean=all(r.get("clean") for r in items),
+                steering=sorted({s for r in items for s in r.get("steering", [])}),
+                graded=len(graded), passed=wins, errors=len(items) - len(graded),
+                rate=wins / len(graded) if graded else None,
+                ci=[low, high] if graded else None,
+                mean_progress=sum(progress) / len(progress) if progress else None,
+                median_calls=median([r.get("calls") for r in graded]),
+                median_success_s=median([r.get("rows", 0) / 20 for r in graded if r.get("success")]),
+                cost_usd=round(cost, 3), cost_per_success=round(cost / wins, 3) if wins and cost else None,
+                median_rtt_s=median([r.get("median_rtt_s") for r in graded]),
+                outcomes=dict(Counter(r.get("outcome") for r in items).most_common()),
+                stages=stage_summary,
+                network_retries=sum(r.get("network_retries") or 0 for r in items),
+            ))
+        pairs = []
+        for i, a in enumerate(arm_names):
+            for b in arm_names[i + 1:]:
+                first = {r["seed"]: r for r in groups[(level, a)] if r.get("outcome") != "error"}
+                second = {r["seed"]: r for r in groups[(level, b)] if r.get("outcome") != "error"}
+                shared = sorted(set(first) & set(second))
+                both = sum(bool(first[s]["success"] and second[s]["success"]) for s in shared)
+                only_b = sum(bool(second[s]["success"] and not first[s]["success"]) for s in shared)
+                only_a = sum(bool(first[s]["success"] and not second[s]["success"]) for s in shared)
+                pairs.append(dict(baseline=a, candidate=b, pairs=len(shared), both=both, only_candidate=only_b,
+                                  only_baseline=only_a, neither=len(shared) - both - only_a - only_b,
+                                  change_pts=100 * (only_b - only_a) / len(shared) if shared else None,
+                                  p=mcnemar(only_b, only_a)))
+        seeds = defaultdict(dict)
+        for arm in arm_names:
             for r in groups[(level, arm)]:
-                mark = "✔" if r.get("success") else r.get("outcome", "?")
-                if r.get("progress_of", 1) > 1:
-                    mark += f" {r.get('progress', 0)}/{r['progress_of']}"
-                by_seed[r["seed"]][arm] = mark
-        for seed in sorted(by_seed):
-            lines.append(f"| {seed} | " + " | ".join(by_seed[seed].get(arm, "") for arm in arms) + " |")
+                seeds[r["seed"]][arm] = dict(trial=r["trial_id"], success=bool(r.get("success")), outcome=r.get("outcome"),
+                                             progress=r.get("progress", int(bool(r.get("success")))),
+                                             progress_of=r.get("progress_of", 1), video=bool(r.get("video")))
+        levels.append(dict(level=level, name=spec["name"], task=spec["task"], sim_seconds=spec["sim_seconds"],
+                           arms=arms, pairs=pairs, seeds={str(k): v for k, v in sorted(seeds.items())}))
+    return dict(levels=levels, trials=len(rows), calls=sum(r.get("calls") or 0 for r in rows),
+                cost_usd=round(sum(r.get("est_cost_usd") or 0 for r in rows), 2), jitter_cm=JITTER_CM)
+
+
+def report(args):
+    folder = root() / args.name
+    rows = [r for r in latest(read_rows(folder)) if not args.levels or r["level"] in args.levels]
+    summary = summarize(rows)
+    pct = lambda value: fmt(None if value is None else 100 * value, "%", 0)
+    lines = [f"# Harness report: {args.name}", "",
+             f"Generated {execution.now()}. Clean mode (one instruction per trial, ground truth grades only). "
+             f"Start-position variation ±{JITTER_CM:g} cm. Success = every step placed, in order, and settled 1 s.", ""]
+    for level in summary["levels"]:
+        lines += [f"## {level['level']} · {level['name']}",
+                  f"Instruction: \"{level['task']}\" · limit {level['sim_seconds']} s sim", "",
+                  "| Arm | Clean | Passed | Rate (95% CI) | Mean progress | Median calls | Median sim s to success "
+                  "| Est. $ / success | Errors |", "|---|---|---|---|---|---|---|---|---|"]
+        for arm in level["arms"]:
+            ci = arm["ci"] or [None, None]
+            lines.append(
+                f"| {arm['arm']} | {'yes' if arm['clean'] else 'no (' + '; '.join(arm['steering']) + ')'} "
+                f"| {arm['passed']}/{arm['graded']} | {pct(arm['rate'])} ({pct(ci[0])}–{pct(ci[1])}) "
+                f"| {pct(arm['mean_progress'])} | {fmt(arm['median_calls'], '', 0)} | {fmt(arm['median_success_s'], ' s')} "
+                f"| {fmt(arm['cost_per_success'], '', 2)} | {arm['errors']} |")
+        lines += ["", "**Where trials ended (harness failure labels)**", ""]
+        for arm in level["arms"]:
+            lines.append(f"- {arm['arm']}: " + ", ".join(f"{k} {v}" for k, v in arm["outcomes"].items()))
+        lines += ["", "**Stage timing, first step (median simulated seconds, trials reaching the stage)**", ""]
+        for arm in level["arms"]:
+            lines.append(f"- {arm['arm']}: " + " · ".join(
+                f"{name} {fmt(s['median_s'], ' s')} ({s['reached']}/{s['of']})" for name, s in arm["stages"].items()))
+        if level["pairs"]:
+            lines += ["", "**Paired on identical seeds (exact McNemar)**", "",
+                      "| Baseline → candidate | Pairs | Both pass | Only candidate | Only baseline | Both fail | Change | p |",
+                      "|---|---|---|---|---|---|---|---|"]
+            for p in level["pairs"]:
+                lines.append(f"| {p['baseline']} → {p['candidate']} | {p['pairs']} | {p['both']} | {p['only_candidate']} "
+                             f"| {p['only_baseline']} | {p['neither']} | {fmt(p['change_pts'], ' pts', 0)} | {p['p']:.3f} |")
+        arm_names = [arm["arm"] for arm in level["arms"]]
+        lines += ["", "**Per seed**", "", "| Seed | " + " | ".join(arm_names) + " |", "|---|" + "---|" * len(arm_names)]
+        for seed, cells in level["seeds"].items():
+            marks = []
+            for arm in arm_names:
+                cell = cells.get(arm)
+                if not cell:
+                    marks.append("")
+                    continue
+                mark = "✔" if cell["success"] else cell["outcome"]
+                if cell["progress_of"] > 1:
+                    mark += f" {cell['progress']}/{cell['progress_of']}"
+                marks.append(mark)
+            lines.append(f"| {seed} | " + " | ".join(marks) + " |")
         lines.append("")
-    total_calls = sum(r.get("calls") or 0 for r in rows)
-    total_cost = sum(r.get("est_cost_usd") or 0 for r in rows)
-    lines += [f"Totals: {len(rows)} trials, {total_calls} model calls, about ${total_cost:.2f} at the published $3 per 2,250 calls."]
+    lines += [f"Totals: {summary['trials']} trials, {summary['calls']} model calls, "
+              f"about ${summary['cost_usd']:.2f} at the published $3 per 2,250 calls."]
     text = "\n".join(lines) + "\n"
     (folder / "report.md").write_text(text, encoding="utf-8")
+    (folder / "summary.json").write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     print(text)
 
 
@@ -331,6 +377,44 @@ def export(args):
     print(f"Exported and validated {len(chosen)} episodes -> {output}")
 
 
+def train(args):
+    """Upload a validated dataset, wait until Dream Labs has processed it, then queue one fine-tuning job."""
+    import dream
+
+    client = dream.DreamClient()
+    record_path = root() / "jobs" / f"{args.suffix}.json"
+    record_path.parent.mkdir(parents=True, exist_ok=True)
+    record = json.loads(record_path.read_text()) if record_path.exists() else {"suffix": args.suffix}
+
+    def save(**changes):
+        record.update(changes)
+        record_path.write_text(json.dumps(record, indent=2, default=str))
+
+    if record.get("job_id"):
+        job = client.get_finetuning_status(record["job_id"])
+        save(job=job)
+        print(json.dumps(job, indent=2, default=str))
+        return
+    embodiment = args.embodiment or client.get_embodiments()[0].name
+    if not record.get("dataset_id"):
+        dataset = client.upload_dataset(args.dataset, args.suffix, embodiment)
+        save(dataset_id=dataset.id, dataset_name=dataset.name, embodiment=embodiment, episodes=dataset.episodes,
+             size_bytes=dataset.size_bytes, uploaded_at=execution.now())
+        print(f"Uploaded {dataset.name} ({dataset.id}), {dataset.episodes} episodes", flush=True)
+    while True:
+        dataset = client.get_dataset_status(record["dataset_id"])
+        save(dataset_status=dataset.status, dataset_error=dataset.error)
+        print(f"dataset {dataset.status}", flush=True)
+        if dataset.status == "processed":
+            break
+        if dataset.status == "failed":
+            raise SystemExit(f"Dataset processing failed: {dataset.error}")
+        time.sleep(30)
+    job = client.finetune(record["dataset_name"], args.suffix, steps=args.steps, lr_schedule="cosine")
+    save(job_id=job["id"], job=job, submitted_at=execution.now(), steps=args.steps)
+    print(json.dumps(job, indent=2, default=str))
+
+
 if __name__ == "__main__":
     cli = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     modes = cli.add_subparsers(dest="mode", required=True)
@@ -349,5 +433,10 @@ if __name__ == "__main__":
     e.add_argument("output")
     e.add_argument("--manifest", required=True)
     e.add_argument("--held-out", required=True)
+    t = modes.add_parser("train")
+    t.add_argument("suffix", help="checkpoint suffix, e.g. c1-naive")
+    t.add_argument("--dataset", help="validated dataset directory (first call only)")
+    t.add_argument("--steps", type=int, default=1000)
+    t.add_argument("--embodiment")
     a = cli.parse_args()
-    {"run": run, "report": report, "export": export}[a.mode](a)
+    {"run": run, "report": report, "export": export, "train": train}[a.mode](a)

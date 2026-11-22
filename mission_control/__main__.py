@@ -12,7 +12,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from . import datasets, execution, plans
+from . import datasets, execution, ladder, plans
 from .catalog import Catalog, metrics
 
 
@@ -170,6 +170,24 @@ class Handler(BaseHTTPRequestHandler):
         if path in ("/api/tasks", "/api/catalog"):
             return self.respond({"tasks":execution.tasks(),"models":[execution.BASE_MODEL,"oracle"],
                                  "defaults":execution.validate_config({}),"budget":execution.budget()})
+        if path=="/api/ladder":
+            folders = sorted(p for p in ladder.root().glob("*") if (p / "results.jsonl").is_file())
+            return self.respond({"collections":[p.name for p in folders]})
+        if path.startswith("/api/ladder/"):
+            name = path.removeprefix("/api/ladder/")
+            folder = ladder.root() / name
+            if not re.fullmatch(r"[\w-]+", name) or not (folder / "results.jsonl").is_file():
+                raise KeyError
+            rows = ladder.latest(ladder.read_rows(folder))
+            keep = ("trial_id","level","arm","seed","outcome","success","progress","progress_of","calls","rows",
+                    "step_outcomes","clean","steering","video","model","actions","median_rtt_s","est_cost_usd","error")
+            return self.respond({"name":name,"summary":ladder.summarize(rows),
+                                 "trials":[{k:r.get(k) for k in keep} for r in rows]})
+        if path.startswith("/ladder-media/"):
+            name, _, trial = path.removeprefix("/ladder-media/").partition("/")
+            if not re.fullmatch(r"[\w-]+", name) or not re.fullmatch(r"[\w-]+", trial):
+                raise KeyError
+            return self.file(ladder.root() / name / "video" / f"{trial}.mp4")
         if path=="/api/datasets":
             return self.respond({"episodes":datasets.list_episodes(), "prepared":datasets.prepared_datasets(),
                                  "credentials_present":bool(execution.credential_source())})

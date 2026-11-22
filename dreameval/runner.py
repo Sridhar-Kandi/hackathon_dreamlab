@@ -399,7 +399,7 @@ def run_trial(
         watch = None
     budget_rows = int(round(sim_seconds * 20))
     rtts, error, policy = [], None, None
-    request_attempts, timeout_count = 0, 0
+    request_attempts, timeout_count, network_retries = 0, 0, 0
     first_response_s = None
     near_replies = [0]
     interventions = []
@@ -414,10 +414,13 @@ def run_trial(
         if checkpoint:
             checkpoint(tracker.row / 20)
         if on_sample:
-            sample_windows = {name: deque(maxlen=1) for name in dc.VIDEO_ROLES}
-            capture(env, sample_windows)
-            on_sample(tracker.row, tracker.step["id"] if ordered_plan else None, prompt, env.state(), l, r,
-                      {name: frames[-1] for name, frames in sample_windows.items()})
+            # Training data is exported at 10 Hz, so cameras are rendered on even rows only (rendering dominates cost).
+            cameras = None
+            if tracker.row % 2 == 0:
+                sample_windows = {name: deque(maxlen=1) for name in dc.VIDEO_ROLES}
+                capture(env, sample_windows)
+                cameras = {name: frames[-1] for name, frames in sample_windows.items()}
+            on_sample(tracker.row, tracker.step["id"] if ordered_plan else None, prompt, env.state(), l, r, cameras)
         if video:
             video.step(l, r)
         else:
@@ -555,6 +558,11 @@ def run_trial(
                     poses = True
                     open_session()
                     continue
+                if "could not reach" in str(exc) and network_retries < 5:
+                    # A dropped connection: physics is paused, so asking again for the same moment is harmless.
+                    network_retries += 1
+                    time.sleep(2 ** network_retries)
+                    continue
                 raise
             restarts = 0
             if normalize_gripper:
@@ -658,6 +666,7 @@ def run_trial(
         "calls": len(rtts),
         "request_attempts": request_attempts,
         "request_errors": request_attempts - len(rtts),
+        "network_retries": network_retries,
         "timeout_count": timeout_count,
         "first_response_s": round(first_response_s, 3) if first_response_s is not None else None,
         "slowest_rtt_s": round(max(rtts), 3) if rtts else None,
@@ -676,7 +685,7 @@ def run_trial(
         result["success"] = False
     # Anything that used simulator ground truth to steer the robot. Ground truth may grade a trial, never drive it.
     steering = []
-    if policy == "oracle":
+    if model == "oracle":
         steering.append("scripted teacher reads simulator object positions")
     if supervise:
         steering.append(f"supervisor or assist: {supervise}")
