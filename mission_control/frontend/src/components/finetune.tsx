@@ -40,13 +40,13 @@ export function AccountSpend() {
   }, [])
 
   if (error || account?.error) {
-    return <p className="text-[12px] text-[#a4262c]">Could not read the Dream Labs account: {error ?? account?.error}</p>
+    return <p className="text-[12px] text-destructive">Could not read the Dream Labs account: {error ?? account?.error}</p>
   }
   if (!account) {
     return <p className="flex items-center gap-1 text-[12px] text-muted-foreground"><Loader2 className="size-3 animate-spin" /> Reading the Dream Labs account…</p>
   }
   return (
-    <div className="rounded-sm border bg-[#faf9f8] p-2.5 text-[12px]">
+    <div className="rounded-sm border bg-muted p-2.5 text-[12px]">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         <span className="flex items-center gap-1 font-semibold"><Wallet className="size-3.5" /> Fine-tuning spend</span>
         <span>Charged <b className="tabular-nums">{usd(account.charged_usd)}</b></span>
@@ -139,10 +139,14 @@ export function FineTuneDialog({ open, onOpenChange, selected, onStarted }: {
               <span className="text-[11px] text-muted-foreground">Multiple of 100, 500–10,000. About 8 h per 1,000.</span>
             </div>
           </div>
-          <p className="text-[12px] text-muted-foreground">
-            Dry run: the console simulates the Dream fine-tuning API (stages, timing, returned model id). Nothing is uploaded or billed.
-            A live job of this size would cost about {usd(steps * 0.2)}.
-          </p>
+          <AccountSpend />
+          <label className="flex items-start gap-2 rounded-sm border border-warning-border bg-warning-bg p-2 text-[12px]">
+            <Checkbox className="mt-0.5" checked={confirmed} onCheckedChange={(v) => setConfirmed(!!v)} />
+            <span>
+              This is a real Dream Labs job. Charge about <b>{usd(cost)}</b> ({steps.toLocaleString()} steps × {usd(USD_PER_STEP)}) to the account.
+              Only successful trials recorded with "Record training episodes" are used.
+            </span>
+          </label>
           {error && <p className="text-[12px] text-destructive">{error}</p>}
         </div>
         <DialogFooter>
@@ -188,7 +192,9 @@ export function FineTuneJobCard({ job, onChanged }: { job: FineTuneJob; onChange
     <div className="rounded-sm border bg-card p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          {done ? <CheckCircle2 className="size-4 text-success" /> : <Loader2 className="size-4 animate-spin text-accent-foreground" />}
+          {done ? <CheckCircle2 className="size-4 text-success" />
+            : failed ? <AlertTriangle className="size-4 text-destructive" />
+              : <Loader2 className="size-4 animate-spin text-accent-foreground" />}
           <span className="text-[13px] font-semibold">{job.name}</span>
           {job.job_id && <span className="font-mono text-[11px] text-muted-foreground">{job.job_id}</span>}
           {job.charge && <Badge variant="outline" className="rounded-sm text-[11px] font-normal">{job.charge} {job.price_usd ? usd(job.price_usd) : ""}</Badge>}
@@ -207,13 +213,15 @@ export function FineTuneJobCard({ job, onChanged }: { job: FineTuneJob; onChange
           <li key={stage} className={cn("flex items-center gap-1",
             done || index < stageIndex ? "text-success" : index === stageIndex ? "font-semibold text-accent-foreground" : "text-muted-foreground")}>
             <span className={cn("size-1.5 rounded-full", done || index < stageIndex ? "bg-success" : index === stageIndex ? "bg-primary" : "bg-input")} />
-            {stage}{stage === "Training Dream-1" && index === stageIndex ? ` (step ${job.step}/${job.steps})` : ""}
+            {stage === "Training Dream-1" && index === stageIndex && job.stage !== stage ? job.stage : stage}
+            {stage === "Training Dream-1" && index === stageIndex && job.step ? ` (step ${job.step}/${job.steps})` : ""}
+            {stage === "Queued" && index === stageIndex && job.queue_position ? ` (#${job.queue_position})` : ""}
           </li>
         ))}
       </ol>
-      {failed && job.error && <p className="mt-2 text-[12px] text-[#a4262c]">{job.error}</p>}
+      {failed && job.error && <p className="mt-2 text-[12px] text-destructive">{job.error}</p>}
       {!failed && !done && job.last_error && (
-        <p className="mt-2 text-[12px] text-[#8a5300]">Retrying after: {job.last_error}</p>
+        <p className="mt-2 text-[12px] text-warning">Retrying after: {job.last_error}</p>
       )}
       {done && job.model_id && (
         <div className="mt-3 flex flex-wrap items-end gap-2 border-t pt-3">

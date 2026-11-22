@@ -276,7 +276,7 @@ export function PipelineBuilder({ files, finetunes, onChanged }: {
         </label>
         <p className="mt-2 text-[12px] text-muted-foreground">
           {blockers.length ? <span className="text-warning">{blockers[0]}</span>
-            : `Dry run of the Dream-1 fine-tuning API: stages and timing are simulated, nothing is uploaded or billed (a live job would cost about ${usd(steps * 0.2)}).`}
+            : "Real fine-tune: the dataset is built from the recorded episodes, uploaded and trained by Dream Labs (about 8 hours per 1,000 steps). The model becomes runnable here when its checkpoint is published."}
         </p>
         <div className="mt-3"><AccountSpend /></div>
         {job && <div className="mt-3"><FineTuneJobCard job={job} onChanged={onChanged} /></div>}
