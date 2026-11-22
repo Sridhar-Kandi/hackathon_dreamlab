@@ -558,6 +558,28 @@ def start(payload):
             raise
 
 
+def sequence_steps(steps, row):
+    """Per-step evidence from a single-instruction sequence trial, in the shape the console displays."""
+    details = row.get("step_details") or []
+    done = row.get("progress") or 0
+    result = []
+    for index, step in enumerate(steps):
+        evidence = details[index] if index < len(details) else None
+        if evidence is not None:
+            evidence = {**evidence, "success": index < done}
+        if index < done:
+            status = "succeeded"
+        elif index == done and row.get("outcome") != "error":
+            status = "task_failed"
+        else:
+            status = "pending"
+        # Keep a later step's evidence only if the robot actually touched that object (out of order).
+        if status == "pending" and (evidence is None or evidence.get("first_contact_row") is None):
+            evidence = None
+        result.append({"id": step["id"], "status": status, "evidence": evidence})
+    return result
+
+
 def require_ready(report):
     if not report["ready"]:
         raise AdmissionError(" ".join(item["detail"] for item in report["checks"] if item["status"] == "blocked"))
@@ -698,8 +720,13 @@ def run_attempt(run_id, attempt_id, parent_closed):
                     record=str(recording) if recording else None,
                     on_sample=episode.add if episode else None,
                     normalize_gripper=False,
-                    ordered_plan=saved.get("plan", {}).get("steps") if config["task_id"] == plans.COMPOUND else None,
+                    # Clean mode: the robot gets one instruction for the whole trial. Each step is still graded,
+                    # but the simulator never tells the robot that a step finished.
+                    sequence=[f"{step['target']}:{step['goal']}" for step in saved.get("plan", {}).get("steps", [])]
+                    if config["task_id"] == plans.COMPOUND else None,
                 )
+                if config["task_id"] == plans.COMPOUND:
+                    row["ordered_steps"] = sequence_steps(saved["plan"]["steps"], row)
             finally:
                 env.close()
     except Exception as exc:

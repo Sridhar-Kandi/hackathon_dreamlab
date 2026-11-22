@@ -51,12 +51,13 @@ def review(config, preset):
             pattern, prompt, target, goal, criterion = GOALS[goal_id]
             if not re.fullmatch(pattern, clause):
                 raise InvalidPlan(f"Step {index} must match the registered goal. Example: {prompt}")
+            # Clean mode: the robot only ever receives the full instruction; steps share the trial's time limit.
             steps.append(dict(id=goal_id, instruction=prompt, target=target, goal=goal,
-                              criterion=criterion, max_rows=round(config["sim_seconds"] * 20) // len(goal_ids)))
+                              criterion=criterion, max_rows=round(config["sim_seconds"] * 20)))
     else:
         steps.append(dict(id=supported, instruction=instruction, target=preset["target"], goal=preset["goal"],
                           criterion="The registered scene grader verifies the preset's final objective.",
                           max_rows=round(config["sim_seconds"] * 20)))
-    plan = dict(version=1, instruction=instruction, steps=steps,
+    plan = dict(version=2, mode="clean", instruction=instruction, steps=steps,
                 final_checks=[step["id"] for step in steps])
     return {**plan, "hash": digest({"plan": plan, "config": config})}
