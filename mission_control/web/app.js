@@ -517,11 +517,28 @@ function defaults(config) {
   applyPreset();
   for (const [key,value] of Object.entries(config)) {
     const input = fields[key];
-    if (!input) continue;
+    if (!input || key === "spotter") continue;
     if (input.type === "checkbox") input.checked = value;
     else input.value = value;
   }
   fields.model.value = config.model;
+  const modules = config.spotter || [];
+  byId("spotter-on").checked = modules.length > 0;
+  for (const box of spotterBoxes()) box.checked = modules.includes(box.value);
+  syncSpotter();
+}
+const spotterNames = {reconnect:"Reconnect",clamp_gripper:"Gripper clamp",wrong_object:"Wrong-object recall",
+  grasp_retry:"Stall and drop retry",grasp_depth:"Grasp depth",edge_pinch:"Edge-pinch check",backtrack:"Backtrack",place:"Placement"};
+function spotterBoxes() {
+  return [...form.querySelectorAll('input[name="spotter"]')];
+}
+function syncSpotter() {
+  const master = byId("spotter-on");
+  const scripted = form.elements.model.value === "oracle";
+  master.disabled = scripted;
+  if (scripted) master.checked = false;
+  byId("spotter").classList.toggle("off", !master.checked);
+  for (const box of spotterBoxes()) box.disabled = !master.checked;
 }
 function applyPreset() {
   const fields = form.elements;
@@ -549,7 +566,8 @@ function configuration() {
   const fields = form.elements;
   const config = {task_id:data.get("task"),scene:data.get("scene"),model:data.get("model"),
     instruction:data.get("instruction").trim(),purpose:data.get("purpose"),record:fields.record.checked,
-    record_episode:fields.record_episode.checked};
+    record_episode:fields.record_episode.checked,
+    spotter:byId("spotter-on").checked ? spotterBoxes().filter(box => box.checked).map(box => box.value) : []};
   for (const name of ["trials","actions","sim_seconds","seed0","jitter_cm","request_cap","max_credits","max_usd"]) {
     config[name] = Number(data.get(name));
   }
@@ -568,6 +586,7 @@ function showReview(report) {
   byId("plan-preview").replaceChildren(stepList(report.plan),facts([
     ["Seeds",report.config.seeds.join(", ")],["Step time limit",report.plan.steps.map(step => seconds(step.max_rows/20)).join(" / ")],
     ["Maximum model requests",report.estimate.max_requests],
+    ["Spotter",report.config.spotter?.length ? report.config.spotter.map(name => spotterNames[name]).join(", ") : "Off"],
     ["Testing credits",report.config.model === "oracle" ? "0" : credits ?? "Quote required"]
   ]));
 }
@@ -701,8 +720,8 @@ async function loadDatasets() {
 }
 /* Difficulty ladder: versions of the robot on identical seeds. */
 const armNames = {
-  teacher: "Scripted teacher", stock: "A · Stock (48 rows)", tuned: "B · Harness-tuned (24 rows)",
-  "ft-naive": "C1 · Fine-tuned, naive data", "ft-harness": "C2 · Fine-tuned, harness-chosen data"
+  teacher: "Scripted teacher", stock: "A · Stock (48 rows)", tuned: "B · Spotter-tuned (24 rows)",
+  "ft-naive": "C1 · Fine-tuned, naive data", "ft-harness": "C2 · Fine-tuned, Spotter-chosen data"
 };
 function armName(arm) { return armNames[arm] || arm; }
 function percent(value) { return value == null ? "—" : Math.round(100 * value) + "%"; }
@@ -900,7 +919,7 @@ byId("task").onchange = () => {
   form.elements.seed0.readOnly = false;
   applyPreset();
 };
-form.oninput = clearReview;
+form.oninput = () => { syncSpotter(); clearReview(); };
 form.onsubmit = event => { event.preventDefault(); setupAction("start"); };
 byId("comparison-form").onsubmit = compareRuns;
 window.onhashchange = () => {

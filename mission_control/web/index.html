@@ -58,7 +58,7 @@
           <li data-stage="profile"><span class="pl-num">01</span><h3>Profile</h3><p>Base Dream-1 on training seeds</p><strong class="pl-metric">—</strong></li>
           <li data-stage="diagnose"><span class="pl-num">02</span><h3>Diagnose</h3><p>Label every failure from the physics</p><strong class="pl-metric">—</strong></li>
           <li data-stage="teach"><span class="pl-num">03</span><h3>Teach</h3><p>Demos replay the exact failed starts</p><strong class="pl-metric">—</strong></li>
-          <li data-stage="finetune"><span class="pl-num">04</span><h3>Fine-tune</h3><p>Naive data vs harness-chosen data</p><strong class="pl-metric">—</strong><div class="pl-bars"></div></li>
+          <li data-stage="finetune"><span class="pl-num">04</span><h3>Fine-tune</h3><p>Naive data vs Spotter-chosen data</p><strong class="pl-metric">—</strong><div class="pl-bars"></div></li>
           <li data-stage="prove"><span class="pl-num">05</span><h3>Prove</h3><p>Every version, same held-out seeds</p><strong class="pl-metric">—</strong></li>
         </ol>
       </section>
@@ -91,6 +91,29 @@
             <label>Number of trials<input type="number" name="trials" min="1" max="20" required></label>
             <label class="check"><input type="checkbox" name="record">Save camera recording</label>
           </div>
+          <fieldset class="spotter" id="spotter">
+            <legend><label class="check spotter-master"><input type="checkbox" id="spotter-on">Spotter</label></legend>
+            <p class="spotter-lede">Optional modules around Dream-1. Dream-1 still drives; each module you switch on steps in only when its trigger fires. Trials with any rescue module on are labelled steered and kept out of clean comparisons and training data.</p>
+            <div class="spotter-groups">
+              <div>
+                <h3>Safety net</h3>
+                <label class="check"><input type="checkbox" name="spotter" value="reconnect">Reconnect<small>Retry dropped connections, expired sessions and a full server pool with backoff</small></label>
+                <label class="check"><input type="checkbox" name="spotter" value="clamp_gripper">Gripper clamp<small>Clip small gripper overshoots (e.g. 1.055) instead of failing the trial</small></label>
+              </div>
+              <div>
+                <h3>Watchdogs</h3>
+                <label class="check"><input type="checkbox" name="spotter" value="wrong_object">Wrong-object recall<small>Wrong item in hand: send the arms home and restart the session</small></label>
+                <label class="check"><input type="checkbox" name="spotter" value="grasp_retry">Stall and drop retry<small>Touched 8 s without a lift, or dropped: home and retry, at most 2 times</small></label>
+              </div>
+              <div>
+                <h3>Grasp and place</h3>
+                <label class="check"><input type="checkbox" name="spotter" value="grasp_depth">Grasp depth<small>Closing too high above the object: descend to mid-height and regrasp</small></label>
+                <label class="check"><input type="checkbox" name="spotter" value="edge_pinch">Edge-pinch check<small>Fingers closed narrower than the object: regrasp</small></label>
+                <label class="check"><input type="checkbox" name="spotter" value="backtrack">Backtrack<small>On a stalled grasp, reverse the last 1.5 s and ask again from there</small></label>
+                <label class="check"><input type="checkbox" name="spotter" value="place">Placement<small>Once lifted, centre the object over its goal and release</small></label>
+              </div>
+            </div>
+          </fieldset>
           <details class="settings-details">
             <summary>Advanced settings</summary>
             <div class="fields">
@@ -126,7 +149,7 @@
     </section>
     <section class="view" data-view="flow" aria-labelledby="flow-title" hidden>
       <header class="page-header"><h1 id="flow-title">How it works</h1>
-        <p>Four versions of the robot, one question: does training on the cases the harness found beat training on arbitrary demonstrations? Hover a box to follow its lane. Numbers are live.</p>
+        <p>Four versions of the robot, one question: does training on the cases Spotter found beat training on arbitrary demonstrations? Hover a box to follow its lane. Numbers are live.</p>
       </header>
       <div class="flow-wrap panel"><div id="flow-chart"></div>
         <ul class="flow-legend"><li class="c2">C2 lane: chosen from measured failures</li><li class="c1">C1 lane: arbitrary demonstrations</li><li class="ab">A / B: base model, no training</li></ul>
@@ -134,11 +157,11 @@
       <div class="versions">
         <article class="version-card"><span class="v-tag">A</span><h3>Stock</h3><p class="v-what">Base Dream-1 as the SDK ships it: 48 action rows per reply.</p>
           <dl><dt>Training data</dt><dd>None</dd><dt>Why it's here</dt><dd>The baseline every other version must beat.</dd><dt>Held-out</dt><dd data-flow="A">…</dd></dl></article>
-        <article class="version-card"><span class="v-tag">B</span><h3>Harness-tuned</h3><p class="v-what">Same model, 24 rows per reply: the setting the harness's earlier sweeps found works better.</p>
+        <article class="version-card"><span class="v-tag">B</span><h3>Spotter-tuned</h3><p class="v-what">Same model, 24 rows per reply: the setting Spotter's earlier sweeps found works better.</p>
           <dl><dt>Training data</dt><dd>None, only a configuration change</dd><dt>Why it's here</dt><dd>Shows what measurement alone buys, for free.</dd><dt>Held-out</dt><dd data-flow="B">…</dd></dl></article>
         <article class="version-card"><span class="v-tag c1">C1</span><h3>Fine-tuned, naive data</h3><p class="v-what">What most teams would do: record demonstrations on arbitrary starts and train on them.</p>
           <dl><dt>Training data</dt><dd>60 scripted-teacher demos on seeds 1100–1119, 20 per task level</dd><dt>Why it's here</dt><dd>The control: same budget as C2, but no diagnosis.</dd><dt>Held-out</dt><dd data-flow="C1">…</dd></dl></article>
-        <article class="version-card"><span class="v-tag c2">C2</span><h3>Fine-tuned, harness-chosen data</h3><p class="v-what">The harness picks the data: it replays exactly the starts where base Dream-1 failed, weighted by how often each level failed.</p>
+        <article class="version-card"><span class="v-tag c2">C2</span><h3>Fine-tuned, Spotter-chosen data</h3><p class="v-what">Spotter picks the data: it replays exactly the starts where base Dream-1 failed, weighted by how often each level failed.</p>
           <dl><dt>Training data</dt><dd><span data-flow="replays">…</span> teacher replays of failed starts + <span data-flow="selfs">…</span> of Dream-1's own clean successes</dd><dt>Why it's here</dt><dd>The claim: data aimed at real failures beats the same amount of arbitrary data.</dd><dt>Held-out</dt><dd data-flow="C2">…</dd></dl></article>
       </div>
       <section class="panel fair">

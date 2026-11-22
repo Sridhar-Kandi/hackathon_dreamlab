@@ -312,8 +312,15 @@ def run_trial(
     on_event=None,
     on_sample=None,
     normalize_gripper=True,
+    assist_parts=None,
+    watches=None,
+    recover=False,
 ):
-    """Run one trial and return a result dict (never raises for API/validation errors; they become outcome='error')."""
+    """Run one trial and return a result dict (never raises for API/validation errors; they become outcome='error').
+
+    Spotter modules can also be switched on one by one: `assist_parts` (any of depth, width, backtrack, place,
+    adaptive), `watches` (any of "grasp", "wrong_object"), and `recover`, which keeps the network and capacity
+    retries on even when a console `checkpoint` is set."""
     if max_usd is not None and (not np.isfinite(max_usd) or max_usd < 0):
         raise ValueError("--max-usd must be finite and nonnegative")
     config = {} if model == "oracle" else dc.settings()
@@ -383,20 +390,20 @@ def run_trial(
     else:
         tracker = SequenceTracker(env, sequence) if sequence else Tracker(env, target, goal)
     helper = None
-    if supervise in ASSIST_MODES:
+    parts = ASSIST_MODES[supervise] if supervise in ASSIST_MODES else tuple(assist_parts or ())
+    if parts:
         import assist as assist_mod
 
-        helper = assist_mod.Assist(env, tracker, parts=ASSIST_MODES[supervise], stall_s=stall_s)
+        helper = assist_mod.Assist(env, tracker, parts=parts, stall_s=stall_s)
     video = VideoRecorder(record, env) if record and str(record).lower().endswith(".mp4") else None
     recorder = Recorder(record) if record and not video else None
-    if supervise in ASSIST_MODES:
-        watch = None
-    elif supervise == "grasp":
-        watch = GraspWatch(env, stall_s=stall_s)
-    elif supervise:
-        watch = WrongObjectWatch(env, target)
-    else:
-        watch = None
+    watch_names = list(watches or ())
+    if supervise == "grasp":
+        watch_names.append("grasp")
+    elif supervise and supervise not in ASSIST_MODES:
+        watch_names.append("wrong_object")
+    watch_list = [GraspWatch(env, stall_s=stall_s) if name == "grasp" else WrongObjectWatch(env, target)
+                  for name in dict.fromkeys(watch_names)]
     budget_rows = int(round(sim_seconds * 20))
     rtts, error, policy = [], None, None
     request_attempts, timeout_count, network_retries = 0, 0, 0
@@ -458,7 +465,7 @@ def run_trial(
     def open_session():
         nonlocal policy, poses
         # DA-2000 NO_CAPACITY (pool full) is a transient server state, not a trial outcome: back off and retry.
-        for wait in ((0,) if checkpoint else (5, 10, 20, 40, 60, 90, 0)):
+        for wait in ((0,) if checkpoint and not recover else (5, 10, 20, 40, 60, 90, 0)):
             try:
                 if checkpoint:
                     checkpoint()
@@ -543,7 +550,7 @@ def run_trial(
             except Exception as exc:  # mirror the stock runner's two recoveries
                 if isinstance(exc, TimeoutError) or "timeout" in type(exc).__name__.lower():
                     timeout_count += 1
-                if checkpoint:
+                if checkpoint and not recover:
                     raise
                 if type(exc).__name__ == "DreamSessionExpired" and restarts < 3:
                     restarts += 1
@@ -610,20 +617,27 @@ def run_trial(
                 if (stop_on_success and tracker.success) or tracker.row >= budget_rows:
                     done = True
                     break
-                grabbed = watch.check(env, tracker) if watch else None
+                grabbed, fired = None, None
+                for w in watch_list:
+                    grabbed = w.check(env, tracker)
+                    if grabbed:
+                        fired = w
+                        break
                 if grabbed and len(interventions) < max_retries:
-                    # Supervisor: wrong object in hand. Abandon the chunk, end the session, drive the arms home
-                    # (grippers open, so the object is released), then start a fresh session.
-                    reason = grabbed if supervise == "grasp" else "wrong_object"
-                    interventions.append({"row": tracker.row, "reason": reason,
-                                          **({} if supervise == "grasp" else {"object": grabbed})})
+                    # Supervisor: wrong object in hand or a stalled/dropped grasp. Abandon the chunk, end the
+                    # session, drive the arms home (grippers open, so the object is released), then start fresh.
+                    if isinstance(fired, GraspWatch):
+                        interventions.append({"row": tracker.row, "reason": grabbed})
+                    else:
+                        interventions.append({"row": tracker.row, "reason": "wrong_object", "object": grabbed})
                     policy.close()
                     policy = None
                     for hl, hr in yam_env.home_path(env.state(), seconds=2.0):
                         advance(hl, hr)
                         if tracker.row >= budget_rows:
                             break
-                    watch.rebase(env)
+                    for w in watch_list:
+                        w.rebase(env)
                     if retry_prompt:
                         prompt = retry_prompt
                     if tracker.row < budget_rows:
@@ -648,7 +662,7 @@ def run_trial(
         if len(key) >= 8 and key[:8] in error:
             error = error.split(key[:8], 1)[0] + "[redacted]"
     if helper is not None:
-        interventions = helper.events
+        interventions = interventions + helper.events
     if stepwise:
         supervise = "stepwise"
     result = {
@@ -676,6 +690,8 @@ def run_trial(
         "est_cost_usd": round(len(rtts) * USD_PER_CALL, 4),
         "error": error,
         "supervised": supervise,
+        "spotter": {"assist": list(assist_parts or ()), "watches": list(watches or ()), "recover": recover,
+                    "clamp_gripper": normalize_gripper},
         "short_replies": near_replies[0],
         "retries": sum(1 for i in interventions if (i.get("reason") not in (None, "latch_release")) or i.get("phase") == "grasp_failed"),
         "interventions": interventions,
@@ -689,6 +705,10 @@ def run_trial(
         steering.append("scripted teacher reads simulator object positions")
     if supervise:
         steering.append(f"supervisor or assist: {supervise}")
+    if assist_parts:
+        steering.append(f"spotter assist: {', '.join(assist_parts)}")
+    if watches:
+        steering.append(f"spotter watch: {', '.join(watches)}")
     if ordered_plan:
         steering.append("instruction switched when the simulator confirmed a step")
     result["steering"] = steering
