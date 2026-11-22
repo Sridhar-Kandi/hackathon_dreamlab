@@ -172,7 +172,7 @@ class Handler(BaseHTTPRequestHandler):
                                  "defaults":execution.validate_config({}),"budget":execution.budget()})
         if path=="/api/ladder":
             folders = sorted(p for p in ladder.root().glob("*") if (p / "results.jsonl").is_file())
-            return self.respond({"collections":[p.name for p in folders]})
+            return self.respond({"collections":[p.name for p in folders], "finetunes":ladder.finetunes()})
         if path.startswith("/api/ladder/"):
             name = path.removeprefix("/api/ladder/")
             folder = ladder.root() / name
