@@ -1,0 +1,2664 @@
+{
+ "experiment": {
+  "id": "sample-harness",
+  "name": "Sample B \u00b7 Harness-assisted",
+  "description": "Sample save file. Dream-1 at 24 rows per reply inside the Spotter harness.",
+  "controller": "dream1",
+  "scene": "stock",
+  "steps": [
+   {
+    "instruction": "Put the orange into the bowl",
+    "target": "orange",
+    "goal": "inside_bowl"
+   },
+   {
+    "instruction": "Put the banana onto the plate",
+    "target": "banana",
+    "goal": "on_plate"
+   }
+  ],
+  "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+  "seeds": [
+   3000,
+   3001,
+   3002,
+   3003,
+   3004,
+   3005,
+   3006,
+   3007,
+   3008,
+   3009,
+   3010,
+   3011
+  ],
+  "trials_per_seed": 2,
+  "sim_seconds": 120.0,
+  "jitter_cm": 2.0,
+  "model": "dreamlabs/dream-1-beta",
+  "rows_per_reply": 24,
+  "max_usd": 10.0,
+  "harness": {
+   "enabled": true,
+   "modules": [
+    "reconnect",
+    "clamp_gripper",
+    "grasp_retry",
+    "grasp_depth",
+    "edge_pinch",
+    "backtrack",
+    "place"
+   ],
+   "values": {
+    "CONTROL_HZ": 20,
+    "REPLAY_BUFFER_S": 1.5,
+    "REPLAY_BUFFER_MAX_ROWS": 200,
+    "NEAR_ROWS": 12,
+    "NEAR_RADIUS_M": 0.07,
+    "STALL_S": 8.0,
+    "DROP_S": 2.0,
+    "HIGH_M": 0.005,
+    "MAX_REGRASPS": 3,
+    "HOVER_S": 1.5,
+    "GRIPPER_SLACK": 0.2,
+    "MAX_SUPERVISOR_RETRIES": 2,
+    "HOME_SECONDS": 2.0,
+    "WRONG_OBJECT_LIFT_M": 0.015,
+    "WRONG_OBJECT_SLIDE_M": 0.03,
+    "SESSION_RESTARTS": 3,
+    "CAPACITY_WAITS": 8,
+    "NETWORK_RETRIES": 5,
+    "RETRY_PROMPT": ""
+   }
+  },
+  "save": {
+   "request_json": true,
+   "gifs": false
+  },
+  "kind": "harness",
+  "created_at": "2026-11-21T11:40:00+00:00",
+  "estimate": {
+   "trials": 24,
+   "max_calls": 2424,
+   "max_usd": 3.23
+  }
+ },
+ "status": {
+  "status": "completed_with_errors",
+  "total": 24,
+  "done": 24,
+  "errors": 1,
+  "current": null,
+  "message": "All trials finished.",
+  "updated_at": "2026-11-21T11:40:00+00:00"
+ },
+ "request": {
+  "name": "Sample B \u00b7 Harness-assisted",
+  "description": "Sample save file. Dream-1 at 24 rows per reply inside the Spotter harness.",
+  "controller": "dream1",
+  "model": "dreamlabs/dream-1-beta",
+  "scene": "stock",
+  "steps": [
+   {
+    "instruction": "Put the orange into the bowl",
+    "target": "orange",
+    "goal": "inside_bowl"
+   },
+   {
+    "instruction": "Put the banana onto the plate",
+    "target": "banana",
+    "goal": "on_plate"
+   }
+  ],
+  "seeds": [
+   3000,
+   3001,
+   3002,
+   3003,
+   3004,
+   3005,
+   3006,
+   3007,
+   3008,
+   3009,
+   3010,
+   3011
+  ],
+  "trials_per_seed": 2,
+  "sim_seconds": 120.0,
+  "jitter_cm": 2.0,
+  "rows_per_reply": 24,
+  "max_usd": 10.0,
+  "harness": {
+   "enabled": true,
+   "modules": [
+    "reconnect",
+    "clamp_gripper",
+    "grasp_retry",
+    "grasp_depth",
+    "edge_pinch",
+    "backtrack",
+    "place"
+   ],
+   "values": {
+    "CONTROL_HZ": 20,
+    "REPLAY_BUFFER_S": 1.5,
+    "REPLAY_BUFFER_MAX_ROWS": 200,
+    "NEAR_ROWS": 12,
+    "NEAR_RADIUS_M": 0.07,
+    "STALL_S": 8.0,
+    "DROP_S": 2.0,
+    "HIGH_M": 0.005,
+    "MAX_REGRASPS": 3,
+    "HOVER_S": 1.5,
+    "GRIPPER_SLACK": 0.2,
+    "MAX_SUPERVISOR_RETRIES": 2,
+    "HOME_SECONDS": 2.0,
+    "WRONG_OBJECT_LIFT_M": 0.015,
+    "WRONG_OBJECT_SLIDE_M": 0.03,
+    "SESSION_RESTARTS": 3,
+    "CAPACITY_WAITS": 8,
+    "NETWORK_RETRIES": 5,
+    "RETRY_PROMPT": ""
+   }
+  },
+  "save": {
+   "request_json": true,
+   "gifs": false
+  }
+ },
+ "trials": [
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3000,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "touched_no_lift",
+   "success": false,
+   "interventions": [
+    {
+     "row": 302,
+     "reason": "edge_pinch",
+     "arm": "left",
+     "info": 0.31,
+     "obj": "orange"
+    },
+    {
+     "row": 458,
+     "reason": "grasp_stalled",
+     "arm": null,
+     "info": null,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 2400,
+   "first_contact_row": 275,
+   "lifted_row": null,
+   "goal_row": null,
+   "progress": 0,
+   "progress_of": 2,
+   "step_outcomes": [
+    "touched_no_lift",
+    "pending"
+   ],
+   "max_lift_cm": 0.0,
+   "contact_rows": 265,
+   "final_bowl_dist_cm": 21.7,
+   "calls": 100,
+   "request_attempts": 100,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.513,
+   "p95_rtt_s": 2.043,
+   "wall_s": 179.5,
+   "est_cost_usd": 0.1333,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 2,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3000,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3000,
+   "trial": 2,
+   "jitter_cm": 2.0,
+   "outcome": "wrong_object",
+   "success": false,
+   "interventions": [
+    {
+     "row": 181,
+     "reason": "depth_too_high",
+     "arm": "left",
+     "info": 1.4,
+     "obj": "orange"
+    },
+    {
+     "row": 347,
+     "reason": "grasp_stalled",
+     "arm": null,
+     "info": null,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 2400,
+   "first_contact_row": 153,
+   "lifted_row": null,
+   "goal_row": null,
+   "progress": 0,
+   "progress_of": 2,
+   "step_outcomes": [
+    "wrong_object",
+    "pending"
+   ],
+   "max_lift_cm": 0.0,
+   "contact_rows": 290,
+   "final_bowl_dist_cm": 11.7,
+   "calls": 100,
+   "request_attempts": 100,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.85,
+   "p95_rtt_s": 2.498,
+   "wall_s": 232.8,
+   "est_cost_usd": 0.1333,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 2,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3000,
+    "trial": 2,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3001,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "lifted_missed_goal",
+   "success": false,
+   "interventions": [
+    {
+     "row": 344,
+     "reason": "depth_too_high",
+     "arm": "right",
+     "info": 2.2,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 2400,
+   "first_contact_row": 308,
+   "lifted_row": 390,
+   "goal_row": null,
+   "progress": 0,
+   "progress_of": 2,
+   "step_outcomes": [
+    "lifted_missed_goal",
+    "pending"
+   ],
+   "max_lift_cm": 12.0,
+   "contact_rows": 119,
+   "final_bowl_dist_cm": 21.3,
+   "calls": 100,
+   "request_attempts": 100,
+   "request_errors": 0,
+   "network_retries": 1,
+   "median_rtt_s": 1.973,
+   "p95_rtt_s": 2.664,
+   "wall_s": 249.4,
+   "est_cost_usd": 0.1333,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 1,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3001,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3001,
+   "trial": 2,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [
+    {
+     "row": 265,
+     "reason": "depth_too_high",
+     "arm": "left",
+     "info": 1.7,
+     "obj": "orange"
+    },
+    {
+     "row": 269,
+     "reason": "edge_pinch",
+     "arm": "left",
+     "info": 0.31,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 1159,
+   "first_contact_row": 239,
+   "lifted_row": 352,
+   "goal_row": 526,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 16.2,
+   "contact_rows": 198,
+   "final_bowl_dist_cm": 2.9,
+   "calls": 48,
+   "request_attempts": 48,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.655,
+   "p95_rtt_s": 2.234,
+   "wall_s": 103.5,
+   "est_cost_usd": 0.064,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 2,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3001,
+    "trial": 2,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3002,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "partial",
+   "success": false,
+   "interventions": [
+    {
+     "row": 326,
+     "reason": "depth_too_high",
+     "arm": "right",
+     "info": 1.6,
+     "obj": "orange"
+    },
+    {
+     "row": 330,
+     "reason": "edge_pinch",
+     "arm": "left",
+     "info": 0.31,
+     "obj": "orange"
+    },
+    {
+     "row": 402,
+     "reason": "place_align",
+     "arm": "right",
+     "info": 1.9,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 2400,
+   "first_contact_row": 316,
+   "lifted_row": 362,
+   "goal_row": null,
+   "progress": 1,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "partial"
+   ],
+   "max_lift_cm": 15.8,
+   "contact_rows": 384,
+   "final_bowl_dist_cm": 2.3,
+   "calls": 100,
+   "request_attempts": 100,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.735,
+   "p95_rtt_s": 2.342,
+   "wall_s": 210.9,
+   "est_cost_usd": 0.1333,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 3,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3002,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3002,
+   "trial": 2,
+   "jitter_cm": 2.0,
+   "outcome": "partial",
+   "success": false,
+   "interventions": [
+    {
+     "row": 389,
+     "reason": "depth_too_high",
+     "arm": "left",
+     "info": 1.6,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 2400,
+   "first_contact_row": 378,
+   "lifted_row": 440,
+   "goal_row": null,
+   "progress": 1,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "partial"
+   ],
+   "max_lift_cm": 14.7,
+   "contact_rows": 262,
+   "final_bowl_dist_cm": 2.0,
+   "calls": 100,
+   "request_attempts": 100,
+   "request_errors": 0,
+   "network_retries": 1,
+   "median_rtt_s": 1.645,
+   "p95_rtt_s": 2.221,
+   "wall_s": 206.4,
+   "est_cost_usd": 0.1333,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 1,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3002,
+    "trial": 2,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3003,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 957,
+   "first_contact_row": 268,
+   "lifted_row": 347,
+   "goal_row": 481,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 7.1,
+   "contact_rows": 320,
+   "final_bowl_dist_cm": 1.0,
+   "calls": 39,
+   "request_attempts": 39,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.781,
+   "p95_rtt_s": 2.404,
+   "wall_s": 91.9,
+   "est_cost_usd": 0.052,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 0,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3003,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3003,
+   "trial": 2,
+   "jitter_cm": 2.0,
+   "outcome": "touched_no_lift",
+   "success": false,
+   "interventions": [
+    {
+     "row": 410,
+     "reason": "depth_too_high",
+     "arm": "right",
+     "info": 2.3,
+     "obj": "orange"
+    },
+    {
+     "row": 418,
+     "reason": "edge_pinch",
+     "arm": "left",
+     "info": 0.31,
+     "obj": "orange"
+    },
+    {
+     "row": 602,
+     "reason": "grasp_stalled",
+     "arm": null,
+     "info": null,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 2400,
+   "first_contact_row": 404,
+   "lifted_row": null,
+   "goal_row": null,
+   "progress": 0,
+   "progress_of": 2,
+   "step_outcomes": [
+    "touched_no_lift",
+    "pending"
+   ],
+   "max_lift_cm": 0.0,
+   "contact_rows": 235,
+   "final_bowl_dist_cm": 21.7,
+   "calls": 100,
+   "request_attempts": 100,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 2.015,
+   "p95_rtt_s": 2.72,
+   "wall_s": 242.8,
+   "est_cost_usd": 0.1333,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 3,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3003,
+    "trial": 2,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3004,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "touched_no_lift",
+   "success": false,
+   "interventions": [
+    {
+     "row": 266,
+     "reason": "depth_too_high",
+     "arm": "right",
+     "info": 2.3,
+     "obj": "orange"
+    },
+    {
+     "row": 394,
+     "reason": "grasp_stalled",
+     "arm": null,
+     "info": null,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 2400,
+   "first_contact_row": 228,
+   "lifted_row": null,
+   "goal_row": null,
+   "progress": 0,
+   "progress_of": 2,
+   "step_outcomes": [
+    "touched_no_lift",
+    "pending"
+   ],
+   "max_lift_cm": 0.0,
+   "contact_rows": 92,
+   "final_bowl_dist_cm": 15.0,
+   "calls": 100,
+   "request_attempts": 100,
+   "request_errors": 0,
+   "network_retries": 1,
+   "median_rtt_s": 1.908,
+   "p95_rtt_s": 2.576,
+   "wall_s": 213.3,
+   "est_cost_usd": 0.1333,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 2,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3004,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3004,
+   "trial": 2,
+   "jitter_cm": 2.0,
+   "outcome": "lifted_missed_goal",
+   "success": false,
+   "interventions": [
+    {
+     "row": 349,
+     "reason": "grasp_stalled",
+     "arm": null,
+     "info": null,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 2400,
+   "first_contact_row": 169,
+   "lifted_row": 257,
+   "goal_row": null,
+   "progress": 0,
+   "progress_of": 2,
+   "step_outcomes": [
+    "lifted_missed_goal",
+    "pending"
+   ],
+   "max_lift_cm": 6.5,
+   "contact_rows": 41,
+   "final_bowl_dist_cm": 20.7,
+   "calls": 100,
+   "request_attempts": 100,
+   "request_errors": 0,
+   "network_retries": 1,
+   "median_rtt_s": 1.755,
+   "p95_rtt_s": 2.369,
+   "wall_s": 196.6,
+   "est_cost_usd": 0.1333,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 1,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3004,
+    "trial": 2,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3005,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "touched_no_lift",
+   "success": false,
+   "interventions": [
+    {
+     "row": 422,
+     "reason": "depth_too_high",
+     "arm": "right",
+     "info": 2.6,
+     "obj": "orange"
+    },
+    {
+     "row": 574,
+     "reason": "grasp_stalled",
+     "arm": null,
+     "info": null,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 2400,
+   "first_contact_row": 402,
+   "lifted_row": null,
+   "goal_row": null,
+   "progress": 0,
+   "progress_of": 2,
+   "step_outcomes": [
+    "touched_no_lift",
+    "pending"
+   ],
+   "max_lift_cm": 0.0,
+   "contact_rows": 122,
+   "final_bowl_dist_cm": 19.2,
+   "calls": 100,
+   "request_attempts": 100,
+   "request_errors": 0,
+   "network_retries": 1,
+   "median_rtt_s": 1.717,
+   "p95_rtt_s": 2.318,
+   "wall_s": 224.0,
+   "est_cost_usd": 0.1333,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 2,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3005,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3005,
+   "trial": 2,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [
+    {
+     "row": 416,
+     "reason": "place_align",
+     "arm": "right",
+     "info": 4.2,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 852,
+   "first_contact_row": 210,
+   "lifted_row": 341,
+   "goal_row": 432,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 9.7,
+   "contact_rows": 57,
+   "final_bowl_dist_cm": 2.0,
+   "calls": 35,
+   "request_attempts": 35,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.7,
+   "p95_rtt_s": 2.295,
+   "wall_s": 106.3,
+   "est_cost_usd": 0.0467,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 1,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3005,
+    "trial": 2,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3006,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [
+    {
+     "row": 301,
+     "reason": "depth_too_high",
+     "arm": "right",
+     "info": 1.3,
+     "obj": "orange"
+    },
+    {
+     "row": 382,
+     "reason": "place_align",
+     "arm": "right",
+     "info": 1.1,
+     "obj": "orange"
+    },
+    {
+     "row": 449,
+     "reason": "grasp_stalled",
+     "arm": null,
+     "info": null,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 840,
+   "first_contact_row": 269,
+   "lifted_row": 329,
+   "goal_row": 508,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 13.7,
+   "contact_rows": 68,
+   "final_bowl_dist_cm": 1.2,
+   "calls": 35,
+   "request_attempts": 35,
+   "request_errors": 0,
+   "network_retries": 1,
+   "median_rtt_s": 1.741,
+   "p95_rtt_s": 2.35,
+   "wall_s": 114.2,
+   "est_cost_usd": 0.0467,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 3,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3006,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3006,
+   "trial": 2,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [
+    {
+     "row": 386,
+     "reason": "depth_too_high",
+     "arm": "right",
+     "info": 0.7,
+     "obj": "orange"
+    },
+    {
+     "row": 432,
+     "reason": "place_align",
+     "arm": "right",
+     "info": 5.1,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 941,
+   "first_contact_row": 365,
+   "lifted_row": 394,
+   "goal_row": 552,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 10.7,
+   "contact_rows": 171,
+   "final_bowl_dist_cm": 1.5,
+   "calls": 39,
+   "request_attempts": 39,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.445,
+   "p95_rtt_s": 1.951,
+   "wall_s": 115.2,
+   "est_cost_usd": 0.052,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 2,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3006,
+    "trial": 2,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3007,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [
+    {
+     "row": 289,
+     "reason": "edge_pinch",
+     "arm": "left",
+     "info": 0.31,
+     "obj": "orange"
+    },
+    {
+     "row": 304,
+     "reason": "depth_too_high",
+     "arm": "left",
+     "info": 1.2,
+     "obj": "orange"
+    },
+    {
+     "row": 437,
+     "reason": "grasp_stalled",
+     "arm": null,
+     "info": null,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 992,
+   "first_contact_row": 272,
+   "lifted_row": 400,
+   "goal_row": 498,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 15.9,
+   "contact_rows": 312,
+   "final_bowl_dist_cm": 1.5,
+   "calls": 41,
+   "request_attempts": 41,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.629,
+   "p95_rtt_s": 2.199,
+   "wall_s": 89.1,
+   "est_cost_usd": 0.0547,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 3,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3007,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3007,
+   "trial": 2,
+   "jitter_cm": 2.0,
+   "outcome": "error",
+   "success": false,
+   "interventions": [],
+   "error": "wall_timeout",
+   "rows": 148,
+   "first_contact_row": null,
+   "lifted_row": null,
+   "goal_row": null,
+   "progress": 0,
+   "progress_of": 2,
+   "step_outcomes": [
+    "error",
+    "pending"
+   ],
+   "max_lift_cm": 0.0,
+   "contact_rows": 0,
+   "final_bowl_dist_cm": 22.4,
+   "calls": 6,
+   "request_attempts": 7,
+   "request_errors": 1,
+   "network_retries": 0,
+   "median_rtt_s": 1.718,
+   "p95_rtt_s": 2.319,
+   "wall_s": 70.1,
+   "est_cost_usd": 0.008,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3007,
+    "trial": 2,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3008,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [
+    {
+     "row": 377,
+     "reason": "depth_too_high",
+     "arm": "right",
+     "info": 1.8,
+     "obj": "orange"
+    },
+    {
+     "row": 487,
+     "reason": "place_align",
+     "arm": "right",
+     "info": 2.4,
+     "obj": "orange"
+    },
+    {
+     "row": 541,
+     "reason": "grasp_stalled",
+     "arm": null,
+     "info": null,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 951,
+   "first_contact_row": 353,
+   "lifted_row": 446,
+   "goal_row": 665,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 4.6,
+   "contact_rows": 383,
+   "final_bowl_dist_cm": 0.7,
+   "calls": 39,
+   "request_attempts": 39,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.477,
+   "p95_rtt_s": 1.994,
+   "wall_s": 88.1,
+   "est_cost_usd": 0.052,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 3,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3008,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3008,
+   "trial": 2,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [
+    {
+     "row": 300,
+     "reason": "depth_too_high",
+     "arm": "right",
+     "info": 1.8,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 594,
+   "first_contact_row": 268,
+   "lifted_row": 302,
+   "goal_row": 365,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 13.5,
+   "contact_rows": 302,
+   "final_bowl_dist_cm": 2.9,
+   "calls": 24,
+   "request_attempts": 24,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.76,
+   "p95_rtt_s": 2.376,
+   "wall_s": 99.6,
+   "est_cost_usd": 0.032,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 1,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3008,
+    "trial": 2,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3009,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [
+    {
+     "row": 450,
+     "reason": "grasp_stalled",
+     "arm": null,
+     "info": null,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 801,
+   "first_contact_row": 250,
+   "lifted_row": 333,
+   "goal_row": 480,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 14.8,
+   "contact_rows": 381,
+   "final_bowl_dist_cm": 2.2,
+   "calls": 33,
+   "request_attempts": 33,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.498,
+   "p95_rtt_s": 2.022,
+   "wall_s": 108.7,
+   "est_cost_usd": 0.044,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 1,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3009,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3009,
+   "trial": 2,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [
+    {
+     "row": 239,
+     "reason": "depth_too_high",
+     "arm": "left",
+     "info": 1.2,
+     "obj": "orange"
+    },
+    {
+     "row": 406,
+     "reason": "grasp_stalled",
+     "arm": null,
+     "info": null,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 903,
+   "first_contact_row": 223,
+   "lifted_row": 262,
+   "goal_row": 343,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 14.9,
+   "contact_rows": 279,
+   "final_bowl_dist_cm": 2.0,
+   "calls": 37,
+   "request_attempts": 37,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.597,
+   "p95_rtt_s": 2.156,
+   "wall_s": 106.8,
+   "est_cost_usd": 0.0493,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 2,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3009,
+    "trial": 2,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3010,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [
+    {
+     "row": 457,
+     "reason": "depth_too_high",
+     "arm": "left",
+     "info": 1.1,
+     "obj": "orange"
+    },
+    {
+     "row": 609,
+     "reason": "place_align",
+     "arm": "right",
+     "info": 1.4,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 886,
+   "first_contact_row": 420,
+   "lifted_row": 527,
+   "goal_row": 649,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 16.6,
+   "contact_rows": 178,
+   "final_bowl_dist_cm": 0.7,
+   "calls": 36,
+   "request_attempts": 36,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.528,
+   "p95_rtt_s": 2.063,
+   "wall_s": 90.3,
+   "est_cost_usd": 0.048,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 2,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3010,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3010,
+   "trial": 2,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [
+    {
+     "row": 336,
+     "reason": "place_align",
+     "arm": "right",
+     "info": 4.6,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 724,
+   "first_contact_row": 161,
+   "lifted_row": 286,
+   "goal_row": 351,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 8.0,
+   "contact_rows": 139,
+   "final_bowl_dist_cm": 0.3,
+   "calls": 30,
+   "request_attempts": 30,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 2.07,
+   "p95_rtt_s": 2.794,
+   "wall_s": 108.4,
+   "est_cost_usd": 0.04,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 1,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3010,
+    "trial": 2,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3011,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "lifted_missed_goal",
+   "success": false,
+   "interventions": [
+    {
+     "row": 323,
+     "reason": "depth_too_high",
+     "arm": "left",
+     "info": 2.4,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 2400,
+   "first_contact_row": 285,
+   "lifted_row": 347,
+   "goal_row": null,
+   "progress": 0,
+   "progress_of": 2,
+   "step_outcomes": [
+    "lifted_missed_goal",
+    "pending"
+   ],
+   "max_lift_cm": 4.6,
+   "contact_rows": 386,
+   "final_bowl_dist_cm": 22.9,
+   "calls": 100,
+   "request_attempts": 100,
+   "request_errors": 0,
+   "network_retries": 1,
+   "median_rtt_s": 1.839,
+   "p95_rtt_s": 2.483,
+   "wall_s": 231.9,
+   "est_cost_usd": 0.1333,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 1,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3011,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "dreamlabs/dream-1-beta",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3011,
+   "trial": 2,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [
+    {
+     "row": 296,
+     "reason": "depth_too_high",
+     "arm": "left",
+     "info": 1.7,
+     "obj": "orange"
+    },
+    {
+     "row": 421,
+     "reason": "grasp_stalled",
+     "arm": null,
+     "info": null,
+     "obj": "orange"
+    }
+   ],
+   "error": null,
+   "rows": 611,
+   "first_contact_row": 257,
+   "lifted_row": 303,
+   "goal_row": 370,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 5.7,
+   "contact_rows": 204,
+   "final_bowl_dist_cm": 2.9,
+   "calls": 25,
+   "request_attempts": 25,
+   "request_errors": 0,
+   "network_retries": 0,
+   "median_rtt_s": 1.664,
+   "p95_rtt_s": 2.246,
+   "wall_s": 83.9,
+   "est_cost_usd": 0.0333,
+   "steering": [
+    "spotter assist: depth, width, backtrack, place",
+    "spotter watch: grasp"
+   ],
+   "clean": false,
+   "retries": 2,
+   "request": {
+    "model": "dreamlabs/dream-1-beta",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3011,
+    "trial": 2,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0,
+    "harness": {
+     "modules": [
+      "reconnect",
+      "clamp_gripper",
+      "grasp_retry",
+      "grasp_depth",
+      "edge_pinch",
+      "backtrack",
+      "place"
+     ],
+     "values": {
+      "CONTROL_HZ": 20,
+      "REPLAY_BUFFER_S": 1.5,
+      "REPLAY_BUFFER_MAX_ROWS": 200,
+      "NEAR_ROWS": 12,
+      "NEAR_RADIUS_M": 0.07,
+      "STALL_S": 8.0,
+      "DROP_S": 2.0,
+      "HIGH_M": 0.005,
+      "MAX_REGRASPS": 3,
+      "HOVER_S": 1.5,
+      "GRIPPER_SLACK": 0.2,
+      "MAX_SUPERVISOR_RETRIES": 2,
+      "HOME_SECONDS": 2.0,
+      "WRONG_OBJECT_LIFT_M": 0.015,
+      "WRONG_OBJECT_SLIDE_M": 0.03,
+      "SESSION_RESTARTS": 3,
+      "CAPACITY_WAITS": 8,
+      "NETWORK_RETRIES": 5,
+      "RETRY_PROMPT": ""
+     }
+    }
+   },
+   "started_at": "2026-11-21T11:40:00+00:00",
+   "ended_at": "2026-11-21T11:40:00+00:00"
+  }
+ ]
+}

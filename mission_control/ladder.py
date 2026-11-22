@@ -47,6 +47,8 @@ ROOT_NAME = "ladder"
 
 
 def root():
+    if os.environ.get("LADDER_DIR"):
+        return Path(os.environ["LADDER_DIR"])
     return execution.engine_dir() / ".mission-control" / ROOT_NAME
 
 

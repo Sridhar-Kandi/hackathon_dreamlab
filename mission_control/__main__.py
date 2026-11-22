@@ -12,11 +12,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from . import datasets, execution, ladder, plans
+from . import datasets, execution, lab, ladder, plans
 from .catalog import Catalog, metrics
 
 
 WEB = Path(__file__).with_name("web")
+APP = WEB / "app"  # the React console, built by frontend/ (npm run build)
+APP_ROUTES = ("/", "/experiments", "/analyze")
 CACHE_LOCK = threading.Lock()
 snapshot = None
 signature = None
@@ -54,7 +56,7 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):
         pass
 
-    def headers_for(self,status,kind,size,download=False):
+    def headers_for(self,status,kind,size,download=False,filename="simulation-results.jsonl"):
         self.send_response(status)
         self.send_header("Content-Type",kind)
         self.send_header("Content-Length",str(size))
@@ -63,12 +65,12 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Referrer-Policy","no-referrer")
         self.send_header("Content-Security-Policy","default-src 'self'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; object-src 'none'; base-uri 'none'")
         if download:
-            self.send_header("Content-Disposition",'attachment; filename="simulation-results.jsonl"')
+            self.send_header("Content-Disposition",f'attachment; filename="{filename}"')
         self.end_headers()
 
-    def respond(self,data,status=200,download=False):
-        body=json.dumps(data,ensure_ascii=False,allow_nan=False).encode()
-        self.headers_for(status,"application/json; charset=utf-8",len(body),download)
+    def respond(self,data,status=200,download=False,filename="simulation-results.jsonl"):
+        body=json.dumps(data,ensure_ascii=False,allow_nan=False,default=str).encode()
+        self.headers_for(status,"application/json; charset=utf-8",len(body),download,filename)
         self.wfile.write(body)
 
     def file(self,path,download=False):
@@ -121,12 +123,14 @@ class Handler(BaseHTTPRequestHandler):
             if self.headers.get_content_type()!="application/json":
                 return self.respond({"error":"Send JSON."},415)
             size=int(self.headers.get("Content-Length","0"))
-            if not 0<size<=8192:
+            if not 0<size<=(262144 if path.startswith("/api/lab/") else 8192):
                 return self.respond({"error":"Invalid request size."},413)
             try:
                 data=json.loads(self.rfile.read(size))
             except (UnicodeError,ValueError):
                 raise ValueError("Send a valid JSON object.") from None
+            if path.startswith("/api/lab/"):
+                return self.lab_post(path, data)
             if path=="/api/plans/preview":
                 return self.respond(execution.preview(data))
             if path=="/api/preflight":
@@ -160,7 +164,13 @@ class Handler(BaseHTTPRequestHandler):
                 if parts[3]=="resume":
                     return self.respond(execution.resume(parts[2]))
             raise KeyError
-        static={"/":"index.html","/app.js":"app.js","/style.css":"style.css","/motion.js":"motion.js","/hero.js":"hero.js",
+        if path in APP_ROUTES or (path.startswith("/experiments/") and "." not in path):
+            return self.file(APP/"index.html")
+        if re.fullmatch(r"/static/[\w.-]+", path):
+            return self.file(APP/path.lstrip("/"))
+        if path.startswith("/api/lab/") or path.startswith("/lab-media/"):
+            return self.lab_get(path, parse_qs(url.query))
+        static={"/classic":"index.html","/app.js":"app.js","/style.css":"style.css","/motion.js":"motion.js","/hero.js":"hero.js",
                 "/hero3d.js":"hero3d.js","/flow.js":"flow.js"}
         if path in static:
             return self.file(WEB/static[path])
@@ -235,6 +245,36 @@ class Handler(BaseHTTPRequestHandler):
                 return self.file(execution.run_dir(g["id"]) / "results.jsonl", download=True)
         raise KeyError
 
+    def lab_post(self, path, data):
+        parts = path.strip("/").split("/")
+        if path == "/api/lab/experiments":
+            return self.respond(lab.create(data), 201)
+        if len(parts) == 5 and parts[:3] == ["api", "lab", "experiments"] and parts[4] in ("cancel", "delete"):
+            return self.respond(lab.cancel(parts[3]) if parts[4] == "cancel" else lab.delete(parts[3]))
+        if path == "/api/lab/finetunes":
+            return self.respond(lab.start_finetune(data), 201)
+        if len(parts) == 5 and parts[:3] == ["api", "lab", "finetunes"] and parts[4] == "save":
+            return self.respond(lab.save_model(parts[3], data))
+        raise KeyError(path)
+
+    def lab_get(self, path, query):
+        parts = path.strip("/").split("/")
+        if path == "/api/lab/meta":
+            return self.respond(lab.meta())
+        if path == "/api/lab/experiments":
+            return self.respond({"experiments": lab.list_experiments(), "finetunes": lab.finetunes()})
+        if path == "/api/lab/finetunes":
+            return self.respond({"finetunes": lab.finetunes()})
+        if path == "/api/lab/export":
+            ids = [i for i in ",".join(query.get("ids", [])).split(",") if i]
+            name = "experiments.json" if len(ids) != 1 else re.sub(r"[^\w.-]+", "_", ids[0]) + ".json"
+            return self.respond(lab.export(ids), download=True, filename=name)
+        if len(parts) == 4 and parts[:3] == ["api", "lab", "experiments"]:
+            return self.respond(lab.detail(parts[3]))
+        if len(parts) == 3 and parts[0] == "lab-media":
+            return self.file(lab.media_path(parts[1], parts[2]))
+        raise KeyError(path)
+
     def do_GET(self):
         try:
             self.dispatch()
@@ -273,6 +313,7 @@ if __name__=="__main__":
     try:
         with execution.exclusive("coordinator.lock"), ThreadingHTTPServer(("127.0.0.1",args.port),Handler) as server:
             execution.recover()
+            lab.start_worker()
             print(f"YAM Simulation Console: http://127.0.0.1:{server.server_port}",flush=True)
             server.serve_forever()
     except KeyboardInterrupt:
