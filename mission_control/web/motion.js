@@ -5,7 +5,7 @@
   const gsap = window.gsap;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   const enabled = () => Boolean(gsap) && !reduced.matches;
-  const tabOrder = ["workspace","flow","runs","ladder","compare","datasets"];
+  const tabOrder = ["workspace","flow","ladder","compare","datasets"];
   let lastIndex = 0;
 
   /* Navbar: one sliding bar under the active link and one soft highlight that follows the pointer. */
@@ -92,7 +92,7 @@
 
   /* Called by the router after a view is shown. `changed` is false for background refreshes. */
   function enterView(page, changed) {
-    const tab = page === "run" ? "runs" : page;
+    const tab = page;
     if (!changed || !enabled()) return;
     const index = tabOrder.indexOf(tab);
     const direction = index < 0 || index === lastIndex ? 0 : index > lastIndex ? 1 : -1;

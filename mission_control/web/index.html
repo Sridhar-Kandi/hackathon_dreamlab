@@ -22,7 +22,6 @@
     <nav aria-label="Main navigation">
       <a href="#workspace" data-tab="workspace" aria-current="page">Overview</a>
       <a href="#flow" data-tab="flow">How it works</a>
-      <a href="#runs" data-tab="runs">Run log</a>
       <a href="#ladder" data-tab="ladder">Ladder</a>
       <a href="#compare" data-tab="compare">Compare</a>
       <a href="#datasets" data-tab="datasets">Datasets</a>
@@ -72,7 +71,6 @@
       <section class="results" aria-labelledby="results-title">
         <div class="section-head">
           <h2 id="results-title">Trial results</h2>
-          <a class="text-link" href="#runs">Run log</a>
         </div>
         <div id="legend"></div>
         <div id="fresh-results" aria-live="polite"></div>
@@ -164,22 +162,9 @@
         <article class="version-card"><span class="v-tag c2">C2</span><h3>Fine-tuned, Spotter-chosen data</h3><p class="v-what">Spotter picks the data: it replays exactly the starts where base Dream-1 failed, weighted by how often each level failed.</p>
           <dl><dt>Training data</dt><dd><span data-flow="replays">…</span> teacher replays of failed starts + <span data-flow="selfs">…</span> of Dream-1's own clean successes</dd><dt>Why it's here</dt><dd>The claim: data aimed at real failures beats the same amount of arbitrary data.</dd><dt>Held-out</dt><dd data-flow="C2">…</dd></dl></article>
       </div>
-      <section class="panel fair">
-        <h2>Why the comparison is fair</h2>
-        <ul>
-          <li><b>Same budget.</b> C1 and C2 both get 60 episodes, 1000 training steps, the same learning rate and cosine schedule, at $200 each.</li>
-          <li><b>Never seen before.</b> Every version is scored on held-out seeds 2000–2019; the exporter refuses any training episode from those seeds.</li>
-          <li><b>Clean mode.</b> One instruction per trial, no assists and no hints; the simulator only grades. The scripted teacher is a demonstration source only, never a contestant.</li>
-          <li><b>Paired.</b> Every version faces the identical starting positions, so differences are compared seed by seed with McNemar's test, with Wilson intervals on each rate.</li>
-        </ul>
-      </section>
-    </section>
-    <section class="view" data-view="runs" aria-labelledby="runs-title" hidden>
-      <header class="page-header"><h1 id="runs-title">Run log</h1><p>Every run started from this console, newest first.</p></header>
-      <div id="run-list"></div>
     </section>
     <section class="view" data-view="run" aria-labelledby="run-title" hidden>
-      <a class="back" href="#runs">&larr; Run log</a>
+      <a class="back" href="#workspace">&larr; Overview</a>
       <header class="page-header"><h1 id="run-title">Simulation run</h1><p id="run-subtitle"></p><div class="form-actions" id="run-actions"></div></header>
       <div id="run-content"></div>
     </section>
