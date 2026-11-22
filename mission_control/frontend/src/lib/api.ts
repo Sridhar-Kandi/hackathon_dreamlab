@@ -155,7 +155,7 @@ export interface ExperimentDetail {
 export interface FineTuneJob {
   id: string
   name: string
-  base_model: string
+  base_model?: string
   steps: number
   step: number
   sources: { id: string; name: string; kind: Kind; trials: number; successes: number; episodes?: number }[]
@@ -164,7 +164,8 @@ export interface FineTuneJob {
   stage: string
   status: "running" | "completed" | "failed"
   eta_s: number | null
-  dry_run: boolean
+  external?: boolean
+  dataset_name?: string | null
   estimated_usd: number
   episodes?: number
   state?: string

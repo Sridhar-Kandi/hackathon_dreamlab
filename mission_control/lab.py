@@ -101,20 +101,20 @@ def models():
     """Models an experiment can run: the base, fine-tunes started here or by the ladder, and every other
     fine-tuned checkpoint on the Dream Labs account."""
     refresh_account()
-    out = [dict(id=BASE_MODEL, label="Dream-1 (base)", source="base", runnable=True)]
+    out = [dict(id=BASE_MODEL, label=BASE_MODEL, source="base", runnable=True)]
     for job in finetunes():
-        if job.get("model_id") and not job.get("dry_run"):
-            out.append(dict(id=job["model_id"], label=job.get("model_name") or f"Fine-tune {job['name']}",
+        if job.get("model_id"):
+            out.append(dict(id=job["model_id"], label=job["model_id"],
                             source="console", runnable=True, finetune_id=job["id"]))
     try:
         for job in ladder.finetunes():
             if job.get("checkpoint"):
-                out.append(dict(id=job["checkpoint"], label=f"Fine-tune {job['suffix']}", source="ladder", runnable=True))
+                out.append(dict(id=job["checkpoint"], label=job["checkpoint"], source="ladder", runnable=True))
     except (OSError, ValueError, KeyError):
         pass
     for job in ACCOUNT["jobs"] or []:
         if job.get("fine_tuned_model"):
-            out.append(dict(id=job["fine_tuned_model"], label=f"Fine-tune {job.get('suffix')}", source="account",
+            out.append(dict(id=job["fine_tuned_model"], label=job["fine_tuned_model"], source="account",
                             runnable=True))
     seen = set()
     unique = []
@@ -645,9 +645,7 @@ def run_one_trial(exp_id, seed, trial, budget_usd):
 #   queued / training -> poll the job until its checkpoint is published
 # and ends in `completed` (model_id is the runnable checkpoint) or `failed`. The same thread refreshes the
 # account's job list, so any fine-tuned model on the account shows up as runnable without a manual update.
-# Jobs saved by the older dry-run simulation (dry_run=True) are still shown but never produce a model.
 
-STAGES = (("Formatting datasets", 0.08), ("Uploading", 0.12), ("Training Dream-1", 0.75), ("Finalizing weights", 0.05))
 USD_PER_STEP = 0.20
 FT_POLL_S = 60
 FT_ACTIVE = ("preparing", "uploading", "processing", "submitting", "queued", "training")
@@ -737,24 +735,6 @@ def start_finetune(data):
     return finetune_view(job)
 
 
-def _dry_view(job):
-    """The view of a job saved by the older dry-run simulation."""
-    elapsed = time.time() - job["started"]
-    fraction = min(1.0, elapsed / job["duration_s"])
-    stage, start = STAGES[-1][0], 0.0
-    for label, share in STAGES:
-        if fraction < start + share:
-            stage = label
-            break
-        start += share
-    view = {k: v for k, v in job.items() if k != "started"}
-    view.update(progress=round(fraction, 4), stage=stage if fraction < 1 else "Completed",
-                status="completed" if fraction >= 1 else "running",
-                eta_s=round(max(0.0, job["duration_s"] - elapsed)),
-                step=int(job["steps"] * min(1.0, max(0.0, (fraction - 0.2) / 0.75))))
-    return view
-
-
 def _seconds_since(stamp):
     try:
         from datetime import datetime
@@ -764,8 +744,6 @@ def _seconds_since(stamp):
 
 
 def finetune_view(job):
-    if job.get("dry_run"):
-        return _dry_view(job)
     state = job.get("state", "preparing")
     remote = job.get("remote") or {}
     progress = remote.get("progress") or {}
@@ -774,7 +752,7 @@ def finetune_view(job):
     phase = progress.get("phase")
     fixed = {"preparing": 0.02, "uploading": 0.06, "processing": 0.10, "submitting": 0.13, "queued": 0.15,
              "completed": 1.0}
-    fraction = fixed.get(state, 0.15 + 0.8 * min(1.0, step / total))
+    fraction = fixed.get(state, 0.15 + 0.8 * min(1.0, step / total) if total else 0.15)
     if state == "training" and phase == "saving":
         fraction = 0.96
     stage = FT_PHASE.get(phase, FT_STAGE[state]) if state == "training" else FT_STAGE.get(state, state)
@@ -792,8 +770,35 @@ def finetune_view(job):
 
 
 def finetunes():
+    """Fine-tunes started here plus every other job on the Dream Labs account, under their Dream Labs names.
+    Jobs saved by the old dry-run simulation are left out: they never produced a model."""
+    refresh_account()
     jobs = [read_json(p) for p in sorted(finetune_root().glob("ftl-*.json"))]
-    return sorted((finetune_view(j) for j in jobs if j), key=lambda j: j["created_at"], reverse=True)
+    views = [finetune_view(j) for j in jobs if j and not j.get("dry_run")]
+    tracked = {v.get("job_id") for v in views}
+    for remote in ACCOUNT["jobs"] or []:
+        if remote.get("id") not in tracked:
+            views.append(account_job_view(remote))
+    return sorted(views, key=lambda j: j["created_at"] or "", reverse=True)
+
+
+def account_job_view(remote):
+    """A Dream Labs job that was not started from this console (for example by `ladder train`)."""
+    status = remote.get("status")
+    if remote.get("fine_tuned_model"):
+        state = "completed"
+    elif status in ("failed", "cancelled"):
+        state = "failed"
+    else:
+        state = "queued" if status == "queued" else "training"
+    job = dict(id=remote["id"], job_id=remote["id"], name=remote.get("suffix") or remote["id"],
+               steps=(remote.get("hyperparameters") or {}).get("steps") or 0, sources=[], created_at=remote.get("created_at"),
+               state=state, model_id=remote.get("fine_tuned_model"), external=True,
+               dataset_name=remote.get("dataset"), error=remote.get("error") if state == "failed" else None,
+               estimated_usd=(remote.get("price_cents") or 0) / 100,
+               remote={k: remote.get(k) for k in ("status", "progress", "queue_position", "price_cents", "charge",
+                                                   "charged_cents", "started_at", "finished_at", "notice")})
+    return finetune_view(job)
 
 
 def save_model(job_id, data):

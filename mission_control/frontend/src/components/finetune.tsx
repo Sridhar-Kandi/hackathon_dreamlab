@@ -17,7 +17,6 @@ import { dateTime, duration, usd } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 export const FINISHED = new Set(["completed", "completed_with_errors"])
-const DRY_STAGES = ["Formatting datasets", "Uploading", "Training Dream-1", "Finalizing weights"]
 const STAGES = ["Building dataset", "Uploading", "Processing dataset", "Submitting job", "Queued", "Training Dream-1", "Completed"]
 const STAGE_OF_STATE: Record<string, string> = {
   preparing: "Building dataset", uploading: "Uploading", processing: "Processing dataset", submitting: "Submitting job",
@@ -165,8 +164,8 @@ export function FineTuneJobCard({ job, onChanged }: { job: FineTuneJob; onChange
   const navigate = useNavigate()
   const [modelName, setModelName] = useState(job.model_name ?? job.name)
   const [saving, setSaving] = useState(false)
-  const stages = job.dry_run ? DRY_STAGES : STAGES
-  const current = job.dry_run ? job.stage : STAGE_OF_STATE[job.state ?? ""] ?? job.stage
+  const stages = job.external ? STAGES.slice(4) : STAGES
+  const current = STAGE_OF_STATE[job.state ?? ""] ?? job.stage
   const stageIndex = stages.indexOf(current)
   const done = job.status === "completed"
   const failed = job.status === "failed"
@@ -197,12 +196,12 @@ export function FineTuneJobCard({ job, onChanged }: { job: FineTuneJob; onChange
             : failed ? <AlertTriangle className="size-4 text-[#a4262c]" />
               : <Loader2 className="size-4 animate-spin text-[#0078d4]" />}
           <span className="text-[13px] font-semibold">{job.name}</span>
-          {job.dry_run && <Badge variant="secondary" className="rounded-sm text-[11px] font-normal">Dry run · no model</Badge>}
-          {!job.dry_run && job.charge && <Badge variant="outline" className="rounded-sm text-[11px] font-normal">{job.charge} {job.price_usd ? usd(job.price_usd) : ""}</Badge>}
+          {job.job_id && <span className="font-mono text-[11px] text-muted-foreground">{job.job_id}</span>}
+          {job.charge && <Badge variant="outline" className="rounded-sm text-[11px] font-normal">{job.charge} {job.price_usd ? usd(job.price_usd) : ""}</Badge>}
         </div>
         <span className="text-[12px] text-muted-foreground">
-          {job.sources.length} experiment{job.sources.length > 1 ? "s" : ""}
-          {typeof job.episodes === "number" ? ` · ${job.episodes} episodes` : ""} · {job.steps} steps · started {dateTime(job.created_at)}
+          {job.external ? (job.dataset_name ?? "") : `${job.sources.length} experiment${job.sources.length > 1 ? "s" : ""}`}
+          {!job.external && typeof job.episodes === "number" ? ` · ${job.episodes} episodes` : ""} · {job.steps} steps · started {dateTime(job.created_at)}
         </span>
       </div>
       <div className="mt-2 flex items-center gap-3">
@@ -224,18 +223,19 @@ export function FineTuneJobCard({ job, onChanged }: { job: FineTuneJob; onChange
       {!failed && !done && job.last_error && (
         <p className="mt-2 text-[12px] text-[#8a5300]">Retrying after: {job.last_error}</p>
       )}
-      {done && job.dry_run && (
-        <p className="mt-2 text-[12px] text-muted-foreground">This job was a simulation from an earlier console version, so it has no model to run.</p>
-      )}
-      {done && !job.dry_run && job.model_id && (
+      {done && job.model_id && (
         <div className="mt-3 flex flex-wrap items-end gap-2 border-t pt-3">
-          <div className="grid gap-1">
-            <Label className="text-[12px] font-semibold">Model name</Label>
-            <Input value={modelName} onChange={(e) => setModelName(e.target.value)} className="h-8 w-56" />
-          </div>
-          <Button variant="outline" size="sm" className="gap-1" disabled={saving || !modelName.trim()} onClick={save}>
-            <Save className="size-3.5" /> Save model
-          </Button>
+          {!job.external && (
+            <>
+              <div className="grid gap-1">
+                <Label className="text-[12px] font-semibold">Model name</Label>
+                <Input value={modelName} onChange={(e) => setModelName(e.target.value)} className="h-8 w-56" />
+              </div>
+              <Button variant="outline" size="sm" className="gap-1" disabled={saving || !modelName.trim()} onClick={save}>
+                <Save className="size-3.5" /> Save model
+              </Button>
+            </>
+          )}
           <Button size="sm" className="gap-1" onClick={() => navigate(`/experiments?create=1&model=${encodeURIComponent(job.model_id!)}`)}>
             <FlaskConical className="size-3.5" /> Test model in a new experiment
           </Button>
