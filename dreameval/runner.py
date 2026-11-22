@@ -416,7 +416,7 @@ def run_trial(
         if on_sample:
             sample_windows = {name: deque(maxlen=1) for name in dc.VIDEO_ROLES}
             capture(env, sample_windows)
-            on_sample(tracker.row, tracker.step["id"], prompt, env.state(), l, r,
+            on_sample(tracker.row, tracker.step["id"] if ordered_plan else None, prompt, env.state(), l, r,
                       {name: frames[-1] for name, frames in sample_windows.items()})
         if video:
             video.step(l, r)
@@ -674,6 +674,16 @@ def run_trial(
     if error:
         result["outcome"] = "error"
         result["success"] = False
+    # Anything that used simulator ground truth to steer the robot. Ground truth may grade a trial, never drive it.
+    steering = []
+    if policy == "oracle":
+        steering.append("scripted teacher reads simulator object positions")
+    if supervise:
+        steering.append(f"supervisor or assist: {supervise}")
+    if ordered_plan:
+        steering.append("instruction switched when the simulator confirmed a step")
+    result["steering"] = steering
+    result["clean"] = not steering
     result["initial_state_fingerprint"] = initial_state_fingerprint
     if video:
         try:

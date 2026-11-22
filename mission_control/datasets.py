@@ -166,8 +166,13 @@ def export_dataset(output, selected, held_out):
     if any(not episode["eligible"] or episode["seed"] in held_out or episode["fingerprint"] in hold_fingerprints
            for episode in chosen):
         raise ValueError("Selected episodes include failed, incomplete or held-out resets.")
-    manifest = {"status": "pending_provider_validation", "held_out_seeds": held_out,
-                "episodes": [{k: v for k, v in episode.items() if k != "path"} for episode in chosen],
+    write_dataset(output, chosen, held_out)
+
+
+def write_dataset(output, chosen, held_out, recipe=None):
+    """Write chosen episodes ({id, path, frames, seed, source, ...}) as one LeRobot v2.1 dataset."""
+    manifest = {"status": "pending_provider_validation", "held_out_seeds": held_out, "recipe": recipe,
+                "episodes": [{k: str(v) if k == "path" else v for k, v in episode.items()} for episode in chosen],
                 "actions": "right then left, six joint targets in radians and normalized gripper per arm",
                 "source_fps": FPS, "fps": EXPORT_FPS}
     output.mkdir(parents=True)

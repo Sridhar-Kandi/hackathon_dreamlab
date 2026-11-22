@@ -363,6 +363,7 @@ class SequenceTracker:
             progress_of=n,
             step_outcomes=[t.outcome(env) for t in self.steps],
             step_goal_rows=[t.goal_at for t in self.steps],
+            step_details=[t.summary(env) for t in self.steps],
             sequence=[f"{o}:{g}" for o, g in self.spec],
         )
         return base
