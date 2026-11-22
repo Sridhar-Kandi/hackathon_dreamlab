@@ -1,178 +1,231 @@
 # DreamLoop
 
-From `hackathon_dreamlab`, start the console with the repository's virtual environment.
+### Every experiment. A little more capable.
+
+**The evaluation, failure-analysis and fine-tuning studio for Dream-1 in DreamLab.**
+
+DreamLoop turns a robot's failed task into a concrete next step: an execution setting to change, a harness module to enable, or an expert demonstration to train on.
+
+Built for the **Dream Labs track at HackLab Berlin × BRISA**, it connects repeatable simulation, physics-grounded diagnosis, targeted data collection and real API fine-tuning in one developer workspace.
+
+> Run it. Find the failure. Teach the fix. Measure again.
+
+## The problem we solve
+
+A successful robot demo does not tell a developer how reliably a task works, why it fails on a different start, or which demonstrations would help.
+
+That evidence is usually scattered across simulator recordings, configuration files, model calls and training scripts. A missed grasp, a bad placement and a dropped connection can all end with the same unhelpful label: failed.
+
+DreamLoop brings the evidence and the next action into the same workflow.
+
+## One studio, from first run to next checkpoint
+
+| Workspace | What a developer can do |
+| --- | --- |
+| **Overview** | Understand the product, explore the experiment modes and inspect the shippable harness. |
+| **Experiments** | Configure simulations, monitor live trial progress, inspect results and replay individual trials. |
+| **Analyze Jobs** | Compare up to three save files, inspect configuration differences and trace failures. |
+| **Fine-tuning** | Choose a training dataset, launch a real Dream Labs job, track its progress and test the returned model. |
+| **Methodology** | Explore the end-to-end architecture through an expandable flowchart. |
+
+The interface follows Dream Labs' visual language: Walla typography, warm peach and sunshine accents, pastel graphics and locally bundled brand assets. Fixed navigation keeps the workspace accessible while the main content scrolls.
+
+## 1. Run repeatable experiments
+
+Define a scene, an instruction, a target object and a graded goal. Set seeds, repeated trials, object-position jitter, simulation time, action rows per reply and an estimated API cost cap.
+
+For multi-step tasks, Dream-1 receives one combined instruction while the simulator grades the steps in order. Keep starting conditions aligned when comparing configurations.
+
+### Three experiment modes
+
+| Mode | How it runs | What it tells you |
+| --- | --- | --- |
+| **A · Vanilla baseline** | Dream-1 controls the robot without harness modules. | What the model can do unassisted. |
+| **B · Harness-assisted** | Dream-1 runs with your selected assistance modules and settings. | Which interventions help and which failures remain. |
+| **C · Scripted / oracle** | An expert controller uses simulator state and inverse kinematics, without Dream-1 inference. | What a successful trajectory looks like and which demonstrations are available. |
+
+Monitor the active seed, trial and progress. Search and filter experiments, inspect their requests and responses, download save files, cancel running work, and retain configuration and model identity alongside the results.
+
+## 2. Ship the harness with your own workflow
+
+**DreamLoop includes `dream-harness`, a standalone Python library distributed as an installable wheel.** The studio and evaluation engine use the same package, so the capabilities demonstrated in the UI can also be integrated into a developer's simulator workflow.
+
+Pick individual modules for the pick-and-place behavior you want to improve:
+
+| Module | Capability |
+| --- | --- |
+| **Reconnect** | Retries expired sessions, dropped connections and a full model pool. |
+| **Clamp gripper** | Clips small gripper overshoots instead of rejecting the reply. |
+| **Wrong-object watch** | Returns home and re-prompts after a non-target grab. |
+| **Grasp retry** | Returns home and re-prompts after a stalled grasp or a dropped object. |
+| **Grasp depth** | Attempts a lower regrasp when the gripper closes above the object. |
+| **Edge pinch** | Regrasps when the fingers pinch an edge rather than the object's faces. |
+| **Backtrack** | Replays recent commanded motion in reverse after a stalled grasp. |
+| **Place assist** | Centers the carried object over its goal before release. |
+| **Adaptive chunking** | Executes fewer action rows per reply near the object. |
+
+Tune replay buffers, forecast rows, grasp tolerances, retry limits, placement timing and connection handling per run.
+
+**Assistance stays visible.** All modules except Reconnect and Clamp gripper use simulator ground truth to steer behavior. Those runs are marked as steered, keeping assisted outcomes distinguishable from the vanilla model baseline.
+
+## 3. Explain what went wrong
+
+Load up to **three experiment save files** from the server or disk and compare them side by side.
+
+- **Configuration:** model, task, seed coverage, trial count, time limits, action chunk size and harness overrides.
+- **Performance:** success counts, confidence intervals, per-seed outcomes, calls, latency and estimated costs.
+- **Trajectory:** contact, lift, carry and goal-settlement milestones, with an ordered intervention log.
+- **Replay:** inspect recorded camera views and expand available GIF or video playback for a closer look.
+- **Concrete failure reasons:** see the failed step, relevant timing, lift measurements or goal distance when recorded, and the actual exception for infrastructure errors.
+
+Failures are separated into approach, grasp, placement and task-logic problems. Connection and simulator errors remain distinguishable from policy failures.
+
+The goal is a specific decision after each run: adjust a setting, enable a module, or collect the expert trajectory for a difficult starting condition.
+
+## 4. Turn failed starts into successful demonstrations
+
+The **Success from failures** controller closes the gap between diagnosis and data collection.
+
+Choose a finished harness experiment. DreamLoop identifies the seeds where it failed, excludes infrastructure errors, and runs the scripted expert again with the same task, scene, jitter and time limit. The new experiment retains a link to its source.
+
+Its successful runs become teacher corrections for those difficult starts. The original harness experiment's successful trials remain available as additional training examples.
+
+These are expert replays **from the same initial conditions**, rather than recovery clips restored from a mid-run failure state. The failure selects the case; a successful trajectory supplies the behavior to learn.
+
+## 5. Choose the training strategy that fits the question
+
+The fine-tune builder offers two dataset strategies. **Choose one for each job** so demonstration-only training and failure-aware training can be evaluated separately.
+
+| Strategy | Training examples | Purpose |
+| --- | --- | --- |
+| **Dataset 1 · Gold standard** | Complete, successful scripted sessions. | Teach the full task from beginning to end. |
+| **Dataset 2 · Failure corrections + harness successes** | Successful teacher replays from a Success from failures experiment, plus successful trials from its linked harness experiment. | Target difficult starts while retaining behavior the harness already completed successfully. |
+
+Preview the selected trajectories, their sources, episode counts, frame counts and composition before submitting. Unsuccessful teacher replays are left out.
+
+Real training requires complete recorded episodes. The backend checks that selected trajectories have usable recordings and aligned frame counts; importing a result JSON alone does not create trainable camera and action data.
+
+Reserve separate seeds for evaluation when selecting training data. Dataset preparation is a decision the developer can inspect, rather than an invisible side effect.
+
+## 6. Fine-tune through the real Dream Labs API
+
+Fine-tuning in the current console is a **live integration**. After the developer confirms the provider charge, DreamLoop:
+
+1. Builds a LeRobot dataset from the selected successful recordings.
+2. Validates the dataset locally.
+3. Uploads it and waits for Dream Labs processing.
+4. Submits a Dream-1 fine-tuning job.
+5. Tracks queue position, training progress and the published checkpoint.
+6. Makes the completed model available for a new experiment.
+
+Local job state retains dataset and job identifiers. The worker retries transient failures and checks for existing uploads or submissions when resuming.
+
+The dedicated **Fine-tuning** page shows local jobs and jobs discovered on the connected Dream Labs account. Completed models carry fine-tuned labels, and **Test model in a new experiment** takes the returned checkpoint directly back into the run workflow.
+
+### Keep spending understandable
+
+The studio shows estimated inference costs, fine-tuning charges, funds held for active training jobs and available queue information. An optional `DREAM_FINETUNE_BUDGET_USD` setting adds a remaining-budget view.
+
+These totals describe job charges and the configured budget. They are not a live account-credit balance: the service does not expose a balance endpoint.
+
+## The complete improvement loop
+
+```mermaid
+flowchart LR
+    Task[Task and shared seeds] --> A[A: Vanilla]
+    Task --> B[B: Harness-assisted]
+    Task --> C[C: Scripted expert]
+    A --> Analyze[Compare and diagnose]
+    B --> Analyze
+    C --> Analyze
+    Analyze --> Failures[Failed harness seeds]
+    Failures --> Replay[Success from failures: expert replays]
+    C --> D1[D1: Gold demonstrations]
+    Replay --> D2[D2: Teacher corrections]
+    B --> Success[Successful harness trajectories]
+    Success --> D2
+    D1 --> Choose{Choose one dataset}
+    D2 --> Choose
+    Choose --> Train[Validate, upload and fine-tune]
+    Train --> Model[Published Dream-1 checkpoint]
+    Model --> Evaluate[Evaluate on held-out seeds]
+    Evaluate --> Analyze
+```
+
+## Why DreamLoop stands out
+
+**It connects evidence to action.** The same failed seed can be inspected, replayed by an expert, selected for training and revisited in the next model comparison.
+
+**It makes assistance reusable.** Nine selectable harness modules ship as a Python package, alongside the studio that exposes and evaluates them.
+
+**It keeps the experiment interpretable.** Model identity, seed coverage, settings, steering, failure reasons and training sources remain inspectable.
+
+**It closes the product loop.** Experiment execution, failure analysis, correction collection, real fine-tuning and checkpoint re-evaluation are available in the same workflow.
+
+The repository also contains earlier simulator studies on action chunking, pick-and-place tasks, stacking, task ordering and bimanual coordination. They motivate the workflow; they do not establish a universal success rate or a measured gain for every new checkpoint.
+
+## A judge's walkthrough
+
+1. **Create a baseline and a harness experiment** on the same task and seeds.
+2. **Open a failed trial** to inspect its reason, milestones, interventions and camera replay.
+3. **Compare save files in Analyze Jobs** to connect configuration differences with outcomes.
+4. **Create Success from failures** from the harness run to collect expert demonstrations on failed seeds.
+5. **Open Fine-tuning**, choose Dataset 1 or Dataset 2, and inspect exactly which trajectories would train the model.
+6. **Review a completed job and test its checkpoint** on held-out seeds.
+
+Live inference and training use configured Dream Labs access and may incur provider charges. Training completion depends on the service; use an existing completed job when presenting the full loop.
+
+## Run locally
+
+### Open the built studio
+
+From the repository root:
 
 ```powershell
-& .\.venv\Scripts\python.exe -m mission_control
+python -m mission_control --port 8765
 ```
 
-Open [http://127.0.0.1:8765](http://127.0.0.1:8765). The **Overview** introduces DreamLoop, its shippable harness and the three experiment modes. **Methodology** in the sidebar explains the full pipeline through an expandable flowchart. Open **Experiments** to configure runs and inspect results, or **Analyze & fine-tune** to compare save files and preview the two-dataset training mix.
+Open **http://127.0.0.1:8765/**. The repository includes the built frontend; Node is only needed when rebuilding the UI.
 
-## Verify the local simulator
+### Set up simulation
 
-Set up Python 3.13 with the dependencies in `mission_control/requirements-sim.txt`. The stock probe passed with Dream Labs 1.0.42 and MuJoCo 3.17.0.
+Use Python 3.13 and the repository's simulation dependencies:
 
 ```powershell
-& .\.venv\Scripts\python.exe -m pip install -r mission_control/requirements-sim.txt
-& .\.venv\Scripts\python.exe -m mission_control.execution --probe stock
+python -m pip install -r mission_control/requirements-sim.txt
+python -m mission_control.execution --probe stock
 ```
 
-Choose **Run a task**, keep **Tabletop placement sequence** and **Scripted simulator**, then select **Review procedure** and **Start simulation**. The order is orange into bowl, followed by banana onto plate in the same simulation. Both placements must pass the final check. For a timeout check, set **Simulation limit** under **Advanced settings** to one second. The first step should fail after 0.5 seconds and the banana step should stay unreached.
+The requirements include the bundled `dream-harness` wheel. Scripted experiments do not call the Dream-1 inference API. Live model runs and fine-tuning need configured Dream Labs credentials and account access. Start with `--prompt-key` to enter an existing API key without echoing or saving it.
 
-Fresh results are stored under `dreameval/.mission-control/runs/`. The original repository archive is outside the console's result index. The scripted controller uses simulator state and runs without a Dream-1 request. For Dream-1 access and the user-controlled fine-tuning workflow, see [execution and spending](mission_control/EXECUTION.md).
+Recorded-episode export and validation also require the Dream Labs client's dataset dependencies. See [execution and datasets](mission_control/EXECUTION.md) for setup details, and use the current Fine-tuning page for live job controls.
 
-- [Presentation walkthrough](mission_control/DEMO.md)
-- [Phase results](PHASE_RESULTS.md)
-- [Development plan](tasks.md)
-- [Showcase bundle with fresh results](YAM-Simulation-Console-showcase.zip)
+### Rebuild the frontend
 
----
-
-# dreameval: an evaluation harness for Dream-1 (HackLab Berlin × BRISA, Dream Labs track)
-
-Handoff document: everything a teammate needs to continue from here (status as of Sat 21 Nov 2026, 23:15).
-
-**Track:** "Build a Tool for Dream-1 Users" using [dreamlabs](https://github.com/dreamlabs-co/dreamlabs), tested in the simulator.
-**Rubric /100:** real-user value 25 · robustness 25 · technical difficulty 20 · demo quality 20 · presentation 10.
-**Deadline:** submit by **Sun 22 Nov 16:30** (our plan: code freeze 13:00, submit 16:00). 3-min live demo + 2-min Q&A.
-
-## What it is
-
-dreameval runs Dream-1 on a task many times in Dream YAM Sim (MuJoCo) and grades every run from physics ground truth. It reports:
-
-- **Success rate** with 95% confidence intervals. Settings are compared **paired**: same seeds, same start states, then a McNemar test.
-- **Why runs fail:** one failure label per trial (wrong object, touched but never lifted, lifted but missed the goal, wrong destination, illegal move, never together, …).
-- **A GIF per trial** of exactly the 3 camera views the model saw, plus an HTML report per run.
-- **Cost and latency:** API calls per trial, estimated $ per trial and per success, median round trip.
-
-It runs headless, with no viewer and no real-time pacing. Physics pauses while waiting for a reply, as the stock runner does.
-
-## Organizer Q&A: the 5 user pain points, and our coverage
-
-| Pain point (organizers) | Status |
-|---|---|
-| Reliability: does a task work every time? Slow first responses? | ✅ core of the harness (paired N-trial sweeps). Missing: first-response / slowest-call numbers in the report. |
-| Knowing why a run failed | ✅ failure labels + GIFs + event logs. Missing: plain-English explanations of API errors. |
-| Credits running out mid-task | ⚠️ the sweep stops on `DA-1000` and resumes only missing trials. Missing: **safe stop of the robot** (put the object down, open, go home) and a `--max-usd` budget cap. |
-| Cameras: are images reaching the model correctly? | ❌ not started. The library already ships `DebugView` / `dream.input_check`, so integrate those rather than rebuild. |
-| Recording demos without a robot | ⚠️ the scripted oracle makes correct sim demos for free. Missing: export to LeRobot format, which `dream.datasets.validate_dataset()` checks locally. |
-
-Two things the official library already ships, so don't rebuild them:
-- `DebugView`, `python -m dream.check`, `dream.check_model`, `dream.input_check`, and `trained_inputs` warnings. See the `dreamlabs` README and CHANGELOG.
-- Running `get_action()` on its own thread.
-
-What none of them do: N-trial reliability, before/after comparisons, demos without a robot. **That is our niche.**
-
-## Headline results (all measured; raw data in `dreameval/runs/<name>/results.jsonl`)
-
-Setup for every run: dream-1-beta, Dream YAM Sim, ±2 cm start jitter, success graded from MuJoCo ground truth (object settled for 1 s).
-
-**1. Rows executed per reply is the biggest setting lever.** Orange into bowl:
-
-| rows/reply | 16 | **24** | 32 | 48 (stock default) |
-|---|---|---|---|---|
-| success | 10/20 | 10/20 | 3/20 | 1/20 |
-
-- Pooled over all runs: 24 rows got 50/92, 48 rows got 5/72.
-- Paired, 40 trials: 24 beat 48 on 19 seeds and lost on 2, McNemar p = 0.0002.
-- At 48 the dominant failure is a grasp that never corrects; at 16–32 it is picking the wrong object.
-
-**2. Wording and nondeterminism.**
-- Prompt wording made no measurable difference (9/20 vs 10/20).
-- The same seeds went 9/10 in one session and 4/10 in another. Always compare paired, in the same session.
-
-**3. Plain Dream-1 is about 40% on block tasks.** All at 24 rows:
-
-| task | success |
-|---|---|
-| red block on blue | 6/15 |
-| 3-block stack | 8/20 |
-| orange into bowl | 10/15 |
-| banana on plate | 1/15 (10 of 15 went into the bowl instead) |
-
-**4. Grasp root cause** (`probe_grasp.py`):
-- Dream-1 closes too high. In failed grasps the tool point is 1.0–1.9 cm above the block's top face; in successful lifts it is 0.1–0.7 cm.
-- Retrying from the home pose ("grasp-retry supervisor") never beat plain in 3 paired tests: 14/20 vs 14/20, 4/10 vs 5/10, 4/10 vs 5/10.
-
-**5. Assist experiment** (`assist.py`, mode `assist_place`): grasp-depth fix + placement centring, using sim ground truth.
-
-| task | plain | `assist_place` | won/lost | p |
-|---|---|---|---|---|
-| red on blue | 6/15 | 14/15 | 8/0 | 0.008 |
-| 3-stack | 8/20 | 17/20 | 10/1 | 0.012 |
-| banana on plate | 1/15 | 8/15 | 8/1 | 0.039 |
-| orange into bowl | 10/15 | 10/15 | — | — |
-
-**Team decision:** set aside as overfitting, because it reads exact positions from the simulator. Present it only as a diagnosis: it shows placement, not grasping, was the bottleneck.
-
-**6. Tower of Hanoi** (`hanoi.py`, scene `hanoi`; 3 blocks on 3 pads; 24 rows, single prompt, 420 s):
-- Oracle 8/8; Dream-1 **0/6**.
-- 5 of 6 broke the size rule; furthest progress through the 7-move solution was 0, 2, 5, 3, 5, 5.
-- Twice it piled all three blocks on the target pad in the wrong order.
-- One instruction per move: 1/4 trials broke the rule, typically 3–4/7 moves. Team decision: that is the user's choice, not a harness feature.
-
-**7. Two-arm tasks** (`bimanual.py`; 24 rows, 120 s, 10 seeds):
-- **`racks`** (sort a red and a blue tube into colour-coded racks, each tube starting on the opposite side): oracle 8/8, Dream-1 **1/10**.
-  - Red tube placed in 5/10, blue in 1/10.
-  - The arms never worked at the same time.
-- **`hold_fill`** (left arm holds a cup up by its handle, right arm drops a tube in): oracle 7/8, Dream-1 **2/10**.
-  - The cup was held in 7/10 trials, but the hold and the tube carry only overlapped in the 2 successes, for about 0.3 s.
-  - The arms work in turn, not together.
-
-## Code map (`dreameval/`)
-
-| File | What |
-|---|---|
-| `runner.py` | One headless trial: stock Dream YAM Sim env + Dream client + grader. `python runner.py --task ... --target ... --goal ...` |
-| `sweep.py` | Paired, resumable sweeps over prompts × rows/reply × modes; parallel workers; writes `runs/<name>/results.jsonl` + `report.html`; stops cleanly on DA-1000 |
-| `detectors.py` | Ground-truth checks: contacts, lift, settle, `on:<x>`, `in:<container>`, `inside_bowl`, `on_plate`; `Tracker`, `SequenceTracker` (ordered/unordered); failure labels |
-| `report.py` | HTML report (tables, intervals, outcomes, GIFs) |
-| `paired.py` | `python paired.py runs/<name>`: per-seed table, wins/losses vs plain, McNemar p |
-| `scenes.py` | Scenes built from the stock MJCF: `stock`, `blocks2`, `blocks3`, `hanoi`, `racks`, `hold_fill` |
-| `oracle.py` | Scripted pick-and-place controller from ground truth + IK (the ceiling; `--model oracle`; no API cost) |
-| `bimanual.py` | Containers/tubes, `HoldFillTracker`, coordination metrics (`both_arms_busy_s`, `arm_collision_s`, cup sway/tilt), two-arm oracle |
-| `hanoi.py` | Hanoi grader (settled configurations, legality, progress) + BFS planner; mode `stepwise` |
-| `assist.py` | The shelved ground-truth assists (`assist`, `assist_place`, `place_only`, `assist_adaptive`) |
-| `probe_*.py` | One-off investigations (grasp height, redirect/occlusion, resampling) |
-| `notes/dreamlabs_message.md` | Draft findings message to Dream Labs |
-| `runs/` | Every run's `config.json`, `results.jsonl`, `report.html`, and logs. **Per-trial GIFs are not in git** (4.7 GB), so report pages show broken images. A few examples are in `showcase/`. |
-
-## Setup (Windows notes)
-
-```bash
-python -m venv dream-env && dream-env/Scripts/pip install dreamlabs   # tested with dreamlabs 1.0.42, Python 3.13
-# API key: put DREAM_API_KEY=... in ~/.dreamlabs/credentials (never commit it)
-cd dreameval
-../dream-env/Scripts/python.exe sweep.py run --name try1 --prompt "put orange into the bowl" \
-    --target orange --goal inside_bowl --actions 24 --sim-seconds 60 --trials 4 --jitter-cm 2 --workers 4 --record
-../dream-env/Scripts/python.exe paired.py runs/try1
+```powershell
+cd mission_control/frontend
+npm.cmd ci
+npm.cmd run build
 ```
 
-Notes:
-- `dreamcli` crashes on Windows (`import fcntl`). We don't need it: the harness imports the sim example `dream_examples/yam_mujoco` directly.
-- Use 3–4 parallel workers. One trial costs about $0.03–0.13 (24 rows ≈ 50–100 calls at roughly $0.00133 per call).
-- Keys die with `DA-1000 UNAUTHORIZED (disabled)` when credits run out. Rerunning the same sweep command resumes and reruns only missing or errored trials.
+The build writes to `mission_control/web/app`, which the Python server serves directly.
 
-Example commands for the newer scenes:
+## Under the hood
 
-```bash
-python sweep.py run --name dream_racks --scene racks --prompt "put the red tube in the red rack and the blue tube in the blue rack" \
-    --target red_tube --goal in:red_rack --actions 24 --sim-seconds 120 --trials 10 --seed0 300 --jitter-cm 2 --workers 5 --record
-python sweep.py run --name oracle_hold_fill --scene hold_fill --prompt oracle --target red_tube --goal in:cup \
-    --model oracle --actions 24 --sim-seconds 45 --trials 8 --seed0 300 --jitter-cm 2 --workers 8
-```
+| Layer | Technology |
+| --- | --- |
+| Studio | React, TypeScript, Vite, Tailwind CSS, shadcn/ui, Radix and Recharts |
+| Application and orchestration | Python, local experiment records, job workers and recorded media |
+| Simulation and grading | Dream YAM / MuJoCo with physics-state outcome detectors |
+| Reusable assistance | Standalone `dream-harness` Python wheel |
+| Training | Dream Labs SDK, LeRobot dataset export and validation, live fine-tuning and checkpoint discovery |
 
-## Proposed next steps (not started)
+## Explore the implementation
 
-1. **Safe stop + budget cap.** On DA-1000, a network drop or a stalled reply, put any held object down, open the gripper and go home. Add `--max-usd`, and a fault-injection switch for a live demo: stock runner frozen holding the orange vs dreameval putting it down.
-2. **Early stop.** End a trial when its result can't change: object off the table, illegal move, no progress for 60 s. This roughly halves sweep time and cost.
-3. **Demo export.** Write oracle demos and successful Dream-1 runs as LeRobot datasets, check them with `validate_dataset()`, then `add_embodiment` + `upload_dataset`. Only `finetune()` costs credits; jobs take about 7–8 h. Then compare base vs fine-tuned on paired seeds.
-4. **Camera + latency checks** in the report: all 3 cameras present, live and not black; first-response time; slowest calls.
-5. **Packaging:** one task file, one command, a clean live log (`rich`).
+- [Standalone harness: installation, configuration and modules](harness/README.md)
+- [Frontend: local development and design system](mission_control/frontend/README.md)
+- [Execution, recordings and datasets](mission_control/EXECUTION.md)
+- [Historical phase results](PHASE_RESULTS.md)
+- [Evaluation engine and recorded studies](dreameval/)
 
-## Rejected ideas (with reasons)
-
-- **Async dual-threading / action interpolation:** the library already threads `get_action()`; median RTT is about 0.5 s; in sim, pausing physics is correct.
-- **IK failure guard:** dream-1-beta returns joint targets; there is no IK step.
-- **"Reset arm and retry until success":** measured no gain in 3 paired tests.
-- **Tight-clearance peg-in-hole:** the much easier `hold_fill` is already 2/10, and force micro-correction would be scripted control (overfitting).
+**DreamLoop — turn every run into a better next experiment.**
