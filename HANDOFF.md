@@ -1,3 +1,21 @@
+# Current UI context (22 Nov 2026)
+
+- Product name: **DreamLoop**, a Dream-1 evaluation, failure-analysis and targeted fine-tuning studio for DreamLab simulations.
+- Current checkout: `C:\Users\SridharKandi\hackathon_dreamlab`. The React console is in `mission_control/frontend` (React 19, TypeScript, Vite, Tailwind 4, shadcn/Radix, lucide-react).
+- Design now follows `https://dreamlabs.ai/`: bundled Walla (400–700), Bitcount Single detail labels, charcoal `#1c1c1c`, creamsicle `#ffb87b`, sunshine `#ffe885`, pastel lavender and grass accents, pill buttons and rounded panels. Source tokens were verified against the live public `tokens.css` and `components.css`. Original logo/cloud/playground SVGs and fonts live in `mission_control/frontend/src/assets`; Vite bundles them into `/static/`. Light/dark semantic tokens cover all React pages, including charts, status badges and forms; old Azure literals have been removed.
+- `/` is the Overview landing page, including the standalone harness and all nine selectable capabilities. `/methodology` is a sidebar destination with an expandable execution → analysis → two-dataset curation → training/validation flowchart. `/experiments` is the run/create workflow; `?create=1` opens the creation dialog. `/analyze` compares up to three save files and contains the two-dataset pipeline. Ladder remains in `/classic`.
+- Overview source: `src/pages/overview/overview-page.tsx`; methodology: `src/pages/methodology/methodology-page.tsx`; shared harness information: `src/components/harness-capabilities.tsx`; routing: `src/App.tsx`; shared navigation/branding: `src/components/app-shell.tsx`; tokens and diagram layout: `src/index.css` (all paths relative to the frontend). The Python server also registers `/methodology` for direct navigation.
+- Overview describes A vanilla, B harness-assisted and C scripted/oracle; simulator-grounded contact/lift/settle grading; save-file comparison; D1 successful scripted sessions plus D2 same-seed expert corrections and scripted mix; API fine-tuning and held-out re-evaluation. It presents methodology, without claiming measured improvements or a completed checkpoint.
+- `mission_control/lab.py:start_finetune` creates preview jobs (`dry_run=True`); Methodology explicitly labels this. The ladder CLI has the live training path. Do not describe the console preview as a live provider job.
+- The shared shell is viewport-height with an independently scrolling main pane, so the header and sidebar stay in place. Route changes reset main-pane scroll. Numeric Create experiment fields use editable text drafts and numeric keyboards, with required/range/integer validation before submission; numeric harness overrides are converted back to numbers in the request.
+- The studio sidebar links only Overview, Experiments, Analyze & fine-tune, and Methodology. The Ladder link and its empty More tools section have been removed; the legacy console route is retained.
+- Dream Labs restyle validation: TypeScript/Vite production build passes; all four React page routes and every bundled font, SVG, stylesheet and script return HTTP 200 from the Python server. Compiled CSS includes Walla, Bitcount Single and the verified brand tokens. Browser visual review was unavailable because the browser access host was not running.
+- `npm.cmd ci` installs frontend dependencies; `npm.cmd run build` type-checks and writes the production bundle to `mission_control/web/app`. The Python server serves that bundle. For development, use the API server on port 8781 and Vite's configured proxies.
+- The earlier experiment handoff below is historical context from another checkout. Confirm job/data state locally before acting on its running-job notes. This Overview task does not launch simulations or training.
+- Validation: production build and local HTTP response passed; the desktop Overview and methodology jump link were reviewed in Chrome. Further browser interaction and responsive checks were stopped by the user with Escape.
+
+---
+
 # Handoff: difficulty ladder + two fine-tunes (Sun 22 Nov, ~04:10)
 
 Branch `worktree-ui-redesign` (pushed). Worktree: `hackathon_dreamlab/.claude/worktrees/ui-redesign`.

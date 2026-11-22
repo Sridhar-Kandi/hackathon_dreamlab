@@ -3,14 +3,14 @@ import {
 } from "recharts"
 
 // Categorical slots in fixed order (validated palette). Compared runs take slots 1-3 by their position.
-export const SERIES = ["#2a78d6", "#eb6834", "#1baf7a"]
-const AXIS = { fontSize: 11, fill: "#605e5c" }
-const GRID = "#edebe9"
+export const SERIES = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)"]
+const AXIS = { fontSize: 11, fill: "var(--muted-foreground)" }
+const GRID = "var(--border)"
 
 const tooltipStyle = {
-  contentStyle: { fontSize: 12, borderRadius: 2, borderColor: "#e1dfdd", boxShadow: "0 2px 6px rgba(0,0,0,.08)" },
-  labelStyle: { color: "#201f1e", fontWeight: 600 },
-  itemStyle: { color: "#323130" },
+  contentStyle: { fontSize: 12, borderRadius: 12, borderColor: "var(--border)", backgroundColor: "var(--popover)", color: "var(--popover-foreground)", boxShadow: "0 8px 24px -12px rgba(28,28,28,.18)" },
+  labelStyle: { color: "var(--foreground)", fontWeight: 600 },
+  itemStyle: { color: "var(--foreground)" },
   cursor: { fill: "rgba(0,0,0,0.04)" },
 }
 
@@ -27,7 +27,7 @@ export function HorizontalBars({ data, valueLabel, height }: {
         <YAxis type="category" dataKey="label" width={150} tick={AXIS} axisLine={false} tickLine={false} />
         <Tooltip {...tooltipStyle} formatter={(value) => [value, valueLabel]} />
         <Bar dataKey="value" name={valueLabel} fill={SERIES[0]} barSize={14} radius={[0, 2, 2, 0]} isAnimationActive={false}
-          label={{ position: "right", fontSize: 11, fill: "#323130" }} />
+          label={{ position: "right", fontSize: 11, fill: "var(--foreground)" }} />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -45,14 +45,14 @@ export function GroupedBars({ data, series, unit = "", height = 240, percent = f
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 8, right: 8, bottom: 4, left: 0 }} barGap={2}>
         <CartesianGrid vertical={false} stroke={GRID} />
-        <XAxis dataKey="label" tick={AXIS} axisLine={{ stroke: "#c8c6c4" }} tickLine={false} interval={0} />
+        <XAxis dataKey="label" tick={AXIS} axisLine={{ stroke: "var(--input)" }} tickLine={false} interval={0} />
         <YAxis tick={AXIS} axisLine={false} tickLine={false} width={40}
           tickFormatter={(v) => (percent ? `${Math.round(v * 100)}%` : `${v}${unit}`)}
           domain={percent ? [0, 1] : [0, "auto"]} />
         <Tooltip {...tooltipStyle}
           formatter={(value, name) => [value === null || value === undefined ? "—"
             : percent ? `${(Number(value) * 100).toFixed(0)}%` : `${value}${unit}`, name]} />
-        {series.length > 1 && <Legend iconType="square" iconSize={10} wrapperStyle={{ fontSize: 12, color: "#323130" }} />}
+        {series.length > 1 && <Legend iconType="square" iconSize={10} wrapperStyle={{ fontSize: 12, color: "var(--foreground)" }} />}
         {series.map((s, index) => (
           <Bar key={s.key} dataKey={s.key} name={s.name} fill={SERIES[index % SERIES.length]} barSize={16} isAnimationActive={false}
             radius={[2, 2, 0, 0]} />
@@ -64,9 +64,9 @@ export function GroupedBars({ data, series, unit = "", height = 240, percent = f
 
 export function StatTile({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-sm border bg-white px-3 py-2.5">
+    <div className="rounded-sm border bg-card px-3 py-2.5">
       <p className="text-[12px] text-muted-foreground">{label}</p>
-      <p className="mt-0.5 text-[20px] font-semibold text-[#201f1e] tabular-nums">{value}</p>
+      <p className="mt-0.5 text-[20px] font-semibold text-foreground tabular-nums">{value}</p>
       {sub && <p className="text-[11px] text-muted-foreground">{sub}</p>}
     </div>
   )

@@ -107,7 +107,7 @@ export function AnalyzePage() {
           actions={loading ? <Loader2 className="size-4 animate-spin text-muted-foreground" /> : null}>
           <div className="mb-3 flex flex-wrap gap-2">
             {files.map((f, i) => (
-              <span key={f.id} className="inline-flex items-center gap-2 rounded-sm border bg-[#faf9f8] py-1 pr-1 pl-2 text-[12px]"
+              <span key={f.id} className="inline-flex items-center gap-2 rounded-sm border bg-background py-1 pr-1 pl-2 text-[12px]"
                 style={{ boxShadow: `inset 3px 0 0 ${SERIES[i]}` }}>
                 <RunHeading file={f} index={i} />
                 <Button variant="ghost" size="icon" className="size-5" aria-label={`Remove ${f.name}`} onClick={() => toggle(f.id, false)}>
@@ -126,7 +126,7 @@ export function AnalyzePage() {
               const id = "upload" in item ? item.upload!.id : item.experiment!.id
               const index = chosen.indexOf(id)
               return (
-                <label key={id} className={cn("flex items-center gap-2 rounded-sm border px-2 py-1.5 text-[12px] hover:bg-[#faf9f8]", index >= 0 && "border-[#0078d4] bg-[#eff6fc]")}>
+                <label key={id} className={cn("flex items-center gap-2 rounded-sm border px-2 py-1.5 text-[12px] hover:bg-background", index >= 0 && "border-ring bg-accent")}>
                   <Checkbox checked={index >= 0} onCheckedChange={(v) => toggle(id, !!v)} />
                   {"upload" in item ? <UploadRow file={item.upload!} /> : <ExperimentRow e={item.experiment!} />}
                   {index >= 0 && <span className="ml-auto font-semibold" style={{ color: SERIES[index] }}>{SLOT_LETTERS[index]}</span>}
@@ -147,7 +147,7 @@ export function AnalyzePage() {
         {files.length > 0 && (
           <>
             <div className="flex items-center gap-3 pt-2">
-              <h2 className="text-[16px] font-semibold text-[#201f1e]">Analysis & comparison</h2>
+              <h2 className="text-[16px] font-semibold text-foreground">Analysis & comparison</h2>
               <div className="h-px flex-1 bg-border" />
             </div>
             <Section title="Hyperparameters & configuration" description="Exact settings of each save file; differing rows are highlighted.">
@@ -161,7 +161,7 @@ export function AnalyzePage() {
             </Section>
 
             <div className="flex items-center gap-3 pt-4">
-              <h2 className="text-[16px] font-semibold text-[#201f1e]">Fine-tuning pipeline</h2>
+              <h2 className="text-[16px] font-semibold text-foreground">Fine-tuning pipeline</h2>
               <div className="h-px flex-1 bg-border" />
             </div>
             <PipelineBuilder key={filesKey} files={files} finetunes={finetunes} onChanged={refresh} />

@@ -10,8 +10,8 @@ export function RunHeading({ file, index }: { file: SaveFile; index: number }) {
   return (
     <span className="inline-flex items-center gap-1.5">
       <span className="size-2.5 rounded-[2px]" style={{ background: SERIES[index] }} aria-hidden />
-      <span className="font-semibold text-[#201f1e]">{SLOT_LETTERS[index]}</span>
-      <span className="max-w-52 truncate font-normal text-[#323130]" title={file.name}>{file.name}</span>
+      <span className="font-semibold text-foreground">{SLOT_LETTERS[index]}</span>
+      <span className="max-w-52 truncate font-normal text-foreground" title={file.name}>{file.name}</span>
     </span>
   )
 }
@@ -32,9 +32,9 @@ export function ConfigDiff({ files }: { files: SaveFile[] }) {
       </div>
       <div className="max-h-[420px] overflow-auto rounded-sm border">
         <Table className="text-[12px]">
-          <TableHeader className="sticky top-0 z-10 bg-[#faf9f8]">
+          <TableHeader className="sticky top-0 z-10 bg-background">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="h-8 w-56 px-3 text-[12px] font-semibold text-[#605e5c]">Setting</TableHead>
+              <TableHead className="h-8 w-56 px-3 text-[12px] font-semibold text-muted-foreground">Setting</TableHead>
               {files.map((f, i) => (
                 <TableHead key={f.id} className="h-8 px-3 text-[12px]"><RunHeading file={f} index={i} /></TableHead>
               ))}
@@ -46,14 +46,14 @@ export function ConfigDiff({ files }: { files: SaveFile[] }) {
               lastGroup = row.group
               return [
                 groupRow && (
-                  <TableRow key={`${row.group}-heading`} className="bg-[#f3f2f1] hover:bg-[#f3f2f1]">
-                    <TableCell colSpan={files.length + 1} className="px-3 py-1 text-[11px] font-semibold tracking-wide text-[#605e5c] uppercase">{row.group}</TableCell>
+                  <TableRow key={`${row.group}-heading`} className="bg-muted hover:bg-muted">
+                    <TableCell colSpan={files.length + 1} className="px-3 py-1 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">{row.group}</TableCell>
                   </TableRow>
                 ),
-                <TableRow key={`${row.group}-${row.label}`} className={cn(row.differs && "bg-[#fff8e1] hover:bg-[#fff4ce]")}>
-                  <TableCell className="px-3 py-1.5 text-[#323130]">
+                <TableRow key={`${row.group}-${row.label}`} className={cn(row.differs && "bg-warning-bg hover:bg-warning-bg")}>
+                  <TableCell className="px-3 py-1.5 text-foreground">
                     {row.label}
-                    {row.differs && <span className="ml-1.5 rounded-sm border border-[#f2d675] px-1 text-[10px] text-[#8a5300]">differs</span>}
+                    {row.differs && <span className="ml-1.5 rounded-sm border border-warning-border px-1 text-[10px] text-warning">differs</span>}
                   </TableCell>
                   {row.values.map((v, i) => (
                     <TableCell key={i} className="max-w-64 truncate px-3 py-1.5 font-mono text-[11.5px]" title={v}>{v}</TableCell>
@@ -104,9 +104,9 @@ export function PerformanceComparison({ files }: { files: SaveFile[] }) {
     <div className="grid gap-4">
       <div className="overflow-x-auto rounded-sm border">
         <Table className="text-[13px]">
-          <TableHeader className="bg-[#faf9f8]">
+          <TableHeader className="bg-background">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="h-8 w-72 px-3 text-[12px] font-semibold text-[#605e5c]">Metric</TableHead>
+              <TableHead className="h-8 w-72 px-3 text-[12px] font-semibold text-muted-foreground">Metric</TableHead>
               {files.map((f, i) => <TableHead key={f.id} className="h-8 px-3 text-[12px]"><RunHeading file={f} index={i} /></TableHead>)}
             </TableRow>
           </TableHeader>
@@ -117,9 +117,9 @@ export function PerformanceComparison({ files }: { files: SaveFile[] }) {
               const target = valid.length > 1 ? (m.best === "high" ? Math.max(...valid) : Math.min(...valid)) : null
               return (
                 <TableRow key={m.label}>
-                  <TableCell className="px-3 py-1.5 text-[#323130]">{m.label}</TableCell>
+                  <TableCell className="px-3 py-1.5 text-foreground">{m.label}</TableCell>
                   {stats.map((s, i) => (
-                    <TableCell key={i} className={cn("px-3 py-1.5 tabular-nums", target !== null && values[i] === target && "font-semibold text-[#107c10]")}>
+                    <TableCell key={i} className={cn("px-3 py-1.5 tabular-nums", target !== null && values[i] === target && "font-semibold text-success")}>
                       {m.render(s)}{target !== null && values[i] === target ? " ★" : ""}
                     </TableCell>
                   ))}

@@ -91,7 +91,7 @@ export function ExperimentsPage() {
       cell: ({ row }) => (
         <div className="min-w-0 max-w-72">
           <div className="flex items-center gap-1.5">
-            <span className="truncate font-semibold text-[#0063b1] hover:underline">{row.original.name}</span>
+            <span className="truncate font-semibold text-accent-foreground hover:underline">{row.original.name}</span>
             <SourceBadge source={row.original.source} />
           </div>
           <p className="truncate text-[12px] text-muted-foreground" title={row.original.instruction}>{row.original.instruction}</p>
@@ -233,17 +233,17 @@ export function ExperimentsPage() {
           <div className="relative">
             <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name"
-              className="h-8 w-64 bg-white pl-8 text-[13px]" />
+              className="h-8 w-64 bg-card pl-8 text-[13px]" />
           </div>
           <Select value={modelFilter} onValueChange={setModelFilter}>
-            <SelectTrigger size="sm" className="w-52 bg-white text-[13px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger size="sm" className="w-52 bg-card text-[13px]"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All models</SelectItem>
               {models.map((m) => <SelectItem key={m} value={m}>{modelLabel(m)}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={kindFilter} onValueChange={setKindFilter}>
-            <SelectTrigger size="sm" className="w-40 bg-white text-[13px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger size="sm" className="w-40 bg-card text-[13px]"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All types</SelectItem>
               <SelectItem value="vanilla">Vanilla</SelectItem>
@@ -254,7 +254,7 @@ export function ExperimentsPage() {
           <Button variant="ghost" size="sm" className="gap-1 text-[13px]" onClick={refresh}>
             <RefreshCw className="size-3.5" /> Refresh
           </Button>
-          {error && <span className="text-[12px] text-[#a4262c]">{error}</span>}
+          {error && <span className="text-[12px] text-destructive">{error}</span>}
         </div>
         <DataTable
           columns={columns}
@@ -300,7 +300,7 @@ export function ExperimentsPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-[#a4262c] hover:bg-[#8a1f24]" onClick={confirmDelete}>Delete</AlertDialogAction>
+            <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={confirmDelete}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

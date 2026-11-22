@@ -25,9 +25,9 @@ function Field({ label, hint, error, children, className }: {
 }) {
   return (
     <div className={cn("grid content-start gap-1.5", className)}>
-      <Label className="text-[12px] font-semibold text-[#323130]">{label}</Label>
+      <Label className="text-[12px] font-semibold text-foreground">{label}</Label>
       {children}
-      {error ? <p className="text-[12px] text-[#a4262c]">{error}</p>
+      {error ? <p className="text-[12px] text-destructive">{error}</p>
         : hint ? <p className="text-[12px] text-muted-foreground">{hint}</p> : null}
     </div>
   )
@@ -37,7 +37,7 @@ function FormSection({ number, title, children }: { number: number; title: strin
   return (
     <section className="grid gap-3 border-b pb-5 last:border-0">
       <h3 className="flex items-center gap-2 text-[14px] font-semibold">
-        <span className="flex size-5 items-center justify-center rounded-full bg-[#eff6fc] text-[11px] text-[#004578]">{number}</span>
+        <span className="flex size-5 items-center justify-center rounded-full bg-accent text-[11px] text-accent-foreground">{number}</span>
         {title}
       </h3>
       {children}
@@ -61,11 +61,11 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
   const [taskMode, setTaskMode] = useState<"single" | "steps">("single")
   const [steps, setSteps] = useState<Step[]>([{ instruction: "Put the orange into the bowl", target: "orange", goal: "inside_bowl" }])
   const [seedText, setSeedText] = useState("1000-1004")
-  const [trialsPerSeed, setTrialsPerSeed] = useState(2)
-  const [simSeconds, setSimSeconds] = useState(60)
-  const [jitter, setJitter] = useState(2)
-  const [rowsPerReply, setRowsPerReply] = useState(24)
-  const [maxUsd, setMaxUsd] = useState(5)
+  const [trialsText, setTrialsText] = useState("2")
+  const [simSecondsText, setSimSecondsText] = useState("60")
+  const [jitterText, setJitterText] = useState("2")
+  const [rowsText, setRowsText] = useState("24")
+  const [maxUsdText, setMaxUsdText] = useState("5")
   const [harnessOn, setHarnessOn] = useState(false)
   const [modules, setModules] = useState<string[]>(DEFAULT_MODULES)
   const [values, setValues] = useState<Record<string, number | string>>({})
@@ -97,8 +97,26 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
   const trimmedName = name.trim()
   const nameError = !trimmedName ? null
     : takenNames.has(trimmedName.toLowerCase()) ? "This name is already used. Experiment names must be unique." : null
+  const trialsPerSeed = numericValue(trialsText)
+  const simSeconds = numericValue(simSecondsText)
+  const jitter = numericValue(jitterText)
+  const rowsPerReply = numericValue(rowsText)
+  const maxUsd = numericValue(maxUsdText)
+  const numericErrors = {
+    trials: numericError(trialsText, "Trials per seed", 1, 20, true),
+    time: numericError(simSecondsText, "Simulated time", 5, 420),
+    jitter: numericError(jitterText, "Object jitter", 0, 5),
+    rows: numericError(rowsText, "Rows per reply", 1, 48, true),
+    cost: numericError(maxUsdText, "API cost cap", 0, 500),
+  }
+  const harnessErrors: Record<string, string | null> = {}
+  for (const setting of meta?.harness.settings ?? []) {
+    if (setting.type !== "str") {
+      harnessErrors[setting.name] = numericError(values[setting.name] ?? "", setting.name, setting.min, setting.max, setting.type === "int")
+    }
+  }
   const totalTrials = seedParse.seeds.length * trialsPerSeed
-  const callsPerTrial = Math.floor((simSeconds * 20) / rowsPerReply) + 1
+  const callsPerTrial = rowsPerReply > 0 ? Math.floor((simSeconds * 20) / rowsPerReply) + 1 : 0
   const estimatedUsd = controller === "dream1"
     ? Math.min(callsPerTrial * totalTrials * (meta?.usd_per_call ?? 3 / 2250), maxUsd) : 0
   const selectedModel = meta?.models.find((m) => m.id === model)
@@ -144,12 +162,19 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
     !trimmedName && "Enter an experiment name.",
     nameError,
     seedParse.error,
+    numericErrors.trials,
+    numericErrors.time,
+    numericErrors.jitter,
+    controller === "dream1" && numericErrors.rows,
+    controller === "dream1" && numericErrors.cost,
+    harnessOn && Object.values(harnessErrors).find(Boolean),
     activeSteps.some((s) => !s.instruction.trim()) && "Write a statement for every step.",
     totalTrials > 400 && "Keep seeds × trials at 400 or fewer.",
     controller === "dream1" && selectedModel && !selectedModel.runnable && "This model has no published checkpoint yet.",
   ].filter(Boolean) as string[]
 
   async function submit() {
+    if (blockers.length || submitting) return
     setSubmitting(true)
     setServerError(null)
     try {
@@ -168,7 +193,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="grid max-h-[92vh] grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden rounded-sm p-0 sm:max-w-4xl">
+      <DialogContent className="grid max-h-[92vh] grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-4xl">
         <DialogHeader className="border-b px-6 py-4">
           <DialogTitle className="text-[18px]">Create experiment</DialogTitle>
           <DialogDescription className="text-[13px]">
@@ -196,9 +221,9 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
                   ["expert", Cpu, "Scripted expert (forward kinematics)", "Reads simulator state and solves each move with IK. Produces ideal demonstrations; no API cost."],
                 ] as const).map(([value, Icon, title, text]) => (
                   <button key={value} type="button" onClick={() => changeController(value)}
-                    className={cn("flex gap-3 rounded-sm border p-3 text-left hover:border-[#0078d4]",
-                      controller === value && "border-[#0078d4] bg-[#eff6fc] shadow-[inset_0_0_0_1px_#0078d4]")}>
-                    <Icon className="mt-0.5 size-5 text-[#0078d4]" />
+                    className={cn("flex gap-3 rounded-sm border p-3 text-left hover:border-ring",
+                      controller === value && "border-ring bg-accent shadow-[inset_0_0_0_1px_var(--ring)]")}>
+                    <Icon className="mt-0.5 size-5 text-accent-foreground" />
                     <span>
                       <span className="block text-[13px] font-semibold">{title}</span>
                       <span className="block text-[12px] text-muted-foreground">{text}</span>
@@ -220,11 +245,11 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
                       </SelectContent>
                     </Select>
                   </Field>
-                  <Field label="Rows per reply" hint="Action rows executed from each model reply (1–48).">
-                    <Input type="number" min={1} max={48} value={rowsPerReply} onChange={(e) => setRowsPerReply(Number(e.target.value))} />
+                  <Field label="Rows per reply" hint="Action rows executed from each model reply (1–48)." error={numericErrors.rows}>
+                    <Input type="text" inputMode="numeric" aria-label="Rows per reply" aria-invalid={!!numericErrors.rows} value={rowsText} onChange={(e) => setRowsText(e.target.value)} />
                   </Field>
-                  <Field label="API cost cap (USD)" hint="The run stops when the estimate reaches this.">
-                    <Input type="number" min={0} max={500} step={0.5} value={maxUsd} onChange={(e) => setMaxUsd(Number(e.target.value))} />
+                  <Field label="API cost cap (USD)" hint="The run stops when the estimate reaches this." error={numericErrors.cost}>
+                    <Input type="text" inputMode="decimal" aria-label="API cost cap (USD)" aria-invalid={!!numericErrors.cost} value={maxUsdText} onChange={(e) => setMaxUsdText(e.target.value)} />
                   </Field>
                 </div>
               )}
@@ -252,14 +277,14 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
               </div>
               <div className="grid gap-2">
                 {activeSteps.map((step, index) => (
-                  <div key={index} className="grid items-end gap-3 rounded-sm border bg-[#faf9f8] p-3 md:grid-cols-[1fr_160px_160px_auto]">
+                  <div key={index} className="grid items-end gap-3 rounded-sm border bg-background p-3 md:grid-cols-[1fr_160px_160px_auto]">
                     <Field label={taskMode === "single" ? "Statement" : `Step ${index + 1} statement`}>
                       <Input value={step.instruction} onChange={(e) => updateStep(index, { instruction: e.target.value })}
-                        placeholder="Put the orange into the bowl" maxLength={300} className="bg-white" />
+                        placeholder="Put the orange into the bowl" maxLength={300} className="bg-card" />
                     </Field>
                     <Field label="Object (graded)">
                       <Select value={step.target} onValueChange={(v) => updateStep(index, { target: v })}>
-                        <SelectTrigger className="w-full bg-white"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="w-full bg-card"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {sceneInfo?.objects.map((o) => <SelectItem key={o} value={o}>{humanize(o)}</SelectItem>)}
                         </SelectContent>
@@ -267,7 +292,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
                     </Field>
                     <Field label="Goal (graded)">
                       <Select value={step.goal} onValueChange={(v) => updateStep(index, { goal: v })}>
-                        <SelectTrigger className="w-full bg-white"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="w-full bg-card"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {sceneInfo?.goals.map((g) => <SelectItem key={g} value={g}>{humanize(g)}</SelectItem>)}
                         </SelectContent>
@@ -299,17 +324,17 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
                   hint="Each seed fixes the starting scene (object jitter). Ranges and lists: 1000-1009, 1020">
                   <Input value={seedText} onChange={(e) => setSeedText(e.target.value)} className="font-mono" />
                 </Field>
-                <Field label="Trials per seed" hint="Repeats of the same starting scene.">
-                  <Input type="number" min={1} max={20} value={trialsPerSeed} onChange={(e) => setTrialsPerSeed(Number(e.target.value))} />
+                <Field label="Trials per seed" hint="Repeats of the same starting scene (1–20)." error={numericErrors.trials}>
+                  <Input type="text" inputMode="numeric" aria-label="Trials per seed" aria-invalid={!!numericErrors.trials} value={trialsText} onChange={(e) => setTrialsText(e.target.value)} />
                 </Field>
-                <Field label="Simulated time per trial (s)">
-                  <Input type="number" min={5} max={420} value={simSeconds} onChange={(e) => setSimSeconds(Number(e.target.value))} />
+                <Field label="Simulated time per trial (s)" hint="Between 5 and 420 seconds." error={numericErrors.time}>
+                  <Input type="text" inputMode="decimal" aria-label="Simulated time per trial (s)" aria-invalid={!!numericErrors.time} value={simSecondsText} onChange={(e) => setSimSecondsText(e.target.value)} />
                 </Field>
-                <Field label="Object jitter (cm)" hint="Random start offset per seed.">
-                  <Input type="number" min={0} max={5} step={0.5} value={jitter} onChange={(e) => setJitter(Number(e.target.value))} />
+                <Field label="Object jitter (cm)" hint="Random start offset per seed (0–5 cm)." error={numericErrors.jitter}>
+                  <Input type="text" inputMode="decimal" aria-label="Object jitter (cm)" aria-invalid={!!numericErrors.jitter} value={jitterText} onChange={(e) => setJitterText(e.target.value)} />
                 </Field>
               </div>
-              <div className="rounded-sm border border-[#c7e0f4] bg-[#eff6fc] px-3 py-2 text-[13px] text-[#004578]">
+              <div className="rounded-sm border border-accent-border bg-accent px-3 py-2 text-[13px] text-accent-foreground">
                 {seedParse.seeds.length} seed{seedParse.seeds.length === 1 ? "" : "s"} × {trialsPerSeed} trial{trialsPerSeed === 1 ? "" : "s"} per seed
                 = <b>{totalTrials} trials</b>. Every trial of a seed starts from the same scene, so repeats show how consistent the controller is.
                 {controller === "expert" && " The scripted expert is deterministic, so repeats of a seed give the same result."}
@@ -317,6 +342,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
             </FormSection>
 
             <FormSection number={5} title="Harness">
+              <p className="text-[12px] text-muted-foreground">DreamLoop ships dream-harness as a standalone Python module. Pick the capabilities you want to add to Dream-1 for pick-and-place tasks; the same module selection and settings can be used outside the console.</p>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <label className={cn("flex w-fit items-center gap-2 text-[13px]", controller === "expert" && "cursor-not-allowed opacity-50")}>
@@ -329,10 +355,10 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
               {harnessOn && (
                 <div className="grid gap-4 rounded-sm border p-4">
                   <div>
-                    <p className="mb-2 text-[12px] font-semibold text-[#323130]">Modules</p>
+                    <p className="mb-2 text-[12px] font-semibold text-foreground">Modules</p>
                     <div className="grid gap-2 md:grid-cols-3">
                       {(meta?.harness.modules ?? []).map((module) => (
-                        <label key={module} className="flex gap-2 rounded-sm border p-2 hover:bg-[#faf9f8]">
+                        <label key={module} className="flex gap-2 rounded-sm border p-2 hover:bg-background">
                           <Checkbox className="mt-0.5" checked={modules.includes(module)}
                             onCheckedChange={(v) => setModules((current) => v ? [...current, module] : current.filter((m) => m !== module))} />
                           <span>
@@ -347,7 +373,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-[12px] font-semibold text-[#323130]">Settings</p>
+                    <p className="text-[12px] font-semibold text-foreground">Settings</p>
                     <Button variant="ghost" size="sm" className="h-7 gap-1 text-[12px]" onClick={() => setValues(defaults)}>
                       <RotateCcw className="size-3.5" /> Reset to library defaults
                     </Button>
@@ -358,18 +384,19 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
                       <div className="grid gap-3 md:grid-cols-3">
                         {Object.entries(group.settings).map(([key, info]) => {
                           const spec = meta?.harness.settings.find((s) => s.name === key)
-                          const changed = values[key] !== defaults[key]
+                          const changed = (spec?.type === "str" ? values[key] : numericValue(values[key] ?? "")) !== defaults[key]
                           return (
-                            <Field key={key} label={`${info.label}${info.unit ? ` (${info.unit})` : ""}`} hint={info.help}
+                            <Field key={key} label={`${info.label}${info.unit ? ` (${info.unit})` : ""}`} hint={info.help} error={harnessErrors[key]}
                               className={key === "RETRY_PROMPT" ? "md:col-span-3" : undefined}>
                               <Input
-                                type={spec?.type === "str" ? "text" : "number"}
-                                min={spec?.min ?? undefined} max={spec?.max ?? undefined}
-                                step={spec?.type === "int" ? 1 : "any"}
+                                type="text"
+                                inputMode={spec?.type === "str" ? "text" : spec?.type === "int" ? "numeric" : "decimal"}
+                                aria-label={info.label}
+                                aria-invalid={!!harnessErrors[key]}
                                 value={values[key] ?? ""}
-                                className={cn(changed && "border-[#0078d4] bg-[#eff6fc]")}
+                                className={cn(changed && "border-ring bg-accent")}
                                 onChange={(e) => setValues((current) => ({
-                                  ...current, [key]: spec?.type === "str" ? e.target.value : Number(e.target.value),
+                                  ...current, [key]: e.target.value,
                                 }))}
                               />
                             </Field>
@@ -401,10 +428,10 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
             </FormSection>
           </div>
         </div>
-        <DialogFooter className="flex-col items-stretch gap-2 border-t bg-[#faf9f8] px-6 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <DialogFooter className="flex-col items-stretch gap-2 border-t bg-background px-6 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-[12px] text-muted-foreground">
-            {serverError ? <span className="text-[#a4262c]">{serverError}</span>
-              : blockers.length ? <span className="text-[#8a5300]">{blockers[0]}</span>
+            {serverError ? <span className="text-destructive">{serverError}</span>
+              : blockers.length ? <span className="text-warning">{blockers[0]}</span>
               : <>{totalTrials} trials · {controller === "dream1" ? `up to ${(callsPerTrial * totalTrials).toLocaleString()} model calls · est. ≤ ${usd(estimatedUsd)}` : "no API cost"}</>}
           </div>
           <div className="flex gap-2">
@@ -422,7 +449,23 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
 function changedValues(values: Record<string, number | string>, defaults: Record<string, number | string>) {
   const out: Record<string, number | string> = {}
   for (const [key, value] of Object.entries(values)) {
-    if (value !== defaults[key]) out[key] = value
+    const parsed = typeof defaults[key] === "number" ? numericValue(value) : value
+    if (parsed !== defaults[key]) out[key] = parsed
   }
   return out
+}
+
+function numericValue(value: string | number) {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+function numericError(value: string | number, label: string, min: number | null, max: number | null, integer = false) {
+  if (!String(value).trim()) return `${label} is required.`
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed)) return `Enter a valid number for ${label.toLowerCase()}.`
+  if (integer && !Number.isInteger(parsed)) return `${label} must be a whole number.`
+  if (min !== null && parsed < min) return `${label} must be at least ${min}.`
+  if (max !== null && parsed > max) return `${label} must be ${max} or less.`
+  return null
 }

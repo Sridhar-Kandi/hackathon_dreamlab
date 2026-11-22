@@ -1,4 +1,4 @@
-# YAM Simulation Console
+# DreamLoop
 
 From `hackathon_dreamlab`, start the console with the repository's virtual environment.
 
@@ -6,7 +6,7 @@ From `hackathon_dreamlab`, start the console with the repository's virtual envir
 & .\.venv\Scripts\python.exe -m mission_control
 ```
 
-Open [http://127.0.0.1:8765](http://127.0.0.1:8765). The **Overview** explains what the simulator measures and shows contact, lift and settlement for the fresh trials. Open **Run log** to inspect individual trials, view playback, or download the original result records.
+Open [http://127.0.0.1:8765](http://127.0.0.1:8765). The **Overview** introduces DreamLoop, its shippable harness and the three experiment modes. **Methodology** in the sidebar explains the full pipeline through an expandable flowchart. Open **Experiments** to configure runs and inspect results, or **Analyze & fine-tune** to compare save files and preview the two-dataset training mix.
 
 ## Verify the local simulator
 

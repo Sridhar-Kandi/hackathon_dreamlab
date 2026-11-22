@@ -116,13 +116,13 @@ export function FineTuneDialog({ open, onOpenChange, selected, onStarted }: {
                   <KindBadge kind={e.kind} />
                   {FINISHED.has(e.status)
                     ? <span className="text-[12px] text-muted-foreground">{e.successes}/{e.graded} ok</span>
-                    : <span className="flex items-center gap-1 text-[12px] text-[#a4262c]"><Lock className="size-3" /> not run yet</span>}
+                    : <span className="flex items-center gap-1 text-[12px] text-destructive"><Lock className="size-3" /> not run yet</span>}
                 </span>
               </div>
             ))}
           </div>
           {blocked.length > 0 && (
-            <p className="rounded-sm border border-[#f1bbbc] bg-[#fde7e9] p-2 text-[12px] text-[#a4262c]">
+            <p className="rounded-sm border border-danger-border bg-danger-bg p-2 text-[12px] text-destructive">
               {blocked.length} selected experiment{blocked.length > 1 ? "s have" : " has"} not finished running, so there is no data to train on.
               Deselect {blocked.length > 1 ? "them" : "it"} or wait until the run completes.
             </p>
@@ -139,15 +139,11 @@ export function FineTuneDialog({ open, onOpenChange, selected, onStarted }: {
               <span className="text-[11px] text-muted-foreground">Multiple of 100, 500–10,000. About 8 h per 1,000.</span>
             </div>
           </div>
-          <AccountSpend />
-          <label className="flex items-start gap-2 rounded-sm border border-[#f9e2ae] bg-[#fff8e6] p-2 text-[12px]">
-            <Checkbox className="mt-0.5" checked={confirmed} onCheckedChange={(v) => setConfirmed(!!v)} />
-            <span>
-              This is a real Dream Labs job. Charge about <b>{usd(cost)}</b> ({steps.toLocaleString()} steps × {usd(USD_PER_STEP)}) to the account.
-              Only successful trials recorded with "Record training episodes" are used.
-            </span>
-          </label>
-          {error && <p className="text-[12px] text-[#a4262c]">{error}</p>}
+          <p className="text-[12px] text-muted-foreground">
+            Dry run: the console simulates the Dream fine-tuning API (stages, timing, returned model id). Nothing is uploaded or billed.
+            A live job of this size would cost about {usd(steps * 0.2)}.
+          </p>
+          {error && <p className="text-[12px] text-destructive">{error}</p>}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
@@ -189,12 +185,10 @@ export function FineTuneJobCard({ job, onChanged }: { job: FineTuneJob; onChange
   else if (job.eta_s !== null && job.eta_s !== undefined) status += ` · ${duration(job.eta_s)} left`
 
   return (
-    <div className="rounded-sm border bg-white p-3">
+    <div className="rounded-sm border bg-card p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          {done ? <CheckCircle2 className="size-4 text-[#107c10]" />
-            : failed ? <AlertTriangle className="size-4 text-[#a4262c]" />
-              : <Loader2 className="size-4 animate-spin text-[#0078d4]" />}
+          {done ? <CheckCircle2 className="size-4 text-success" /> : <Loader2 className="size-4 animate-spin text-accent-foreground" />}
           <span className="text-[13px] font-semibold">{job.name}</span>
           {job.job_id && <span className="font-mono text-[11px] text-muted-foreground">{job.job_id}</span>}
           {job.charge && <Badge variant="outline" className="rounded-sm text-[11px] font-normal">{job.charge} {job.price_usd ? usd(job.price_usd) : ""}</Badge>}
@@ -211,11 +205,9 @@ export function FineTuneJobCard({ job, onChanged }: { job: FineTuneJob; onChange
       <ol className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12px]">
         {stages.map((stage, index) => (
           <li key={stage} className={cn("flex items-center gap-1",
-            done || index < stageIndex ? "text-[#107c10]" : index === stageIndex ? "font-semibold text-[#004578]" : "text-muted-foreground")}>
-            <span className={cn("size-1.5 rounded-full", done || index < stageIndex ? "bg-[#107c10]" : index === stageIndex ? "bg-[#0078d4]" : "bg-[#c8c6c4]")} />
-            {stage === "Training Dream-1" && index === stageIndex && job.stage !== stage ? job.stage : stage}
-            {stage === "Training Dream-1" && index === stageIndex && job.step ? ` (step ${job.step}/${job.steps})` : ""}
-            {stage === "Queued" && index === stageIndex && job.queue_position ? ` (#${job.queue_position})` : ""}
+            done || index < stageIndex ? "text-success" : index === stageIndex ? "font-semibold text-accent-foreground" : "text-muted-foreground")}>
+            <span className={cn("size-1.5 rounded-full", done || index < stageIndex ? "bg-success" : index === stageIndex ? "bg-primary" : "bg-input")} />
+            {stage}{stage === "Training Dream-1" && index === stageIndex ? ` (step ${job.step}/${job.steps})` : ""}
           </li>
         ))}
       </ol>

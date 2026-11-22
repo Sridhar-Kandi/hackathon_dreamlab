@@ -37,7 +37,7 @@ function SourceList({ files, chosen, onToggle, filter }: {
       {files.map((f, i) => {
         const allowed = filter ? filter(f) : true
         return (
-          <label key={f.id} className={`flex items-center gap-2 rounded-sm border px-2 py-1.5 text-[12px] ${allowed ? "hover:bg-[#faf9f8]" : "opacity-50"}`}>
+          <label key={f.id} className={`flex items-center gap-2 rounded-sm border px-2 py-1.5 text-[12px] ${allowed ? "hover:bg-background" : "opacity-50"}`}>
             <Checkbox checked={chosen.has(f.id)} disabled={!allowed} onCheckedChange={(v) => onToggle(f.id, !!v)} />
             <span className="font-semibold">{SLOT_LETTERS[i]}</span>
             <span className="min-w-0 flex-1 truncate">{f.name}</span>
@@ -148,9 +148,9 @@ export function PipelineBuilder({ files, finetunes, onChanged }: {
   }
 
   const shares = plan.total ? [
-    { label: "D1 gold", n: plan.gold.length, color: "#2a78d6" },
-    { label: "D2 corrections", n: plan.failureRows.length, color: "#eb6834" },
-    { label: "D2 scripted mix", n: plan.scriptedRows.length, color: "#1baf7a" },
+    { label: "D1 gold", n: plan.gold.length, color: "var(--chart-1)" },
+    { label: "D2 corrections", n: plan.failureRows.length, color: "var(--chart-2)" },
+    { label: "D2 scripted mix", n: plan.scriptedRows.length, color: "var(--chart-3)" },
   ] : []
   const sample = [...plan.gold.slice(0, 3), ...plan.failureRows.slice(0, 4), ...plan.scriptedRows.slice(0, 2)]
 
@@ -191,7 +191,7 @@ export function PipelineBuilder({ files, finetunes, onChanged }: {
             <b>{plan.failureRows.length}</b> failure cases · <b>{plan.scriptedRows.length}</b> scripted rows · {plan.d2Frames.toLocaleString()} frames
           </p>
           {(plan.infra > 0 || plan.scriptedShort > 0) && (
-            <p className="mt-1 flex items-start gap-1 text-[12px] text-[#8a5300]">
+            <p className="mt-1 flex items-start gap-1 text-[12px] text-warning">
               <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
               {plan.infra > 0 && `${plan.infra} infrastructure errors are left out (not policy failures). `}
               {plan.scriptedShort > 0 && `Only ${plan.scriptedRows.length} scripted episodes are available for the mix.`}
@@ -209,13 +209,13 @@ export function PipelineBuilder({ files, finetunes, onChanged }: {
           <>
             <div className="flex h-7 overflow-hidden rounded-sm border">
               {shares.filter((s) => s.n).map((s) => (
-                <div key={s.label} className="flex items-center justify-center border-r border-white text-[11px] font-semibold text-white"
+                <div key={s.label} className="flex items-center justify-center border-r border-card text-[11px] font-semibold text-primary-foreground"
                   style={{ width: `${(s.n / plan.total) * 100}%`, background: s.color }} title={`${s.label}: ${s.n}`}>
                   {s.n / plan.total > 0.12 ? `${Math.round((s.n / plan.total) * 100)}%` : ""}
                 </div>
               ))}
             </div>
-            <div className="mt-1.5 flex flex-wrap gap-4 text-[12px] text-[#323130]">
+            <div className="mt-1.5 flex flex-wrap gap-4 text-[12px] text-foreground">
               {shares.map((s) => (
                 <span key={s.label} className="flex items-center gap-1"><span className="size-2.5 rounded-[2px]" style={{ background: s.color }} />{s.label}: {s.n}</span>
               ))}
@@ -224,10 +224,10 @@ export function PipelineBuilder({ files, finetunes, onChanged }: {
         )}
         <div className="mt-4 overflow-x-auto rounded-sm border">
           <Table className="text-[12px]">
-            <TableHeader className="bg-[#faf9f8]">
+            <TableHeader className="bg-background">
               <TableRow className="hover:bg-transparent">
                 {["Dataset", "Source", "Seed · trial", "Failure", "Corrected by", "Frames"].map((h) => (
-                  <TableHead key={h} className="h-8 px-3 text-[12px] font-semibold text-[#605e5c]">{h}</TableHead>
+                  <TableHead key={h} className="h-8 px-3 text-[12px] font-semibold text-muted-foreground">{h}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -275,8 +275,8 @@ export function PipelineBuilder({ files, finetunes, onChanged }: {
           Train {trainRows.length} trajectories on Dream Labs and charge about <b>{usd(steps * 0.2)}</b> to the account
         </label>
         <p className="mt-2 text-[12px] text-muted-foreground">
-          {blockers.length ? <span className="text-[#8a5300]">{blockers[0]}</span>
-            : "Real fine-tune: the dataset is built from the recorded episodes, uploaded and trained by Dream Labs (about 8 hours per 1,000 steps). The model becomes runnable here when its checkpoint is published."}
+          {blockers.length ? <span className="text-warning">{blockers[0]}</span>
+            : `Dry run of the Dream-1 fine-tuning API: stages and timing are simulated, nothing is uploaded or billed (a live job would cost about ${usd(steps * 0.2)}).`}
         </p>
         <div className="mt-3"><AccountSpend /></div>
         {job && <div className="mt-3"><FineTuneJobCard job={job} onChanged={onChanged} /></div>}

@@ -1,14 +1,25 @@
-# Console frontend
+# DreamLoop frontend
 
 React + TypeScript + Vite, Tailwind CSS and shadcn/ui (Radix). The Python server serves the build from
 `../web/app`, so the console runs without Node once built.
 
 ## Pages
 
+- `/` — DreamLoop overview: the product pitch, shippable harness capabilities and three experiment modes.
+- `/methodology` — expandable flowchart covering execution, failure analysis, both datasets, API training and held-out validation.
 - `/experiments` — every experiment (console runs, ladder collections, sample save files): create, view results
   in a modal, delete, save to file, fine-tune selected runs.
 - `/analyze` — compare up to three save files, diagnose failures, build the two-dataset fine-tune.
-- Overview, Ladder and How it works still open in the classic console at `/classic`.
+- The sidebar contains Overview, Experiments, Analyze & fine-tune, and Methodology. The legacy console remains available at `/classic`.
+
+## Visual design
+
+The studio follows the public [Dream Labs](https://dreamlabs.ai/) design system: Walla typography,
+Bitcount Single detail labels, charcoal ink, creamsicle peach, sunshine yellow and pastel accents.
+The original font files, wordmark, cloud icon and playground illustration are bundled in `src/assets`
+from the company's public `/fonts/` and `/brand/` assets. Vite fingerprints these into `/static/`, so
+the Python server serves the design without runtime font or image requests to a third party.
+Colors for the shell, forms, charts, badges and dialogs use light/dark tokens in `src/index.css`.
 
 ## Build
 

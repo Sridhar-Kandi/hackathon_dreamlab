@@ -89,13 +89,13 @@ export function DataTable<T>({
   const { pageIndex } = table.getState().pagination
   const rows = table.getRowModel().rows
   return (
-    <div className="rounded-sm border bg-white">
+    <div className="overflow-hidden rounded-xl border bg-card">
       <Table className="text-[13px]">
-        <TableHeader className="bg-[#faf9f8]">
+        <TableHeader className="bg-background">
           {table.getHeaderGroups().map((group) => (
             <TableRow key={group.id} className="hover:bg-transparent">
               {group.headers.map((header) => (
-                <TableHead key={header.id} className="h-9 px-3 text-[12px] font-semibold text-[#605e5c]"
+                <TableHead key={header.id} className="h-9 px-3 text-[12px] font-semibold text-muted-foreground"
                   style={header.column.columnDef.size ? { width: header.column.columnDef.size } : undefined}>
                   {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                 </TableHead>
@@ -108,7 +108,7 @@ export function DataTable<T>({
             <TableRow
               key={row.id}
               data-state={row.getIsSelected() ? "selected" : undefined}
-              className={cn("data-[state=selected]:bg-[#eff6fc]", onRowClick && "cursor-pointer")}
+              className={cn("data-[state=selected]:bg-accent", onRowClick && "cursor-pointer")}
               onClick={() => onRowClick?.(row.original)}
             >
               {row.getVisibleCells().map((cell) => (
