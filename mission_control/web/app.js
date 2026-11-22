@@ -814,9 +814,25 @@ function showSideBySide(holder, name, level, seed, cells, arms) {
   holder.replaceChildren(element("h3","Seed " + seed + " · same start for every version"),panes,controls);
   holder.scrollIntoView({behavior:"smooth",block:"start"});
 }
+const finetuneArms = {"c1-naive": "ft-naive", "c2-harness": "ft-harness"};
+function finetunePanel(jobs) {
+  if (!jobs.length) return null;
+  const rows = jobs.map(job => {
+    const steps = job.step == null ? (job.phase ? label(job.phase) : "—") : job.step + " / " + job.total_steps;
+    const mix = Object.entries(job.mix).map(([key,count]) => count + " " + key.replace("scripted_teacher","teacher").replace("model_generated","Dream-1 own")).join(" · ");
+    return [armName(finetuneArms[job.suffix] || job.suffix), status(job.status || "pending"), steps,
+      job.loss == null ? "—" : job.loss.toFixed(4), job.price_cents == null ? "—" : "$" + (job.price_cents / 100).toFixed(0),
+      job.checkpoint || "training…", (job.episodes ?? "—") + " episodes: " + mix, runDate(job.updated_at || job.submitted_at)];
+  });
+  const notes = jobs.filter(job => job.recipe).map(job => element("p",armName(finetuneArms[job.suffix] || job.suffix) + ": " + job.recipe,"section-copy"));
+  return panel("Fine-tuning",
+    table(["Version","Status","Step","Loss","Price","Checkpoint","Training data","Updated"],rows), ...notes);
+}
 async function loadLadder() {
   const select = byId("ladder-collection");
   const list = await api("/api/ladder");
+  const finetunes = finetunePanel(list.finetunes || []);
+  byId("ladder-finetunes").replaceChildren(...(finetunes ? [finetunes] : []));
   const current = select.value;
   select.replaceChildren();
   for (const name of list.collections) addOption(select,name,name);

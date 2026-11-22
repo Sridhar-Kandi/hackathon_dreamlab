@@ -415,6 +415,30 @@ def train(args):
     print(json.dumps(job, indent=2, default=str))
 
 
+def finetunes():
+    """Saved state of each fine-tuning job (as of the last `ladder train <suffix>`) and what it trained on."""
+    jobs = []
+    for path in sorted((root() / "jobs").glob("*.json")):
+        record = json.loads(path.read_text())
+        job = record.get("job") or {}
+        progress = job.get("progress") or {}
+        mix = defaultdict(int)
+        manifest_path = root() / "datasets" / f"{record['suffix']}-ds" / ".mission-control.json"
+        recipe = None
+        if manifest_path.is_file():
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            recipe = manifest.get("recipe")
+            for episode in manifest["episodes"]:
+                mix[f"{episode['level']} {episode['source']}"] += 1
+        jobs.append(dict(suffix=record["suffix"], job_id=record.get("job_id"), status=job.get("status") or record.get("dataset_status"),
+                         phase=progress.get("phase"), step=progress.get("step"), total_steps=progress.get("total_steps") or record.get("steps"),
+                         loss=progress.get("loss"), updated_at=progress.get("updated_at"), submitted_at=record.get("submitted_at"),
+                         checkpoint=job.get("fine_tuned_model"), price_cents=job.get("price_cents"), error=job.get("error"),
+                         dataset=record.get("dataset_name"), episodes=record.get("episodes"), mix=dict(sorted(mix.items())),
+                         recipe=recipe if isinstance(recipe, str) else (recipe or {}).get("description")))
+    return jobs
+
+
 if __name__ == "__main__":
     cli = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     modes = cli.add_subparsers(dest="mode", required=True)
