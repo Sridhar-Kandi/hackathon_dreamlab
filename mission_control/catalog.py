@@ -58,14 +58,15 @@ class Catalog:
             filename = PureWindowsPath(str(row.get("recording") or "")).name
             media = path.parent / "frames" / filename
             url = None
-            if filename and media.suffix.lower() == ".gif" and media.is_file() and media.resolve().is_relative_to(path.parent.resolve()):
+            if filename and media.suffix.lower() in (".gif", ".mp4") and media.is_file() and media.resolve().is_relative_to(path.parent.resolve()):
                 self.media[trial_id] = media
                 url = f"/media/{trial_id}"
             self.trials[trial_id] = {
                 **row, "id": trial_id, "experiment_id": run_id, "status": classification(row),
                 "events": events, "instruction": row["task"],
                 "sim_s": row["rows"] / 20 if isinstance(row.get("rows"), int) else None,
-                "recording_url": url, "attempt_history": attempts,
+                "recording_url": url, "recording_kind": media.suffix.lower().lstrip(".") if url else None,
+                "attempt_history": attempts,
             }
             trial_ids.append(trial_id)
         self.by_run[run_id] = dict(trial_ids=trial_ids, metrics=metrics(latest))

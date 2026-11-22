@@ -4,6 +4,7 @@ import getpass
 import json
 import mimetypes
 import os
+import re
 import shutil
 import threading
 import warnings
@@ -71,11 +72,41 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def file(self,path,download=False):
+        types = {".ttf":"font/ttf", ".jsonl":"application/x-ndjson", ".mp4":"video/mp4"}
+        kind = types.get(path.suffix.lower()) or mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+        size = path.stat().st_size
+        wanted = re.fullmatch(r"bytes=(\d*)-(\d*)", self.headers.get("Range", ""))
         with path.open("rb") as f:
-            types = {".ttf":"font/ttf", ".jsonl":"application/x-ndjson"}
-            kind = types.get(path.suffix.lower()) or mimetypes.guess_type(path.name)[0]
-            self.headers_for(200,kind or "application/octet-stream",path.stat().st_size,download)
-            shutil.copyfileobj(f,self.wfile)
+            if not wanted or not (wanted[1] or wanted[2]):
+                self.headers_for(200,kind,size,download)
+                return shutil.copyfileobj(f,self.wfile)
+            # Byte ranges let the browser seek inside a video.
+            if wanted[1]:
+                start = int(wanted[1])
+                end = min(int(wanted[2]), size - 1) if wanted[2] else size - 1
+            else:
+                start, end = max(size - int(wanted[2]), 0), size - 1
+            if start > end or start >= size:
+                self.send_response(416)
+                self.send_header("Content-Range", f"bytes */{size}")
+                self.send_header("Content-Length", "0")
+                return self.end_headers()
+            self.send_response(206)
+            self.send_header("Content-Type", kind)
+            self.send_header("Content-Length", str(end - start + 1))
+            self.send_header("Content-Range", f"bytes {start}-{end}/{size}")
+            self.send_header("Accept-Ranges", "bytes")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.end_headers()
+            f.seek(start)
+            remaining = end - start + 1
+            while remaining > 0:
+                chunk = f.read(min(remaining, 1 << 16))
+                if not chunk:
+                    break
+                self.wfile.write(chunk)
+                remaining -= len(chunk)
 
     def dispatch(self):
         hosts = {f"127.0.0.1:{self.server.server_port}",f"localhost:{self.server.server_port}"}
@@ -129,9 +160,7 @@ class Handler(BaseHTTPRequestHandler):
                 if parts[3]=="resume":
                     return self.respond(execution.resume(parts[2]))
             raise KeyError
-        static={"/":"index.html","/app.js":"app.js","/style.css":"style.css","/stock-scene.png":"stock-scene.png",
-                "/fonts/Poppins-Regular.ttf":"fonts/Poppins-Regular.ttf",
-                "/fonts/Poppins-SemiBold.ttf":"fonts/Poppins-SemiBold.ttf"}
+        static={"/":"index.html","/app.js":"app.js","/style.css":"style.css"}
         if path in static:
             return self.file(WEB/static[path])
         if path=="/api/health":
