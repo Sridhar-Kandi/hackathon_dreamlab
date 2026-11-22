@@ -5,7 +5,7 @@
   const gsap = window.gsap;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   const enabled = () => Boolean(gsap) && !reduced.matches;
-  const tabOrder = ["workspace","runs","ladder","compare","datasets"];
+  const tabOrder = ["workspace","flow","runs","ladder","compare","datasets"];
   let lastIndex = 0;
 
   /* Navbar: one sliding bar under the active link and one soft highlight that follows the pointer. */
