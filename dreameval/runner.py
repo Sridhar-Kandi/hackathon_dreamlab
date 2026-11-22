@@ -89,6 +89,99 @@ class Recorder:
         return str(self.path)
 
 
+class VideoRecorder:
+    """Records the three model cameras as an H.264 MP4 at 40 fps of simulated time.
+
+    Each 50 ms control row is split in half so two frames are rendered per row. Frames are encoded as they
+    arrive, so a long trial never holds its whole video in memory. Layout: overhead camera on the left
+    (960x540), left wrist above right wrist on the right (480x270 each).
+    """
+
+    FPS = 40
+    TOP, WRIST = (960, 540), (480, 270)
+
+    def __init__(self, path, env):
+        import mujoco
+
+        self.path, self.env, self.mujoco = Path(path), env, mujoco
+        vis = env.model.vis.global_
+        # The policy cameras crop a 4:3 render to 16:9; render 4:3 at the larger size and crop the same way.
+        vis.offwidth, vis.offheight = max(vis.offwidth, 960), max(vis.offheight, 720)
+        self.renderer_top = mujoco.Renderer(env.model, height=720, width=960)
+        self.renderer_wrist = mujoco.Renderer(env.model, height=360, width=480)
+        self.container = self.stream = None
+        self.frames = 0
+
+    def render(self):
+        top = self._camera(self.renderer_top, "top", 90)
+        left = self._camera(self.renderer_wrist, "left", 45)
+        right = self._camera(self.renderer_wrist, "right", 45)
+        frame = np.empty((540, 1440, 3), dtype=np.uint8)
+        frame[:, :960] = top
+        frame[:270, 960:] = left
+        frame[270:, 960:] = right
+        frame[:, 958:962] = 12  # divider between the overhead and wrist views
+        frame[268:272, 960:] = 12
+        self._encode(frame)
+
+    def _camera(self, renderer, name, crop):
+        renderer.update_scene(self.env.data, camera=name)
+        image = renderer.render()
+        return image[crop:image.shape[0] - crop]
+
+    def _encode(self, frame):
+        import av
+
+        if self.container is None:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            self.container = av.open(str(self.path), "w", options={"movflags": "faststart"})
+            self.stream = self.container.add_stream("libx264", rate=self.FPS)
+            self.stream.width, self.stream.height = frame.shape[1], frame.shape[0]
+            self.stream.pix_fmt = "yuv420p"
+            self.stream.options = {"crf": "23", "preset": "veryfast"}
+        video_frame = av.VideoFrame.from_ndarray(frame, format="rgb24")
+        for packet in self.stream.encode(video_frame):
+            self.container.mux(packet)
+        self.frames += 1
+
+    def step(self, left, right):
+        """Run one control row through env.step, rendering one frame halfway and one at the end."""
+        real = self.mujoco
+        recorder = self
+
+        class HalfwayFrame:
+            def __getattr__(self, name):
+                return getattr(real, name)
+
+            def mj_step(self, model, data, nstep=1):
+                first = nstep // 2
+                real.mj_step(model, data, nstep=first)
+                real.mj_kinematics(model, data)
+                recorder.render()
+                real.mj_step(model, data, nstep=nstep - first)
+
+        yam_env.mujoco = HalfwayFrame()
+        try:
+            self.env.step(left, right)
+        finally:
+            yam_env.mujoco = real
+        self.render()
+
+    def save(self, title=None):
+        if self.container is None:
+            self._close_renderers()
+            return None
+        for packet in self.stream.encode():
+            self.container.mux(packet)
+        self.container.close()
+        self._close_renderers()
+        return str(self.path)
+
+    def _close_renderers(self):
+        self.renderer_top.close()
+        self.renderer_wrist.close()
+
+
 class WrongObjectWatch:
     """Fires when an arm is holding a non-target object that has been moved (lifted >= 1.5 cm or slid >= 3 cm)
     while the target has not been lifted. A brush or bump does not fire; a grab does."""
@@ -294,7 +387,8 @@ def run_trial(
         import assist as assist_mod
 
         helper = assist_mod.Assist(env, tracker, parts=ASSIST_MODES[supervise], stall_s=stall_s)
-    recorder = Recorder(record) if record else None
+    video = VideoRecorder(record, env) if record and str(record).lower().endswith(".mp4") else None
+    recorder = Recorder(record) if record and not video else None
     if supervise in ASSIST_MODES:
         watch = None
     elif supervise == "grasp":
@@ -324,7 +418,10 @@ def run_trial(
             capture(env, sample_windows)
             on_sample(tracker.row, tracker.step["id"], prompt, env.state(), l, r,
                       {name: frames[-1] for name, frames in sample_windows.items()})
-        env.step(l, r)
+        if video:
+            video.step(l, r)
+        else:
+            env.step(l, r)
         if ordered_plan and (not np.isfinite(env.data.qpos).all() or not np.isfinite(env.data.qvel).all()):
             raise RuntimeError("Invalid numeric simulator state.")
         tracker.update(env)
@@ -578,6 +675,12 @@ def run_trial(
         result["outcome"] = "error"
         result["success"] = False
     result["initial_state_fingerprint"] = initial_state_fingerprint
+    if video:
+        try:
+            result["recording"] = video.save()
+            result["recording_fps"] = VideoRecorder.FPS
+        except (OSError, ValueError):
+            result["recording_error"] = "Could not save the camera replay."
     if recorder:
         try:
             result["recording"] = recorder.save(

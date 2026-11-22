@@ -690,7 +690,7 @@ def run_attempt(run_id, attempt_id, parent_closed):
                 if config.get("record_episode"):
                     from .datasets import EpisodeRecorder
                     episode = EpisodeRecorder(attempt / "episode.jsonl")
-                recording = folder / "frames" / f"{attempt_id}.gif" if config["record"] else None
+                recording = folder / "frames" / f"{attempt_id}.mp4" if config["record"] else None
                 row = runner.run_trial(
                     env, task=config["instruction"], target=saved["target"], goal=saved["goal"], scene=config["scene"],
                     model=config["model"], seed=seed, actions=config["actions"], sim_seconds=config["sim_seconds"],
