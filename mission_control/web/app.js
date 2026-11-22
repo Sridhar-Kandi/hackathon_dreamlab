@@ -357,15 +357,6 @@ function renderWorkspace() {
   byId("fresh-results").replaceChildren(body.rows.length ? wrapper :
     box("No results yet. Start a run to collect measured outcomes."));
 }
-function renderRunLog() {
-  const rows = newestFirst(state.runs).map(run => {
-    const metrics = run.metrics;
-    return [link(run.name,runLink(run),"text-link"),controllerName(run),runDate(run.created_at),
-      status(run.status),metrics.successes + " / " + metrics.valid];
-  });
-  byId("run-list").replaceChildren(rows.length ? table(["Procedure","Controller","Started","Run status","Passed / graded"],rows) :
-    box("No runs recorded. The log updates when a new simulation starts."));
-}
 function compareOptions() {
   const baseline = byId("baseline");
   const changed = byId("changed");
@@ -409,7 +400,6 @@ async function loadRuns() {
   const [index,results] = await Promise.all([api("/api/experiments"),api("/api/results")]);
   state.runs = index.experiments;
   state.results = results.trials;
-  renderRunLog();
   renderWorkspace();
   if (state.page === "compare") compareOptions();
 }
@@ -873,14 +863,14 @@ byId("ladder-collection").onchange = () => loadLadder().catch(error => notice(er
 async function route() {
   const token = ++state.request;
   const [hash,id,trial] = location.hash.slice(1).split("/").map(decodeURIComponent);
-  const page = ["workspace","flow","setup","runs","run","ladder","compare","datasets"].includes(hash) ? hash : "workspace";
+  const page = ["workspace","flow","setup","run","ladder","compare","datasets"].includes(hash) ? hash : "workspace";
   const viewKey = page + "/" + (id || "");
   const changed = state.viewKey !== viewKey;
   state.viewKey = viewKey;
   state.page = page;
   for (const section of document.querySelectorAll("[data-view]")) section.hidden = section.dataset.view !== page;
   for (const nav of document.querySelectorAll("[data-tab]")) {
-    const activePage = page === "run" ? "runs" : page === "setup" ? "" : page;
+    const activePage = page === "run" || page === "setup" ? "" : page;
     if (nav.dataset.tab === activePage) nav.setAttribute("aria-current","page");
     else nav.removeAttribute("aria-current");
   }
@@ -895,7 +885,6 @@ async function route() {
       renderRun(data.run,data.trials,trial);
     }
     if (page === "workspace") renderWorkspace();
-    if (page === "runs") renderRunLog();
     if (page === "compare") compareOptions();
     if (page === "datasets") await loadDatasets();
     if (page === "ladder") await loadLadder();
