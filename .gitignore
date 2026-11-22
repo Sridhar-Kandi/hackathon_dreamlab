@@ -11,3 +11,6 @@ dreameval/runs/mc-*/
 dreameval/runs/**/frames/
 dreameval/runs/demo/*.gif
 dreameval/runs/test/*.gif
+
+mission_control/frontend/node_modules/
+mission_control/frontend/dist/
