@@ -351,9 +351,22 @@ def summary_of(config, status, trials):
             "harness_modules": config.get("harness", {}).get("modules", []),
             "status": status.get("status", "unknown"), "message": status.get("message"),
             "total": total, "done": status.get("done", len(trials)), "errors": status.get("errors", 0),
-            "current": status.get("current"), "successes": wins, "graded": len(graded),
+            "current": live_current(config, status), "successes": wins, "graded": len(graded),
             "success_rate": round(wins / len(graded), 4) if graded else None,
             "cost_usd": round(sum(t.get("est_cost_usd") or 0 for t in trials), 2)}
+
+
+def live_current(config, status):
+    """The running trial, with the live progress its process reports (simulated seconds, model replies, phase)."""
+    current = status.get("current")
+    if not current or config.get("source") != "console":
+        return current
+    live = read_json(folder_of(config["id"]) / "work" / f"s{current['seed']}-t{current['trial']}.progress.json")
+    if not live:
+        return current
+    fraction = min(1.0, live["sim_s"] / live["sim_total"]) if live.get("sim_total") else 0.0
+    idle = _seconds_since(live["updated_at"]) if live.get("updated_at") else None
+    return {**current, **live, "fraction": round(fraction, 4), "idle_s": round(idle) if idle is not None else None}
 
 
 def list_experiments():
@@ -597,9 +610,30 @@ def run_one_trial(exp_id, seed, trial, budget_usd):
     folder = folder_of(exp_id)
     config = read_json(folder / "experiment.json")
     request = trial_request(config, seed, trial)
+    progress_path = folder / "work" / f"s{seed}-t{trial}.progress.json"
+    live = dict(phase="Starting the simulator", sim_s=0.0, sim_total=config["sim_seconds"], replies=0, attempts=0)
+
+    def report(**changes):
+        live.update(changes, updated_at=now())
+        write_json(progress_path, live)
+
+    def on_event(kind, sim_s=0.0, attempted=None, completed=None, **_):
+        if kind == "request_started":
+            if live["replies"] == 0:
+                phase = "Waiting for the first model reply (a fine-tuned model can take minutes to start)"
+            elif attempted > live["replies"] + 1:
+                phase = f"Retrying the model request (attempt {attempted})"
+            else:
+                phase = "Running"
+            report(phase=phase, sim_s=sim_s, attempts=attempted)
+        elif kind == "request_completed":
+            report(phase="Running", sim_s=sim_s, replies=completed)
+
+    report()
     try:
         runner, scenes = execution.import_engine()
         env = scenes.make_env(config["scene"])
+        report(phase="Connecting to the model" if config["controller"] == "dream1" else "Running the scripted expert")
         gif = folder / "media" / f"s{seed}-t{trial}.gif" if config["save"]["gifs"] else None
         steps = config["steps"]
         episode = episode_path = None
@@ -616,7 +650,7 @@ def run_one_trial(exp_id, seed, trial, budget_usd):
                 sim_seconds=config["sim_seconds"], jitter_cm=config["jitter_cm"],
                 sequence=[f"{s['target']}:{s['goal']}" for s in steps] if len(steps) > 1 else None,
                 max_usd=budget_usd if config["controller"] == "dream1" else None,
-                record=str(gif) if gif else None, on_sample=episode.add if episode else None,
+                record=str(gif) if gif else None, on_sample=episode.add if episode else None, on_event=on_event,
                 harness=request.get("harness") if config["harness"].get("enabled") else None)
         finally:
             env.close()

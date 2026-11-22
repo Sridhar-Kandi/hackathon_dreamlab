@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { isIntervention } from "@/lib/analysis"
 import { api, type ExperimentDetail, type Trial } from "@/lib/api"
-import { dateTime, humanize, modelLabel, number, percent, usd } from "@/lib/format"
+import { dateTime, humanize, liveLine, modelLabel, number, percent, runProgress, usd } from "@/lib/format"
 import { INTERVENTION_LABEL, MODULE_INFO } from "@/lib/harness-info"
 import { isActive } from "@/lib/hooks"
 import { cn } from "@/lib/utils"
@@ -113,9 +113,10 @@ function SummaryTab({ detail, onPickTrial }: { detail: ExperimentDetail; onPickT
         <div className="rounded-sm border bg-white p-3">
           <div className="mb-1.5 flex justify-between text-[12px]">
             <span>{s.current ? `Running seed ${s.current.seed}, trial ${s.current.trial}` : s.message}</span>
-            <span className="tabular-nums">{s.done} / {s.total}</span>
+            <span className="tabular-nums">{s.done} / {s.total} trials done</span>
           </div>
-          <Progress value={(s.done / Math.max(1, s.total)) * 100} className="h-1.5" />
+          <Progress value={runProgress(s.done, s.total, s.current)} className="h-1.5" />
+          {liveLine(s.current) && <p className="mt-1.5 text-[12px] text-muted-foreground">{liveLine(s.current)}</p>}
         </div>
       )}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">

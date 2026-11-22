@@ -76,3 +76,18 @@ export function download(filename: string, data: unknown) {
   link.click()
   URL.revokeObjectURL(url)
 }
+
+/** Overall experiment progress: finished trials plus the simulated share of the running one. */
+export function runProgress(done: number, total: number, current?: { fraction?: number } | null) {
+  return ((done + (current?.fraction ?? 0)) / Math.max(1, total)) * 100
+}
+
+/** One line describing what the running trial is doing right now. */
+export function liveLine(current?: { phase?: string; sim_s?: number; sim_total?: number; replies?: number; idle_s?: number | null } | null) {
+  if (!current?.phase) return null
+  let line = current.phase
+  if (current.sim_total) line += ` · ${(current.sim_s ?? 0).toFixed(1)} / ${current.sim_total} s simulated`
+  if (current.replies) line += ` · ${current.replies} model replies`
+  if (current.idle_s && current.idle_s > 60) line += ` · no update for ${Math.round(current.idle_s)} s`
+  return line
+}

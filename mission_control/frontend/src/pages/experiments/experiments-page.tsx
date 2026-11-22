@@ -20,7 +20,7 @@ import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { api, type ExperimentSummary } from "@/lib/api"
-import { dateTime, modelLabel, percent } from "@/lib/format"
+import { dateTime, liveLine, modelLabel, percent, runProgress } from "@/lib/format"
 import { isActive, useExperiments, useMeta } from "@/lib/hooks"
 import { CreateExperimentDialog } from "./create-experiment-dialog"
 import { ExperimentDetailDialog } from "./experiment-detail-dialog"
@@ -134,7 +134,12 @@ export function ExperimentsPage() {
               <span>{e.done}/{e.total}</span>
               {e.current && <span>seed {e.current.seed}·t{e.current.trial}</span>}
             </div>
-            <Progress value={(e.done / Math.max(1, e.total)) * 100} className="h-1" />
+            <Progress value={runProgress(e.done, e.total, e.current)} className="h-1" />
+            {e.current?.phase && (
+              <div className="mt-1 truncate text-[11px] text-muted-foreground" title={liveLine(e.current) ?? ""}>
+                {e.current.phase === "Running" ? `${(e.current.sim_s ?? 0).toFixed(0)}/${e.current.sim_total} s sim` : e.current.phase}
+              </div>
+            )}
           </div>
         )
       },

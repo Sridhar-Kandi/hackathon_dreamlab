@@ -58,7 +58,12 @@ export interface ExperimentSummary {
   total: number
   done: number
   errors: number
-  current: { seed: number; trial: number } | null
+  current: {
+    seed: number; trial: number; started_at?: string
+    // Live report from the running trial process.
+    phase?: string; sim_s?: number; sim_total?: number; replies?: number; attempts?: number
+    fraction?: number; idle_s?: number | null
+  } | null
   successes: number
   graded: number
   success_rate: number | null
