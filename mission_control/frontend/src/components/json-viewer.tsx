@@ -21,7 +21,7 @@ export function JsonBlock({ data, maxHeight = 360 }: { data: unknown; maxHeight?
         {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
         {copied ? "Copied" : "Copy"}
       </Button>
-      <pre className="overflow-auto p-3 pr-20 font-mono text-[12px] leading-5 text-foreground" style={{ maxHeight }}>
+      <pre className="overflow-auto p-3 pr-20 font-mono text-[0.8125rem] leading-5 text-foreground" style={{ maxHeight }}>
         {text}
       </pre>
     </div>
@@ -32,7 +32,7 @@ export function JsonViewer({ title, data, defaultOpen = false }: { title: string
   const [open, setOpen] = useState(defaultOpen)
   return (
     <Collapsible open={open} onOpenChange={setOpen} className="rounded-sm border bg-card">
-      <CollapsibleTrigger className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] font-medium hover:bg-muted">
+      <CollapsibleTrigger className="flex w-full items-center gap-2 px-3 py-2 text-left text-[0.875rem] font-medium hover:bg-muted">
         <ChevronRight className={`size-4 transition-transform ${open ? "rotate-90" : ""}`} />
         {title}
       </CollapsibleTrigger>

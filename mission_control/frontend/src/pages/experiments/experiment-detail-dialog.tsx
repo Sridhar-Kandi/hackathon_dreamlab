@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table"
-import { Download, ImageOff, Loader2 } from "lucide-react"
+import { Download, ImageOff, Loader2, Maximize2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { KindBadge, OutcomeBadge, StatusBadge } from "@/components/badges"
 import { HorizontalBars, StatTile } from "@/components/charts"
@@ -49,12 +49,12 @@ export function ExperimentDetailDialog({ experimentId, onOpenChange, refreshKey 
     <Dialog open={!!experimentId} onOpenChange={onOpenChange}>
       <DialogContent className="grid h-[90vh] grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden rounded-sm p-0 sm:max-w-6xl">
         <DialogHeader className="border-b px-6 py-4">
-          <DialogTitle className="flex flex-wrap items-center gap-2 text-[18px]">
+          <DialogTitle className="flex flex-wrap items-center gap-2 text-[1.125rem]">
             {detail?.summary.name ?? "Loading…"}
             {detail && <StatusBadge status={detail.summary.status} />}
             {detail && <KindBadge kind={detail.summary.kind} />}
           </DialogTitle>
-          <DialogDescription className="text-[13px]">
+          <DialogDescription className="text-[0.875rem]">
             {detail ? `${modelLabel(detail.summary.model)} · ${detail.summary.instruction}` : error ?? " "}
           </DialogDescription>
         </DialogHeader>
@@ -70,7 +70,7 @@ export function ExperimentDetailDialog({ experimentId, onOpenChange, refreshKey 
                 <TabsTrigger value="trials">Trials ({detail.trials.length})</TabsTrigger>
                 <TabsTrigger value="request">Request JSON</TabsTrigger>
               </TabsList>
-              <Button variant="ghost" size="sm" className="gap-1 text-[12px]" asChild>
+              <Button variant="ghost" size="sm" className="gap-1 text-[0.8125rem]" asChild>
                 <a href={api.exportUrl([detail.summary.id])}><Download className="size-3.5" /> Save to file</a>
               </Button>
             </div>
@@ -83,7 +83,7 @@ export function ExperimentDetailDialog({ experimentId, onOpenChange, refreshKey 
               </TabsContent>
               <TabsContent value="request" className="mt-0 grid gap-3">
                 {detail.request ? <JsonViewer title="Request sent by the console" data={detail.request} defaultOpen />
-                  : <p className="rounded-sm border bg-card p-3 text-[13px] text-muted-foreground">
+                  : <p className="rounded-sm border bg-card p-3 text-[0.875rem] text-muted-foreground">
                     {detail.summary.source === "console" ? "This experiment was created with “Save request JSON” turned off."
                       : "Imported experiments have no console request. The resolved configuration is below."}
                   </p>}
@@ -111,12 +111,12 @@ function SummaryTab({ detail, onPickTrial }: { detail: ExperimentDetail; onPickT
     <div className="grid gap-4">
       {isActive(s.status) && (
         <div className="rounded-sm border bg-card p-3">
-          <div className="mb-1.5 flex justify-between text-[12px]">
+          <div className="mb-1.5 flex justify-between text-[0.8125rem]">
             <span>{s.current ? `Running seed ${s.current.seed}, trial ${s.current.trial}` : s.message}</span>
             <span className="tabular-nums">{s.done} / {s.total} trials done</span>
           </div>
           <Progress value={runProgress(s.done, s.total, s.current)} className="h-1.5" />
-          {liveLine(s.current) && <p className="mt-1.5 text-[12px] text-muted-foreground">{liveLine(s.current)}</p>}
+          {liveLine(s.current) && <p className="mt-1.5 text-[0.8125rem] text-muted-foreground">{liveLine(s.current)}</p>}
         </div>
       )}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
@@ -129,22 +129,22 @@ function SummaryTab({ detail, onPickTrial }: { detail: ExperimentDetail; onPickT
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-sm border bg-card p-4">
-          <h3 className="mb-2 text-[13px] font-semibold">Outcomes</h3>
+          <h3 className="mb-2 text-[0.875rem] font-semibold">Outcomes</h3>
           <HorizontalBars data={outcomeData} valueLabel="Trials" />
         </div>
         <div className="rounded-sm border bg-card p-4">
-          <h3 className="mb-1 text-[13px] font-semibold">Seed × trial results</h3>
-          <p className="mb-2 text-[12px] text-muted-foreground">Each square is one trial. Select one to open it.</p>
+          <h3 className="mb-1 text-[0.875rem] font-semibold">Seed × trial results</h3>
+          <p className="mb-2 text-[0.8125rem] text-muted-foreground">Each square is one trial. Select one to open it.</p>
           <div className="grid max-h-64 gap-1 overflow-y-auto">
             {[...trialsBySeed.entries()].map(([seed, trials]) => (
               <div key={seed} className="flex items-center gap-2">
-                <span className="w-12 font-mono text-[11px] text-muted-foreground">{seed}</span>
+                <span className="w-12 font-mono text-[0.75rem] text-muted-foreground">{seed}</span>
                 {trials.sort((x, y) => x.trial - y.trial).map((t) => (
                   <Tooltip key={trialKey(t)}>
                     <TooltipTrigger asChild>
                       <button type="button" onClick={() => onPickTrial(trialKey(t))}
                         aria-label={`Seed ${t.seed} trial ${t.trial}: ${t.outcome}`}
-                        className={cn("flex size-6 items-center justify-center rounded-[2px] border text-[10px] font-semibold",
+                        className={cn("flex size-6 items-center justify-center rounded-[2px] border text-[0.6875rem] font-semibold",
                           t.success ? "border-success-border bg-success-bg text-success"
                             : t.outcome === "error" ? "border-border bg-muted text-muted-foreground"
                             : "border-danger-border bg-danger-bg text-destructive")}>
@@ -156,16 +156,16 @@ function SummaryTab({ detail, onPickTrial }: { detail: ExperimentDetail; onPickT
                 ))}
               </div>
             ))}
-            {!detail.trials.length && <p className="text-[12px] text-muted-foreground">No trials have finished yet.</p>}
+            {!detail.trials.length && <p className="text-[0.8125rem] text-muted-foreground">No trials have finished yet.</p>}
           </div>
         </div>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-sm border bg-card p-4">
-          <h3 className="mb-2 text-[13px] font-semibold">Configuration</h3>
-          <dl className="grid grid-cols-[150px_1fr] gap-x-3 gap-y-1.5 text-[13px]">
+          <h3 className="mb-2 text-[0.875rem] font-semibold">Configuration</h3>
+          <dl className="grid grid-cols-[150px_1fr] gap-x-3 gap-y-1.5 text-[0.875rem]">
             <dt className="text-muted-foreground">Controller</dt><dd>{e.controller === "expert" ? "Scripted expert (FK/IK)" : "Dream-1 policy"}</dd>
-            <dt className="text-muted-foreground">Model</dt><dd className="font-mono text-[12px]">{e.model}</dd>
+            <dt className="text-muted-foreground">Model</dt><dd className="font-mono text-[0.8125rem]">{e.model}</dd>
             <dt className="text-muted-foreground">Scene</dt><dd>{e.scene}</dd>
             <dt className="text-muted-foreground">Steps</dt>
             <dd>{e.steps.map((st, i) => <div key={i}>{i + 1}. {humanize(st.target)} → {humanize(st.goal)}</div>)}</dd>
@@ -178,9 +178,9 @@ function SummaryTab({ detail, onPickTrial }: { detail: ExperimentDetail; onPickT
           </dl>
         </div>
         <div className="rounded-sm border bg-card p-4">
-          <h3 className="mb-2 text-[13px] font-semibold">Harness interventions</h3>
+          <h3 className="mb-2 text-[0.875rem] font-semibold">Harness interventions</h3>
           {interventionData.length ? <HorizontalBars data={interventionData} valueLabel="Interventions" />
-            : <p className="text-[12px] text-muted-foreground">No interventions recorded.</p>}
+            : <p className="text-[0.8125rem] text-muted-foreground">No interventions recorded.</p>}
         </div>
       </div>
     </div>
@@ -207,25 +207,23 @@ function TrialsTab({ detail, selected, onSelect, trial }: {
         onRowClick={(t) => onSelect(trialKey(t))} empty="No trials have finished yet." />
       <div className="rounded-sm border bg-card p-4">
         {!trial ? (
-          <p className="py-10 text-center text-[13px] text-muted-foreground">Select a trial to see its replay, request and response.</p>
+          <p className="py-10 text-center text-[0.875rem] text-muted-foreground">Select a trial to see its replay, request and response.</p>
         ) : (
           <div className="grid gap-3" key={selected}>
             <div className="flex items-center justify-between">
-              <h3 className="text-[14px] font-semibold">Seed {trial.seed} · trial {trial.trial}</h3>
+              <h3 className="text-[0.9375rem] font-semibold">Seed {trial.seed} · trial {trial.trial}</h3>
               <OutcomeBadge outcome={trial.outcome} success={trial.success} />
             </div>
             {trial.media ? (
-              trial.media_type === "video"
-                ? <video src={trial.media} controls className="w-full rounded-sm border bg-black" />
-                : <img src={trial.media} alt={`Camera replay of seed ${trial.seed} trial ${trial.trial}`} className="w-full rounded-sm border" />
+              <Replay trial={trial} />
             ) : (
-              <div className="flex items-center gap-2 rounded-sm border border-dashed p-4 text-[12px] text-muted-foreground">
+              <div className="flex items-center gap-2 rounded-sm border border-dashed p-4 text-[0.8125rem] text-muted-foreground">
                 <ImageOff className="size-4" /> No replay saved for this trial.
               </div>
             )}
-            {trial.error && <p className="rounded-sm border border-danger-border bg-danger-bg p-2 text-[12px] text-destructive">{trial.error}</p>}
+            {trial.error && <p className="rounded-sm border border-danger-border bg-danger-bg p-2 text-[0.8125rem] text-destructive">{trial.error}</p>}
             {(trial.interventions ?? []).some(isIntervention) && (
-              <div className="text-[12px]">
+              <div className="text-[0.8125rem]">
                 <p className="mb-1 font-semibold">Interventions</p>
                 {(trial.interventions ?? []).filter(isIntervention).map((i, idx) => (
                   <p key={idx} className="text-muted-foreground">t = {(i.row / 20).toFixed(1)} s · {INTERVENTION_LABEL[i.reason] ?? humanize(i.reason)}</p>
@@ -247,3 +245,31 @@ function withoutRequest(trial: Trial) {
   return copy
 }
 
+
+/** A trial's camera replay, with a button that opens it nearly full screen. */
+function Replay({ trial }: { trial: Trial }) {
+  const [maximized, setMaximized] = useState(false)
+  const label = `Camera replay of seed ${trial.seed} trial ${trial.trial}`
+  const media = (big: boolean) => trial.media_type === "video"
+    ? <video src={trial.media!} controls autoPlay={big} className={cn("w-full rounded-sm border bg-black", big && "max-h-[82vh] object-contain")} />
+    : <img src={trial.media!} alt={label} className={cn("w-full rounded-sm border", big && "max-h-[82vh] object-contain")} />
+  return (
+    <>
+      <div className="relative">
+        {media(false)}
+        <Button variant="secondary" size="sm" className="absolute top-2 right-2 h-7 gap-1 text-xs opacity-90" onClick={() => setMaximized(true)}>
+          <Maximize2 className="size-3.5" /> Maximize
+        </Button>
+      </div>
+      <Dialog open={maximized} onOpenChange={setMaximized}>
+        <DialogContent className="rounded-sm sm:max-w-[95vw]">
+          <DialogHeader>
+            <DialogTitle>Seed {trial.seed} · trial {trial.trial}</DialogTitle>
+            <DialogDescription>Overhead camera with both wrist cameras, as the model saw them.</DialogDescription>
+          </DialogHeader>
+          {media(true)}
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}

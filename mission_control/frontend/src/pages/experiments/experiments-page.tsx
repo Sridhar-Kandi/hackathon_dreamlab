@@ -1,12 +1,13 @@
 import type { ColumnDef, RowSelectionState } from "@tanstack/react-table"
 import { Download, Eye, MoreHorizontal, Plus, RefreshCw, Search, Sparkles, Square, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
 import { PageHeader } from "@/components/app-shell"
 import { KindBadge, SourceBadge, StatusBadge } from "@/components/badges"
 import { DataTable, SortHeader } from "@/components/data-table"
-import { FINISHED, FineTuneDialog, FineTuneJobCard } from "@/components/finetune"
+import { FINISHED } from "@/components/finetune"
+import { FineTuneModal } from "@/components/finetune-modal"
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle,
@@ -26,7 +27,8 @@ import { CreateExperimentDialog } from "./create-experiment-dialog"
 import { ExperimentDetailDialog } from "./experiment-detail-dialog"
 
 export function ExperimentsPage() {
-  const { experiments, finetunes, loading, error, refresh } = useExperiments()
+  const { experiments, loading, error, refresh } = useExperiments()
+  const navigate = useNavigate()
   const { meta, refresh: refreshMeta } = useMeta()
   const [params, setParams] = useSearchParams()
   const [search, setSearch] = useState("")
@@ -94,7 +96,7 @@ export function ExperimentsPage() {
             <span className="truncate font-semibold text-accent-foreground hover:underline">{row.original.name}</span>
             <SourceBadge source={row.original.source} />
           </div>
-          <p className="truncate text-[12px] text-muted-foreground" title={row.original.instruction}>{row.original.instruction}</p>
+          <p className="truncate text-[0.8125rem] text-muted-foreground" title={row.original.instruction}>{row.original.instruction}</p>
         </div>
       ),
     },
@@ -111,7 +113,7 @@ export function ExperimentsPage() {
           <KindBadge kind={row.original.kind} />
           {row.original.harness && (
             <Tooltip>
-              <TooltipTrigger asChild><span className="text-[11px] text-muted-foreground">{row.original.harness_modules.length} mod.</span></TooltipTrigger>
+              <TooltipTrigger asChild><span className="text-[0.75rem] text-muted-foreground">{row.original.harness_modules.length} mod.</span></TooltipTrigger>
               <TooltipContent>{row.original.harness_modules.join(", ")}</TooltipContent>
             </Tooltip>
           )}
@@ -130,13 +132,13 @@ export function ExperimentsPage() {
         const e = row.original
         return (
           <div className="w-32">
-            <div className="mb-1 flex justify-between text-[11px] text-muted-foreground tabular-nums">
+            <div className="mb-1 flex justify-between text-[0.75rem] text-muted-foreground tabular-nums">
               <span>{e.done}/{e.total}</span>
               {e.current && <span>seed {e.current.seed}·t{e.current.trial}</span>}
             </div>
             <Progress value={runProgress(e.done, e.total, e.current)} className="h-1" />
             {e.current?.phase && (
-              <div className="mt-1 truncate text-[11px] text-muted-foreground" title={liveLine(e.current) ?? ""}>
+              <div className="mt-1 truncate text-[0.75rem] text-muted-foreground" title={liveLine(e.current) ?? ""}>
                 {e.current.phase === "Running" ? `${(e.current.sim_s ?? 0).toFixed(0)}/${e.current.sim_total} s sim` : e.current.phase}
               </div>
             )}
@@ -151,7 +153,7 @@ export function ExperimentsPage() {
       cell: ({ row }) => (
         <span className="tabular-nums">
           {percent(row.original.success_rate)}
-          <span className="ml-1 text-[11px] text-muted-foreground">{row.original.successes}/{row.original.graded}</span>
+          <span className="ml-1 text-[0.75rem] text-muted-foreground">{row.original.successes}/{row.original.graded}</span>
         </span>
       ),
     },
@@ -211,15 +213,15 @@ export function ExperimentsPage() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <span>
-                  <Button variant="outline" size="sm" className="gap-1" disabled={!selected.length || blockedSelection.length > 0}
+                  <Button variant="outline" size="sm" className="gap-1" disabled={blockedSelection.length > 0}
                     onClick={() => setFineTuneOpen(true)}>
                     <Sparkles className="size-4" /> Fine-tune{selected.length ? ` (${selected.length})` : ""}
                   </Button>
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                {!selected.length ? "Select one or more finished experiments to fine-tune on."
-                  : blockedSelection.length ? `"${blockedSelection[0].name}" has not finished running yet.` : "Fine-tune Dream-1 on the selected experiments."}
+                {!selected.length ? "Open the fine-tune builder. Ticked experiments are preselected as sources."
+                  : blockedSelection.length ? `"${blockedSelection[0].name}" has not finished running yet.` : "Fine-tune Dream-1 with the ticked experiments preselected."}
               </TooltipContent>
             </Tooltip>
             <Button size="sm" className="gap-1" onClick={() => { refreshMeta(); setCreateOpen(true) }}>
@@ -233,17 +235,17 @@ export function ExperimentsPage() {
           <div className="relative">
             <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name"
-              className="h-8 w-64 bg-card pl-8 text-[13px]" />
+              className="h-8 w-64 bg-card pl-8 text-[0.875rem]" />
           </div>
           <Select value={modelFilter} onValueChange={setModelFilter}>
-            <SelectTrigger size="sm" className="w-52 bg-card text-[13px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger size="sm" className="w-52 bg-card text-[0.875rem]"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All models</SelectItem>
               {models.map((m) => <SelectItem key={m} value={m}>{modelLabel(m)}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={kindFilter} onValueChange={setKindFilter}>
-            <SelectTrigger size="sm" className="w-40 bg-card text-[13px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger size="sm" className="w-40 bg-card text-[0.875rem]"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All types</SelectItem>
               <SelectItem value="vanilla">Vanilla</SelectItem>
@@ -251,10 +253,10 @@ export function ExperimentsPage() {
               <SelectItem value="scripted">Scripted</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="ghost" size="sm" className="gap-1 text-[13px]" onClick={refresh}>
+          <Button variant="ghost" size="sm" className="gap-1 text-[0.875rem]" onClick={refresh}>
             <RefreshCw className="size-3.5" /> Refresh
           </Button>
-          {error && <span className="text-[12px] text-destructive">{error}</span>}
+          {error && <span className="text-[0.8125rem] text-destructive">{error}</span>}
         </div>
         <DataTable
           columns={columns}
@@ -267,12 +269,6 @@ export function ExperimentsPage() {
           empty={loading ? "Loading experiments…" : "No experiments match these filters."}
           initialSorting={[{ id: "created_at", desc: true }]}
         />
-        {finetunes.length > 0 && (
-          <section className="grid gap-2">
-            <h2 className="text-[14px] font-semibold">Fine-tuning jobs</h2>
-            {finetunes.map((job) => <FineTuneJobCard key={job.id} job={job} onChanged={refresh} />)}
-          </section>
-        )}
       </div>
 
       <CreateExperimentDialog
@@ -287,8 +283,8 @@ export function ExperimentsPage() {
         onCreated={refresh}
       />
       <ExperimentDetailDialog experimentId={viewing} onOpenChange={(open) => !open && setViewing(null)} refreshKey={refreshKey} />
-      <FineTuneDialog open={fineTuneOpen} onOpenChange={setFineTuneOpen} selected={selected}
-        onStarted={() => { setSelection({}); refresh() }} />
+      <FineTuneModal open={fineTuneOpen} onOpenChange={setFineTuneOpen} preferred={selected.map((e) => e.id)}
+        onStarted={() => { setSelection({}); navigate("/fine-tuning") }} />
       <AlertDialog open={!!deleting} onOpenChange={(open) => !open && setDeleting(null)}>
         <AlertDialogContent className="rounded-sm">
           <AlertDialogHeader>

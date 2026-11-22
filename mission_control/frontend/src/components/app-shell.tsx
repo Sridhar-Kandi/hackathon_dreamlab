@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, FlaskConical, LayoutDashboard } from "lucide-react"
+import { BarChart3, BookOpen, FlaskConical, LayoutDashboard, Sparkles } from "lucide-react"
 import { useEffect, useRef, type ReactNode } from "react"
 import { Link, NavLink, useLocation } from "react-router-dom"
 import dreamLabsLogo from "@/assets/brand/dreamlabs-lockup.svg"
@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils"
 const NAV = [
   { to: "/", label: "Overview", icon: LayoutDashboard },
   { to: "/experiments", label: "Experiments", icon: FlaskConical },
-  { to: "/analyze", label: "Analyze & fine-tune", icon: BarChart3 },
+  { to: "/analyze", label: "Analyze Jobs", icon: BarChart3 },
+  { to: "/fine-tuning", label: "Fine-tuning", icon: Sparkles },
   { to: "/methodology", label: "Methodology", icon: BookOpen },
 ]
 
@@ -23,7 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="studio-header flex h-[72px] shrink-0 items-center gap-4 border-b px-5 sm:px-7">
         <Link to="/" aria-label="Dream Labs · DreamLoop home" className="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"><img src={dreamLabsLogo} alt="Dream Labs" className="studio-logo" /></Link>
         <span aria-hidden="true" className="h-5 border-l" />
-        <span className="text-[17px] font-medium tracking-tight">DreamLoop</span>
+        <span className="text-[1.0625rem] font-medium tracking-tight">DreamLoop</span>
         <span className="studio-label ml-auto hidden rounded-full border bg-card px-3 py-1.5 text-muted-foreground md:inline">Dream-1 studio</span>
       </header>
       <div className="flex min-h-0 flex-1 flex-col sm:flex-row">
@@ -45,7 +46,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           ))}
           <div className="mt-auto hidden px-4 pt-12 pb-2 sm:block"><img src={dreamLabsCloud} alt="" aria-hidden="true" className="studio-logo mb-4 max-w-10 opacity-60" /><p className="text-xs leading-relaxed text-muted-foreground">A little more capable.<br />With every experiment.</p></div>
         </nav>
-        <main ref={mainRef} className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">{children}</main>
+        <main ref={mainRef} className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
+          {/* Keep lines and tables a readable width on very wide screens. */}
+          <div className="mx-auto w-full max-w-[100rem]">{children}</div>
+        </main>
       </div>
     </div>
   )
@@ -53,9 +57,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 export function PageHeader({ title, description, actions }: { title: string; description?: string; actions?: ReactNode }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4 border-b bg-card px-6 py-7">
+    <div className="flex flex-wrap items-end justify-between gap-4 border-b bg-card px-6 py-7 shadow-[0_0_0_100vmax_var(--card)] [clip-path:inset(0_-100vmax)]">
       <div>
-        <h1 className="text-[30px] leading-tight font-normal tracking-tight text-foreground">{title}</h1>
+        <h1 className="text-[1.875rem] leading-tight font-normal tracking-tight text-foreground">{title}</h1>
         {description && <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
@@ -71,7 +75,7 @@ export function Section({ title, description, actions, children, className }: {
       <div className="flex flex-wrap items-center justify-between gap-2 border-b px-5 py-4">
         <div>
           <h2 className="text-base font-medium">{title}</h2>
-          {description && <p className="mt-1 text-[13px] text-muted-foreground">{description}</p>}
+          {description && <p className="mt-1 text-[0.875rem] text-muted-foreground">{description}</p>}
         </div>
         {actions}
       </div>

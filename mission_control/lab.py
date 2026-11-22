@@ -5,7 +5,7 @@ Each experiment is a folder under <engine>/.mission-control/lab/<id>/ holding it
   request.json      the request the console sent (when "save request JSON" is on)
   status.json       queue state and progress
   results.jsonl     one row per (seed, trial)
-  media/            one GIF per trial (when "save GIFs" is on)
+  media/            one replay per trial (when "save replays" is on): MP4, or GIF for older runs
 
 Ladder collections and the bundled sample save files are listed alongside, read-only.
 A single worker thread runs queued experiments one trial at a time, each trial in its own process.
@@ -486,7 +486,7 @@ def export(ids):
 
 
 def media_path(exp_id, name):
-    if not re.fullmatch(r"s\d+-t\d+\.gif", name):
+    if not re.fullmatch(r"s\d+-t\d+\.(gif|mp4)", name):
         raise KeyError(name)
     return folder_of(exp_id) / "media" / name
 
@@ -634,7 +634,8 @@ def run_one_trial(exp_id, seed, trial, budget_usd):
         runner, scenes = execution.import_engine()
         env = scenes.make_env(config["scene"])
         report(phase="Connecting to the model" if config["controller"] == "dream1" else "Running the scripted expert")
-        gif = folder / "media" / f"s{seed}-t{trial}.gif" if config["save"]["gifs"] else None
+        # The replay is a sharp MP4 of the three cameras at 40 fps (rendering it adds time to each trial).
+        replay = folder / "media" / f"s{seed}-t{trial}.mp4" if config["save"]["gifs"] else None
         steps = config["steps"]
         episode = episode_path = None
         if config["save"].get("episodes"):
@@ -650,7 +651,7 @@ def run_one_trial(exp_id, seed, trial, budget_usd):
                 sim_seconds=config["sim_seconds"], jitter_cm=config["jitter_cm"],
                 sequence=[f"{s['target']}:{s['goal']}" for s in steps] if len(steps) > 1 else None,
                 max_usd=budget_usd if config["controller"] == "dream1" else None,
-                record=str(gif) if gif else None, on_sample=episode.add if episode else None, on_event=on_event,
+                record=str(replay) if replay else None, on_sample=episode.add if episode else None, on_event=on_event,
                 harness=request.get("harness") if config["harness"].get("enabled") else None)
         finally:
             env.close()
@@ -660,9 +661,9 @@ def run_one_trial(exp_id, seed, trial, budget_usd):
         if episode:
             row["episode"] = dict(path=str(episode_path), frames=episode.count, error=episode.error,
                                   source="scripted_teacher" if config["model"] == "oracle" else "model_generated")
-        if gif and row.get("recording"):
-            row["media"] = f"/lab-media/{exp_id}/{gif.name}"
-            row["media_type"] = "gif"
+        if replay and row.get("recording"):
+            row["media"] = f"/lab-media/{exp_id}/{replay.name}"
+            row["media_type"] = "video"
         row.pop("recording", None)
     except Exception as exc:
         row = dict(outcome="error", success=False, error=f"{type(exc).__name__}: {exc}"[:300])

@@ -24,19 +24,19 @@ export function ConfigDiff({ files }: { files: SaveFile[] }) {
   let lastGroup = ""
   return (
     <div className="grid gap-2">
-      <div className="flex items-center justify-between text-[12px] text-muted-foreground">
+      <div className="flex items-center justify-between text-[0.8125rem] text-muted-foreground">
         <span>{differing} of {rows.length} settings differ between the selected runs.</span>
         <label className="flex items-center gap-2">
           <Switch checked={onlyDiff} onCheckedChange={setOnlyDiff} /> Only differences
         </label>
       </div>
       <div className="max-h-[420px] overflow-auto rounded-sm border">
-        <Table className="text-[12px]">
+        <Table className="text-[0.8125rem]">
           <TableHeader className="sticky top-0 z-10 bg-background">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="h-8 w-56 px-3 text-[12px] font-semibold text-muted-foreground">Setting</TableHead>
+              <TableHead className="h-8 w-56 px-3 text-[0.8125rem] font-semibold text-muted-foreground">Setting</TableHead>
               {files.map((f, i) => (
-                <TableHead key={f.id} className="h-8 px-3 text-[12px]"><RunHeading file={f} index={i} /></TableHead>
+                <TableHead key={f.id} className="h-8 px-3 text-[0.8125rem]"><RunHeading file={f} index={i} /></TableHead>
               ))}
             </TableRow>
           </TableHeader>
@@ -47,16 +47,16 @@ export function ConfigDiff({ files }: { files: SaveFile[] }) {
               return [
                 groupRow && (
                   <TableRow key={`${row.group}-heading`} className="bg-muted hover:bg-muted">
-                    <TableCell colSpan={files.length + 1} className="px-3 py-1 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">{row.group}</TableCell>
+                    <TableCell colSpan={files.length + 1} className="px-3 py-1 text-[0.75rem] font-semibold tracking-wide text-muted-foreground uppercase">{row.group}</TableCell>
                   </TableRow>
                 ),
                 <TableRow key={`${row.group}-${row.label}`} className={cn(row.differs && "bg-warning-bg hover:bg-warning-bg")}>
                   <TableCell className="px-3 py-1.5 text-foreground">
                     {row.label}
-                    {row.differs && <span className="ml-1.5 rounded-sm border border-warning-border px-1 text-[10px] text-warning">differs</span>}
+                    {row.differs && <span className="ml-1.5 rounded-sm border border-warning-border px-1 text-[0.6875rem] text-warning">differs</span>}
                   </TableCell>
                   {row.values.map((v, i) => (
-                    <TableCell key={i} className="max-w-64 truncate px-3 py-1.5 font-mono text-[11.5px]" title={v}>{v}</TableCell>
+                    <TableCell key={i} className="max-w-64 truncate px-3 py-1.5 font-mono text-[0.75rem]" title={v}>{v}</TableCell>
                   ))}
                 </TableRow>,
               ]
@@ -103,11 +103,11 @@ export function PerformanceComparison({ files }: { files: SaveFile[] }) {
   return (
     <div className="grid gap-4">
       <div className="overflow-x-auto rounded-sm border">
-        <Table className="text-[13px]">
+        <Table className="text-[0.875rem]">
           <TableHeader className="bg-background">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="h-8 w-72 px-3 text-[12px] font-semibold text-muted-foreground">Metric</TableHead>
-              {files.map((f, i) => <TableHead key={f.id} className="h-8 px-3 text-[12px]"><RunHeading file={f} index={i} /></TableHead>)}
+              <TableHead className="h-8 w-72 px-3 text-[0.8125rem] font-semibold text-muted-foreground">Metric</TableHead>
+              {files.map((f, i) => <TableHead key={f.id} className="h-8 px-3 text-[0.8125rem]"><RunHeading file={f} index={i} /></TableHead>)}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -129,18 +129,18 @@ export function PerformanceComparison({ files }: { files: SaveFile[] }) {
           </TableBody>
         </Table>
       </div>
-      <p className="text-[11px] text-muted-foreground">★ best value among the selected runs. Success rate excludes infrastructure errors; efficiency counts them.</p>
+      <p className="text-[0.75rem] text-muted-foreground">★ best value among the selected runs. Success rate excludes infrastructure errors; efficiency counts them.</p>
       <div className="grid gap-4 xl:grid-cols-3">
         <div className="rounded-sm border p-3">
-          <h3 className="mb-1 text-[13px] font-semibold">Success rate</h3>
+          <h3 className="mb-1 text-[0.875rem] font-semibold">Success rate</h3>
           <GroupedBars data={rateData} series={series} percent height={220} />
         </div>
         <div className="rounded-sm border p-3">
-          <h3 className="mb-1 text-[13px] font-semibold">Failure categories (share of trials)</h3>
+          <h3 className="mb-1 text-[0.875rem] font-semibold">Failure categories (share of trials)</h3>
           <GroupedBars data={categoryData} series={series} percent height={220} />
         </div>
         <div className="rounded-sm border p-3">
-          <h3 className="mb-1 text-[13px] font-semibold">Max lift distribution (share of graded trials)</h3>
+          <h3 className="mb-1 text-[0.875rem] font-semibold">Max lift distribution (share of graded trials)</h3>
           <GroupedBars data={liftData} series={series} percent height={220} />
         </div>
       </div>

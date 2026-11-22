@@ -18,7 +18,7 @@ from .catalog import Catalog, metrics
 
 WEB = Path(__file__).with_name("web")
 APP = WEB / "app"  # the React console, built by frontend/ (npm run build)
-APP_ROUTES = ("/", "/experiments", "/analyze", "/methodology")
+APP_ROUTES = ("/", "/experiments", "/analyze", "/fine-tuning", "/methodology")
 CACHE_LOCK = threading.Lock()
 snapshot = None
 signature = None

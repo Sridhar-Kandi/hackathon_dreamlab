@@ -61,7 +61,7 @@ export function KindBadge({ kind }: { kind: Kind }) {
 export function SourceBadge({ source }: { source: string }) {
   if (source === "console") return null
   return (
-    <Badge variant="secondary" className="rounded-sm px-1.5 text-[11px] font-normal text-muted-foreground">
+    <Badge variant="secondary" className="rounded-sm px-1.5 text-[0.75rem] font-normal text-muted-foreground">
       {source === "sample" ? "Sample" : "Ladder"}
     </Badge>
   )

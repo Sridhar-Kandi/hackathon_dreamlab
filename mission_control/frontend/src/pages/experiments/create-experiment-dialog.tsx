@@ -25,10 +25,10 @@ function Field({ label, hint, error, children, className }: {
 }) {
   return (
     <div className={cn("grid content-start gap-1.5", className)}>
-      <Label className="text-[12px] font-semibold text-foreground">{label}</Label>
+      <Label className="text-[0.8125rem] font-semibold text-foreground">{label}</Label>
       {children}
-      {error ? <p className="text-[12px] text-destructive">{error}</p>
-        : hint ? <p className="text-[12px] text-muted-foreground">{hint}</p> : null}
+      {error ? <p className="text-[0.8125rem] text-destructive">{error}</p>
+        : hint ? <p className="text-[0.8125rem] text-muted-foreground">{hint}</p> : null}
     </div>
   )
 }
@@ -36,8 +36,8 @@ function Field({ label, hint, error, children, className }: {
 function FormSection({ number, title, children }: { number: number; title: string; children: ReactNode }) {
   return (
     <section className="grid gap-3 border-b pb-5 last:border-0">
-      <h3 className="flex items-center gap-2 text-[14px] font-semibold">
-        <span className="flex size-5 items-center justify-center rounded-full bg-accent text-[11px] text-accent-foreground">{number}</span>
+      <h3 className="flex items-center gap-2 text-[0.9375rem] font-semibold">
+        <span className="flex size-5 items-center justify-center rounded-full bg-accent text-[0.75rem] text-accent-foreground">{number}</span>
         {title}
       </h3>
       {children}
@@ -195,8 +195,8 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="grid max-h-[92vh] grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-4xl">
         <DialogHeader className="border-b px-6 py-4">
-          <DialogTitle className="text-[18px]">Create experiment</DialogTitle>
-          <DialogDescription className="text-[13px]">
+          <DialogTitle className="text-[1.125rem]">Create experiment</DialogTitle>
+          <DialogDescription className="text-[0.875rem]">
             Define the task, how many seeds and trials to run, and the controller. The experiment starts as soon as the simulator is free.
           </DialogDescription>
         </DialogHeader>
@@ -225,8 +225,8 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
                       controller === value && "border-ring bg-accent shadow-[inset_0_0_0_1px_var(--ring)]")}>
                     <Icon className="mt-0.5 size-5 text-accent-foreground" />
                     <span>
-                      <span className="block text-[13px] font-semibold">{title}</span>
-                      <span className="block text-[12px] text-muted-foreground">{text}</span>
+                      <span className="block text-[0.875rem] font-semibold">{title}</span>
+                      <span className="block text-[0.8125rem] text-muted-foreground">{text}</span>
                     </span>
                   </button>
                 ))}
@@ -270,8 +270,8 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
                 <Field label="Task type">
                   <ToggleGroup type="single" variant="outline" value={taskMode}
                     onValueChange={(v) => v && setTaskMode(v as "single" | "steps")}>
-                    <ToggleGroupItem value="single" className="px-3 text-[13px]">Single statement</ToggleGroupItem>
-                    <ToggleGroupItem value="steps" className="px-3 text-[13px]">Multiple steps</ToggleGroupItem>
+                    <ToggleGroupItem value="single" className="px-3 text-[0.875rem]">Single statement</ToggleGroupItem>
+                    <ToggleGroupItem value="steps" className="px-3 text-[0.875rem]">Multiple steps</ToggleGroupItem>
                   </ToggleGroup>
                 </Field>
               </div>
@@ -310,7 +310,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
                   </Button>
                 )}
                 {taskMode === "steps" && activeSteps.length > 1 && (
-                  <p className="flex items-start gap-1.5 text-[12px] text-muted-foreground">
+                  <p className="flex items-start gap-1.5 text-[0.8125rem] text-muted-foreground">
                     <Info className="mt-0.5 size-3.5 shrink-0" />
                     The robot receives the steps as one instruction for the whole trial; each step is graded separately, in order.
                   </p>
@@ -334,7 +334,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
                   <Input type="text" inputMode="decimal" aria-label="Object jitter (cm)" aria-invalid={!!numericErrors.jitter} value={jitterText} onChange={(e) => setJitterText(e.target.value)} />
                 </Field>
               </div>
-              <div className="rounded-sm border border-accent-border bg-accent px-3 py-2 text-[13px] text-accent-foreground">
+              <div className="rounded-sm border border-accent-border bg-accent px-3 py-2 text-[0.875rem] text-accent-foreground">
                 {seedParse.seeds.length} seed{seedParse.seeds.length === 1 ? "" : "s"} × {trialsPerSeed} trial{trialsPerSeed === 1 ? "" : "s"} per seed
                 = <b>{totalTrials} trials</b>. Every trial of a seed starts from the same scene, so repeats show how consistent the controller is.
                 {controller === "expert" && " The scripted expert is deterministic, so repeats of a seed give the same result."}
@@ -342,10 +342,10 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
             </FormSection>
 
             <FormSection number={5} title="Harness">
-              <p className="text-[12px] text-muted-foreground">DreamLoop ships dream-harness as a standalone Python module. Pick the capabilities you want to add to Dream-1 for pick-and-place tasks; the same module selection and settings can be used outside the console.</p>
+              <p className="text-[0.8125rem] text-muted-foreground">DreamLoop ships dream-harness as a standalone Python module. Pick the capabilities you want to add to Dream-1 for pick-and-place tasks; the same module selection and settings can be used outside the console.</p>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <label className={cn("flex w-fit items-center gap-2 text-[13px]", controller === "expert" && "cursor-not-allowed opacity-50")}>
+                  <label className={cn("flex w-fit items-center gap-2 text-[0.875rem]", controller === "expert" && "cursor-not-allowed opacity-50")}>
                     <Checkbox checked={harnessOn} disabled={controller === "expert"} onCheckedChange={(v) => setHarnessOn(!!v)} />
                     <span className="font-semibold">Run Dream-1 inside the harness</span>
                   </label>
@@ -355,32 +355,32 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
               {harnessOn && (
                 <div className="grid gap-4 rounded-sm border p-4">
                   <div>
-                    <p className="mb-2 text-[12px] font-semibold text-foreground">Modules</p>
+                    <p className="mb-2 text-[0.8125rem] font-semibold text-foreground">Modules</p>
                     <div className="grid gap-2 md:grid-cols-3">
                       {(meta?.harness.modules ?? []).map((module) => (
                         <label key={module} className="flex gap-2 rounded-sm border p-2 hover:bg-background">
                           <Checkbox className="mt-0.5" checked={modules.includes(module)}
                             onCheckedChange={(v) => setModules((current) => v ? [...current, module] : current.filter((m) => m !== module))} />
                           <span>
-                            <span className="block text-[13px] font-medium">
+                            <span className="block text-[0.875rem] font-medium">
                               {MODULE_INFO[module]?.label ?? module}
-                              {meta?.harness.steering.includes(module) && <span className="ml-1 text-[11px] font-normal text-muted-foreground">· steers</span>}
+                              {meta?.harness.steering.includes(module) && <span className="ml-1 text-[0.75rem] font-normal text-muted-foreground">· steers</span>}
                             </span>
-                            <span className="block text-[12px] text-muted-foreground">{MODULE_INFO[module]?.description}</span>
+                            <span className="block text-[0.8125rem] text-muted-foreground">{MODULE_INFO[module]?.description}</span>
                           </span>
                         </label>
                       ))}
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-[12px] font-semibold text-foreground">Settings</p>
-                    <Button variant="ghost" size="sm" className="h-7 gap-1 text-[12px]" onClick={() => setValues(defaults)}>
+                    <p className="text-[0.8125rem] font-semibold text-foreground">Settings</p>
+                    <Button variant="ghost" size="sm" className="h-7 gap-1 text-[0.8125rem]" onClick={() => setValues(defaults)}>
                       <RotateCcw className="size-3.5" /> Reset to library defaults
                     </Button>
                   </div>
                   {SETTING_GROUPS.map((group) => (
                     <div key={group.title}>
-                      <p className="mb-2 text-[12px] text-muted-foreground">{group.title}</p>
+                      <p className="mb-2 text-[0.8125rem] text-muted-foreground">{group.title}</p>
                       <div className="grid gap-3 md:grid-cols-3">
                         {Object.entries(group.settings).map(([key, info]) => {
                           const spec = meta?.harness.settings.find((s) => s.name === key)
@@ -411,15 +411,15 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
 
             <FormSection number={6} title="Output">
               <div className="flex flex-wrap gap-6">
-                <label className="flex items-center gap-2 text-[13px]">
+                <label className="flex items-center gap-2 text-[0.875rem]">
                   <Checkbox checked={saveRequest} onCheckedChange={(v) => setSaveRequest(!!v)} />
                   Save request JSON
                 </label>
-                <label className="flex items-center gap-2 text-[13px]">
+                <label className="flex items-center gap-2 text-[0.875rem]">
                   <Checkbox checked={saveGifs} onCheckedChange={(v) => setSaveGifs(!!v)} />
-                  Save GIFs of every trial (three camera views)
+                  Save a video replay of every trial (three camera views, HD at 40 fps; adds render time)
                 </label>
-                <label className="flex items-center gap-2 text-[13px]">
+                <label className="flex items-center gap-2 text-[0.875rem]">
                   <Checkbox checked={saveEpisodes} onCheckedChange={(v) => setSaveEpisodes(!!v)} />
                   Record training episodes (needed to fine-tune on this experiment's successful trials)
                 </label>
@@ -429,7 +429,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
           </div>
         </div>
         <DialogFooter className="flex-col items-stretch gap-2 border-t bg-background px-6 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-[12px] text-muted-foreground">
+          <div className="text-[0.8125rem] text-muted-foreground">
             {serverError ? <span className="text-destructive">{serverError}</span>
               : blockers.length ? <span className="text-warning">{blockers[0]}</span>
               : <>{totalTrials} trials · {controller === "dream1" ? `up to ${(callsPerTrial * totalTrials).toLocaleString()} model calls · est. ≤ ${usd(estimatedUsd)}` : "no API cost"}</>}

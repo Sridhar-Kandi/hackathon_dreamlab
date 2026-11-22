@@ -90,12 +90,12 @@ export function DataTable<T>({
   const rows = table.getRowModel().rows
   return (
     <div className="overflow-hidden rounded-xl border bg-card">
-      <Table className="text-[13px]">
+      <Table className="text-[0.875rem]">
         <TableHeader className="bg-background">
           {table.getHeaderGroups().map((group) => (
             <TableRow key={group.id} className="hover:bg-transparent">
               {group.headers.map((header) => (
-                <TableHead key={header.id} className="h-9 px-3 text-[12px] font-semibold text-muted-foreground"
+                <TableHead key={header.id} className="h-9 px-3 text-[0.8125rem] font-semibold text-muted-foreground"
                   style={header.column.columnDef.size ? { width: header.column.columnDef.size } : undefined}>
                   {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                 </TableHead>
@@ -126,7 +126,7 @@ export function DataTable<T>({
           )}
         </TableBody>
       </Table>
-      <div className="flex items-center justify-between border-t px-3 py-2 text-[12px] text-muted-foreground">
+      <div className="flex items-center justify-between border-t px-3 py-2 text-[0.8125rem] text-muted-foreground">
         <span>
           {selectable && Object.keys(selection).length > 0 ? `${Object.keys(selection).length} selected · ` : ""}
           {data.length} {data.length === 1 ? "item" : "items"}

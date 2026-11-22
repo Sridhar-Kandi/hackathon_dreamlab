@@ -18,7 +18,7 @@ const tooltipStyle = {
 export function HorizontalBars({ data, valueLabel, height }: {
   data: { label: string; value: number }[]; valueLabel: string; height?: number
 }) {
-  if (!data.length) return <p className="py-6 text-center text-[12px] text-muted-foreground">No data.</p>
+  if (!data.length) return <p className="py-6 text-center text-[0.8125rem] text-muted-foreground">No data.</p>
   return (
     <ResponsiveContainer width="100%" height={height ?? Math.max(120, data.length * 30 + 30)}>
       <BarChart data={data} layout="vertical" margin={{ top: 4, right: 32, bottom: 4, left: 4 }}>
@@ -65,9 +65,9 @@ export function GroupedBars({ data, series, unit = "", height = 240, percent = f
 export function StatTile({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="rounded-sm border bg-card px-3 py-2.5">
-      <p className="text-[12px] text-muted-foreground">{label}</p>
-      <p className="mt-0.5 text-[20px] font-semibold text-foreground tabular-nums">{value}</p>
-      {sub && <p className="text-[11px] text-muted-foreground">{sub}</p>}
+      <p className="text-[0.8125rem] text-muted-foreground">{label}</p>
+      <p className="mt-0.5 text-[1.25rem] font-semibold text-foreground tabular-nums">{value}</p>
+      {sub && <p className="text-[0.75rem] text-muted-foreground">{sub}</p>}
     </div>
   )
 }

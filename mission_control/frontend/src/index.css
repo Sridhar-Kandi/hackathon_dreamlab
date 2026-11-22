@@ -210,8 +210,12 @@
     }
 }
 @layer base {
+  /* Text sizes are in rem, so the root sets the scale: slightly larger on laptops, larger again on big screens. */
   html { font-size: 16px; }
-  body { font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  @media (min-width: 1440px) { html { font-size: 16.5px; } }
+  @media (min-width: 1920px) { html { font-size: 18px; } }
+  @media (min-width: 2560px) { html { font-size: 21px; } }
+  body { font-size: 0.9375rem; line-height: 1.5; -webkit-font-smoothing: antialiased; }
   code, pre, .font-mono { font-family: var(--font-mono); }
   h1, h2, h3 { font-weight: 500; text-wrap: balance; }
   ::selection { background: var(--brand-sunshine); color: #1c1c1c; }

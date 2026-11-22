@@ -61,7 +61,7 @@ export function FailureAnalysis({ files }: { files: SaveFile[] }) {
       accessorKey: "divergence", header: "Divergence from reference",
       cell: ({ row }) => (
         <Tooltip>
-          <TooltipTrigger asChild><span className="line-clamp-1 max-w-80 text-[12px]">{row.original.divergence}</span></TooltipTrigger>
+          <TooltipTrigger asChild><span className="line-clamp-1 max-w-80 text-[0.8125rem]">{row.original.divergence}</span></TooltipTrigger>
           <TooltipContent className="max-w-sm">{row.original.why} {row.original.divergence}</TooltipContent>
         </Tooltip>
       ),
@@ -77,7 +77,7 @@ export function FailureAnalysis({ files }: { files: SaveFile[] }) {
         <RunPicker label="Diagnose run" files={files} value={targetIndex} onChange={(i) => { setTargetIndex(i); setSelected(null) }} />
         <RunPicker label="Reference (expected behaviour)" files={files} value={referenceIndex} allowNone
           onChange={(i) => setReferenceIndex(i)} />
-        <p className="pb-2 text-[12px] text-muted-foreground">
+        <p className="pb-2 text-[0.8125rem] text-muted-foreground">
           {rows.length} failing trial{rows.length === 1 ? "" : "s"} of {target.trials.length}. Select one to compare its trace with the other runs on the same seed.
         </p>
       </div>
@@ -86,7 +86,7 @@ export function FailureAnalysis({ files }: { files: SaveFile[] }) {
           onRowClick={(r) => setSelected(r.key)} empty="This run has no failing trials." />
         <div className="rounded-sm border p-3">
           {chosen ? <TraceComparison files={files} targetIndex={targetIndex} referenceIndex={referenceIndex} trial={chosen} />
-            : <p className="py-10 text-center text-[13px] text-muted-foreground">Select a failing trial to inspect its trace.</p>}
+            : <p className="py-10 text-center text-[0.875rem] text-muted-foreground">Select a failing trial to inspect its trace.</p>}
         </div>
       </div>
     </div>
@@ -98,9 +98,9 @@ function RunPicker({ label, files, value, onChange, allowNone = false }: {
 }) {
   return (
     <div className="grid gap-1">
-      <span className="text-[12px] font-semibold text-foreground">{label}</span>
+      <span className="text-[0.8125rem] font-semibold text-foreground">{label}</span>
       <Select value={String(value)} onValueChange={(v) => onChange(Number(v))}>
-        <SelectTrigger size="sm" className="w-72 bg-card text-[13px]"><SelectValue /></SelectTrigger>
+        <SelectTrigger size="sm" className="w-72 bg-card text-[0.875rem]"><SelectValue /></SelectTrigger>
         <SelectContent>
           {allowNone && <SelectItem value="-1">None</SelectItem>}
           {files.map((f, i) => <SelectItem key={f.id} value={String(i)}>{SLOT_LETTERS[i]} · {f.name}</SelectItem>)}
@@ -126,15 +126,15 @@ function TraceComparison({ files, targetIndex, referenceIndex, trial }: {
   return (
     <div className="grid gap-3">
       <div>
-        <h3 className="text-[13px] font-semibold">Trace comparison · seed {trial.seed}</h3>
-        <p className="text-[12px] text-muted-foreground">{failureOf(trial)?.why} {diverged.text}</p>
+        <h3 className="text-[0.875rem] font-semibold">Trace comparison · seed {trial.seed}</h3>
+        <p className="text-[0.8125rem] text-muted-foreground">{failureOf(trial)?.why} {diverged.text}</p>
       </div>
       <div className="grid gap-2">
         {lanes.map(({ file, index, trial: t }) => {
           const p = phases(t!)
           return (
             <div key={file.id} className="grid grid-cols-[52px_1fr] items-center gap-2">
-              <span className="flex items-center gap-1 text-[12px] font-semibold">
+              <span className="flex items-center gap-1 text-[0.8125rem] font-semibold">
                 <span className="size-2.5 rounded-[2px]" style={{ background: SERIES[index] }} />
                 {SLOT_LETTERS[index]}{index === targetIndex ? "*" : ""}
               </span>
@@ -163,15 +163,15 @@ function TraceComparison({ files, targetIndex, referenceIndex, trial }: {
                   <div className="absolute -top-1 h-8 border-l-2 border-dashed border-destructive" style={{ left: `${(diverged.at / maxEnd) * 100}%` }}
                     title="Divergence point" />
                 )}
-              <span className="absolute top-1/2 right-1 -translate-y-1/2 rounded-sm bg-card/90 px-1 text-[10px] font-semibold text-foreground">
+              <span className="absolute top-1/2 right-1 -translate-y-1/2 rounded-sm bg-card/90 px-1 text-[0.6875rem] font-semibold text-foreground">
                   {t!.success ? "✓" : humanize(t!.outcome)}
                 </span>
               </div>
             </div>
           )
         })}
-        <div className="ml-[60px] flex justify-between text-[10px] text-muted-foreground"><span>0 s</span><span>{maxEnd.toFixed(0)} s</span></div>
-        <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+        <div className="ml-[60px] flex justify-between text-[0.6875rem] text-muted-foreground"><span>0 s</span><span>{maxEnd.toFixed(0)} s</span></div>
+        <div className="flex flex-wrap gap-3 text-[0.75rem] text-muted-foreground">
           {PHASES.map((p) => <span key={p.key} className="flex items-center gap-1"><span className="size-2.5 rounded-[2px]" style={{ background: p.color }} />{p.label}</span>)}
           <span className="flex items-center gap-1"><span className="h-3 w-0.5 bg-chart-4" />Harness intervention</span>
           <span className="flex items-center gap-1"><span className="h-3 border-l-2 border-dashed border-destructive" />Divergence</span>
@@ -189,8 +189,8 @@ function TraceComparison({ files, targetIndex, referenceIndex, trial }: {
 function EventLog({ title, trial }: { title: string; trial: Trial }) {
   return (
     <div className="rounded-sm border">
-      <p className="border-b bg-background px-2 py-1 text-[12px] font-semibold">{title}</p>
-      <ol className="max-h-48 overflow-y-auto px-2 py-1 font-mono text-[11px]">
+      <p className="border-b bg-background px-2 py-1 text-[0.8125rem] font-semibold">{title}</p>
+      <ol className="max-h-48 overflow-y-auto px-2 py-1 font-mono text-[0.75rem]">
         {eventLog(trial).map((e, i) => (
           <li key={i} className={cn("flex gap-2 py-0.5", e.kind === "intervention" && "text-warning", e.kind === "end" && !trial.success && "text-destructive")}>
             <span className="w-12 shrink-0 text-right tabular-nums text-muted-foreground">{e.t.toFixed(1)}s</span>
