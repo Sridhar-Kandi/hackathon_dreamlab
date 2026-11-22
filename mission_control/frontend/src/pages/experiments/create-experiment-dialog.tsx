@@ -71,6 +71,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
   const [values, setValues] = useState<Record<string, number | string>>({})
   const [saveRequest, setSaveRequest] = useState(true)
   const [saveGifs, setSaveGifs] = useState(true)
+  const [saveEpisodes, setSaveEpisodes] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
 
@@ -136,7 +137,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
     seeds: seedParse.seeds, trials_per_seed: trialsPerSeed, sim_seconds: simSeconds, jitter_cm: jitter,
     ...(controller === "dream1" ? { model, rows_per_reply: rowsPerReply, max_usd: maxUsd } : {}),
     harness: { enabled: harnessOn, modules: harnessOn ? modules : [], values: harnessOn ? changedValues(values, defaults) : {} },
-    save: { request_json: saveRequest, gifs: saveGifs },
+    save: { request_json: saveRequest, gifs: saveGifs, episodes: saveEpisodes },
   }
 
   const blockers = [
@@ -145,7 +146,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
     seedParse.error,
     activeSteps.some((s) => !s.instruction.trim()) && "Write a statement for every step.",
     totalTrials > 400 && "Keep seeds × trials at 400 or fewer.",
-    controller === "dream1" && selectedModel && !selectedModel.runnable && "This model has no live checkpoint yet.",
+    controller === "dream1" && selectedModel && !selectedModel.runnable && "This model has no published checkpoint yet.",
   ].filter(Boolean) as string[]
 
   async function submit() {
@@ -207,13 +208,13 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
               </div>
               {controller === "dream1" && (
                 <div className="grid gap-4 md:grid-cols-3">
-                  <Field label="Model" hint={selectedModel && !selectedModel.runnable ? "Dry-run fine-tune: no live checkpoint." : undefined}>
+                  <Field label="Model" hint={selectedModel && selectedModel.source !== "base" ? selectedModel.id : undefined}>
                     <Select value={model} onValueChange={setModel}>
                       <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {meta?.models.map((m) => (
                           <SelectItem key={m.id} value={m.id}>
-                            {m.label}{m.source === "console" ? " (dry run)" : ""}
+                            {m.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -390,6 +391,10 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
                 <label className="flex items-center gap-2 text-[13px]">
                   <Checkbox checked={saveGifs} onCheckedChange={(v) => setSaveGifs(!!v)} />
                   Save GIFs of every trial (three camera views)
+                </label>
+                <label className="flex items-center gap-2 text-[13px]">
+                  <Checkbox checked={saveEpisodes} onCheckedChange={(v) => setSaveEpisodes(!!v)} />
+                  Record training episodes (needed to fine-tune on this experiment's successful trials)
                 </label>
               </div>
               <JsonViewer title="Preview request JSON" data={request} />
