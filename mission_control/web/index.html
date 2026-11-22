@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f3f0e8">
   <title>YAM Simulation Console</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 fill=%27%2316140f%27/%3E%3Cpath d=%27M10 3L6 13%27 stroke=%27%23ff5a1f%27 stroke-width=%272.5%27/%3E%3C/svg%3E">
+  <link rel="icon" href="/assets/vendor/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/style.css">
-  <script defer src="/gsap.min.js"></script>
+  <script defer src="/assets/vendor/gsap.min.js"></script>
   <script defer src="/motion.js"></script>
   <script defer src="/app.js"></script>
   <script defer src="/hero.js"></script>
+  <script defer src="/flow.js"></script>
+  <script type="module" src="/hero3d.js"></script>
 </head>
 <body>
   <canvas id="backdrop" aria-hidden="true"></canvas>
@@ -19,6 +21,7 @@
     <a class="brand" href="#workspace" aria-label="YAM Simulation Console home">YAM<span>/</span>SIM CONSOLE</a>
     <nav aria-label="Main navigation">
       <a href="#workspace" data-tab="workspace" aria-current="page">Overview</a>
+      <a href="#flow" data-tab="flow">How it works</a>
       <a href="#runs" data-tab="runs">Run log</a>
       <a href="#ladder" data-tab="ladder">Ladder</a>
       <a href="#compare" data-tab="compare">Compare</a>
@@ -32,8 +35,8 @@
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
           <p class="hero-eyebrow"><span class="live-dot"></span>Dream-1 · YAM bimanual · simulator</p>
-          <h1 id="hero-title" class="hero-title">Find where the robot fails. <em>Teach it there.</em> Prove it worked.</h1>
-          <p class="hero-lede">One console for the whole loop: measure base Dream-1 on fixed seeds, turn its failures into training data, fine-tune, and compare every version on starts it has never seen.</p>
+          <h1 id="hero-title" class="hero-title"><span class="line">Find the failure.</span> <span class="line accent">Teach the fix.</span> <span class="line">Prove it.</span></h1>
+          <p class="hero-lede">One console for the whole loop: measure base Dream-1 on fixed seeds, turn the starts where it fails into training data, fine-tune, and compare every version on starts it has never seen.</p>
           <div class="hero-actions">
             <a class="button primary" href="#ladder">See the results</a>
             <a class="button ghost" href="#setup">Run a task</a>
@@ -44,39 +47,11 @@
             <div><dt>Held-out pass · A → B</dt><dd><span data-count="rateA" data-suffix="%">0</span><i>→</i><span data-count="rateB" data-suffix="%">0</span></dd></div>
           </dl>
         </div>
-        <figure class="hero-arm" aria-label="Animated robot arm placing an orange into a bowl">
-          <svg viewBox="0 0 520 360" role="img">
-            <defs>
-              <pattern id="minor" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="rgba(243,240,232,.06)"/></pattern>
-              <pattern id="major" width="100" height="100" patternUnits="userSpaceOnUse"><rect width="100" height="100" fill="url(#minor)"/><path d="M100 0H0V100" fill="none" stroke="rgba(243,240,232,.12)"/></pattern>
-              <radialGradient id="glow"><stop offset="0" stop-color="#ff5a1f" stop-opacity=".35"/><stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/></radialGradient>
-            </defs>
-            <rect width="520" height="360" fill="url(#major)"/>
-            <circle id="arm-glow" cx="250" cy="250" r="90" fill="url(#glow)"/>
-            <path id="arm-trace" fill="none" stroke="#ff5a1f" stroke-width="1.5" stroke-dasharray="3 5" opacity=".7"/>
-            <line x1="20" y1="300" x2="500" y2="300" stroke="#f3f0e8" stroke-opacity=".5"/>
-            <g class="dim"><path d="M60 318H460M60 312V324M460 312V324"/><text x="260" y="336">reach 0.40 m</text></g>
-            <g id="bowl"><ellipse cx="390" cy="262" rx="60" ry="7" fill="#3b372f" stroke="#f3f0e8" stroke-opacity=".5" stroke-width="1.5"/></g>
-            <circle id="orange" cx="240" cy="286" r="14" fill="#ff8a2a" stroke="#16140f" stroke-width="2"/>
-            <g id="bowl-front"><path d="M330 262 Q334 300 390 300 Q446 300 450 262 A60 7 0 0 1 330 262Z" fill="#fbfaf6" stroke="#16140f" stroke-width="2"/></g>
-            <rect x="72" y="262" width="56" height="38" fill="#16140f" stroke="#f3f0e8" stroke-opacity=".6"/>
-            <g id="arm">
-              <line id="link1" stroke="#16140f" stroke-width="26" stroke-linecap="round"/>
-              <line id="link1-in" stroke="#f3f0e8" stroke-width="18" stroke-linecap="round"/>
-              <line id="link2" stroke="#16140f" stroke-width="22" stroke-linecap="round"/>
-              <line id="link2-in" stroke="#f3f0e8" stroke-width="14" stroke-linecap="round"/>
-              <circle id="shoulder" r="15" fill="#16140f" stroke="#ff5a1f" stroke-width="3"/>
-              <circle id="elbow" r="12" fill="#16140f" stroke="#ff5a1f" stroke-width="3"/>
-              <g id="gripper">
-                <rect x="-14" y="-6" width="28" height="12" fill="#16140f"/>
-                <rect id="finger-l" x="-4" y="4" width="5" height="20" fill="#16140f"/>
-                <rect id="finger-r" x="-1" y="4" width="5" height="20" fill="#16140f"/>
-              </g>
-            </g>
-          </svg>
+        <figure class="hero-arm" aria-label="The YAM arm placing an orange into a bowl, rendered in 3D">
+          <div id="arm3d" class="arm-stage"><span class="arm-tag">YAM · real meshes · IK-solved poses</span></div>
           <figcaption class="arm-readout">
-            <span>θ₁ <b id="ro-j1">0.0°</b></span><span>θ₂ <b id="ro-j2">0.0°</b></span>
-            <span>TCP <b id="ro-tcp">0, 0</b> mm</span><span>Grip <b id="ro-grip">100%</b></span><span class="ro-phase" id="ro-phase">home</span>
+            <span>J1–3 <b id="ro-j1">0° 0° 0°</b></span><span>J4–6 <b id="ro-j2">0° 0° 0°</b></span>
+            <span>TCP <b id="ro-tcp">0, 0, 0</b> mm</span><span>Grip <b id="ro-grip">100%</b></span><span class="ro-phase" id="ro-phase">home</span>
           </figcaption>
         </figure>
         <ol class="pipeline" aria-label="Pipeline">
@@ -148,6 +123,33 @@
           </section>
         </aside>
       </form>
+    </section>
+    <section class="view" data-view="flow" aria-labelledby="flow-title" hidden>
+      <header class="page-header"><h1 id="flow-title">How it works</h1>
+        <p>Four versions of the robot, one question: does training on the cases the harness found beat training on arbitrary demonstrations? Hover a box to follow its lane. Numbers are live.</p>
+      </header>
+      <div class="flow-wrap panel"><div id="flow-chart"></div>
+        <ul class="flow-legend"><li class="c2">C2 lane: chosen from measured failures</li><li class="c1">C1 lane: arbitrary demonstrations</li><li class="ab">A / B: base model, no training</li></ul>
+      </div>
+      <div class="versions">
+        <article class="version-card"><span class="v-tag">A</span><h3>Stock</h3><p class="v-what">Base Dream-1 as the SDK ships it: 48 action rows per reply.</p>
+          <dl><dt>Training data</dt><dd>None</dd><dt>Why it's here</dt><dd>The baseline every other version must beat.</dd><dt>Held-out</dt><dd data-flow="A">…</dd></dl></article>
+        <article class="version-card"><span class="v-tag">B</span><h3>Harness-tuned</h3><p class="v-what">Same model, 24 rows per reply: the setting the harness's earlier sweeps found works better.</p>
+          <dl><dt>Training data</dt><dd>None, only a configuration change</dd><dt>Why it's here</dt><dd>Shows what measurement alone buys, for free.</dd><dt>Held-out</dt><dd data-flow="B">…</dd></dl></article>
+        <article class="version-card"><span class="v-tag c1">C1</span><h3>Fine-tuned, naive data</h3><p class="v-what">What most teams would do: record demonstrations on arbitrary starts and train on them.</p>
+          <dl><dt>Training data</dt><dd>60 scripted-teacher demos on seeds 1100–1119, 20 per task level</dd><dt>Why it's here</dt><dd>The control: same budget as C2, but no diagnosis.</dd><dt>Held-out</dt><dd data-flow="C1">…</dd></dl></article>
+        <article class="version-card"><span class="v-tag c2">C2</span><h3>Fine-tuned, harness-chosen data</h3><p class="v-what">The harness picks the data: it replays exactly the starts where base Dream-1 failed, weighted by how often each level failed.</p>
+          <dl><dt>Training data</dt><dd><span data-flow="replays">…</span> teacher replays of failed starts + <span data-flow="selfs">…</span> of Dream-1's own clean successes</dd><dt>Why it's here</dt><dd>The claim: data aimed at real failures beats the same amount of arbitrary data.</dd><dt>Held-out</dt><dd data-flow="C2">…</dd></dl></article>
+      </div>
+      <section class="panel fair">
+        <h2>Why the comparison is fair</h2>
+        <ul>
+          <li><b>Same budget.</b> C1 and C2 both get 60 episodes, 1000 training steps, the same learning rate and cosine schedule, at $200 each.</li>
+          <li><b>Never seen before.</b> Every version is scored on held-out seeds 2000–2019; the exporter refuses any training episode from those seeds.</li>
+          <li><b>Clean mode.</b> One instruction per trial, no assists and no hints; the simulator only grades. The scripted teacher is a demonstration source only, never a contestant.</li>
+          <li><b>Paired.</b> Every version faces the identical starting positions, so differences are compared seed by seed with McNemar's test, with Wilson intervals on each rate.</li>
+        </ul>
+      </section>
     </section>
     <section class="view" data-view="runs" aria-labelledby="runs-title" hidden>
       <header class="page-header"><h1 id="runs-title">Run log</h1><p>Every run started from this console, newest first.</p></header>

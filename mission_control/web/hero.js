@@ -1,7 +1,7 @@
 /* Overview hero and the animated page backdrop.
    Backdrop: a drafting grid with registration crosses; orange signal pulses run along the grid lines
-   and the dots near the pointer light up. Hero: a two-link arm solved by inverse kinematics picks the
-   orange and places it in the bowl; the stats and pipeline read the live ladder data. */
+   and the dots near the pointer light up. Hero: headline entrance, live stats and pipeline.
+   The 3D arm lives in hero3d.js. */
 (function () {
   const gsap = window.gsap;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -111,86 +111,7 @@
   let resizeTimer;
   window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { drawGrid(); if (!animate) frame(0); }, 150); });
 
-  /* ---------- Arm (two-link inverse kinematics) ---------- */
-  const SHOULDER = { x: 100, y: 248 }, L1 = 165, L2 = 150;
   const $ = id => document.getElementById(id);
-  const parts = ["link1", "link1-in", "link2", "link2-in", "shoulder", "elbow", "gripper", "finger-l", "finger-r", "orange",
-                 "arm-trace", "arm-glow", "ro-j1", "ro-j2", "ro-tcp", "ro-grip", "ro-phase"].reduce((o, id) => (o[id] = $(id), o), {});
-  const tcp = { x: 180, y: 150, grip: 1 };
-  const orange = { x: 240, y: 286, held: false, opacity: 1 };
-  const trace = [];
-
-  function solve(x, y) {
-    const dx = x - SHOULDER.x, dy = y - SHOULDER.y;
-    const d = Math.min(Math.hypot(dx, dy), L1 + L2 - 1);
-    const cos2 = (d * d - L1 * L1 - L2 * L2) / (2 * L1 * L2);
-    const t2 = Math.acos(Math.max(-1, Math.min(1, cos2)));
-    const base = Math.atan2(dy, dx);
-    const k = Math.atan2(L2 * Math.sin(t2), L1 + L2 * Math.cos(t2));
-    // Of the two solutions, keep the one with the elbow raised (smaller y on screen).
-    const a = base - k, b = base + k;
-    const ea = SHOULDER.y + L1 * Math.sin(a), eb = SHOULDER.y + L1 * Math.sin(b);
-    const t1 = ea < eb ? a : b;
-    const elbow = { x: SHOULDER.x + L1 * Math.cos(t1), y: SHOULDER.y + L1 * Math.sin(t1) };
-    const end = { x: SHOULDER.x + d * Math.cos(base), y: SHOULDER.y + d * Math.sin(base) };
-    return { t1, t2: ea < eb ? t2 : -t2, elbow, end };
-  }
-
-  const setLine = (node, a, b) => { node.setAttribute("x1", a.x); node.setAttribute("y1", a.y); node.setAttribute("x2", b.x); node.setAttribute("y2", b.y); };
-
-  function drawArm() {
-    const s = solve(tcp.x, tcp.y);
-    setLine(parts.link1, SHOULDER, s.elbow); setLine(parts["link1-in"], SHOULDER, s.elbow);
-    setLine(parts.link2, s.elbow, s.end); setLine(parts["link2-in"], s.elbow, s.end);
-    parts.shoulder.setAttribute("cx", SHOULDER.x); parts.shoulder.setAttribute("cy", SHOULDER.y);
-    parts.elbow.setAttribute("cx", s.elbow.x); parts.elbow.setAttribute("cy", s.elbow.y);
-    parts.gripper.setAttribute("transform", `translate(${s.end.x} ${s.end.y})`);
-    const open = 4 + 9 * tcp.grip;
-    parts["finger-l"].setAttribute("x", -open - 5);
-    parts["finger-r"].setAttribute("x", open);
-    if (orange.held) { orange.x = s.end.x; orange.y = s.end.y + 32; }
-    parts.orange.setAttribute("cx", orange.x); parts.orange.setAttribute("cy", orange.y);
-    parts["arm-glow"].setAttribute("cx", s.end.x); parts["arm-glow"].setAttribute("cy", s.end.y + 20);
-    trace.push(`${s.end.x.toFixed(1)},${(s.end.y + 24).toFixed(1)}`);
-    if (trace.length > 70) trace.shift();
-    parts["arm-trace"].setAttribute("d", "M" + trace.join("L"));
-    parts["ro-j1"].textContent = (-s.t1 * 180 / Math.PI).toFixed(1) + "°";
-    parts["ro-j2"].textContent = (-s.t2 * 180 / Math.PI).toFixed(1) + "°";
-    // 100 SVG units are drawn as 0.10 m on the dimension line.
-    parts["ro-tcp"].textContent = Math.round(s.end.x - SHOULDER.x) + ", " + Math.round(SHOULDER.y - s.end.y);
-    parts["ro-grip"].textContent = Math.round(tcp.grip * 100) + "%";
-  }
-
-  const phase = name => () => { parts["ro-phase"].textContent = name; };
-  drawArm();
-  if (animate) {
-    const tl = gsap.timeline({ repeat: -1, repeatDelay: .6, defaults: { ease: "power2.inOut" }, onUpdate: drawArm });
-    tl.call(phase("reach"))
-      .to(tcp, { x: 240, y: 200, duration: 1.1 })
-      .call(phase("descend"))
-      .to(tcp, { y: 254, duration: .7, ease: "power1.out" })
-      .call(phase("grasp"))
-      .to(tcp, { grip: 0, duration: .35 })
-      .call(() => { orange.held = true; })
-      .call(phase("lift"))
-      .to(tcp, { y: 170, duration: .7, ease: "power2.out" })
-      .call(phase("transfer"))
-      .to(tcp, { x: 390, y: 180, duration: 1.2 })
-      .to(tcp, { y: 222, duration: .55, ease: "power1.out" })
-      .call(phase("release"))
-      .call(() => { orange.held = false; })
-      .to(tcp, { grip: 1, duration: .3 })
-      .to(orange, { y: 258, duration: .35, ease: "bounce.out" }, "<")
-      .call(phase("settle ✓"))
-      .to(tcp, { x: 330, y: 150, duration: .8 })
-      .call(phase("home"))
-      .to(tcp, { x: 180, y: 150, duration: 1 })
-      .to(orange, { opacity: 0, duration: .3, onUpdate: () => parts.orange.setAttribute("opacity", orange.opacity) }, "<")
-      .call(() => { orange.x = 240; orange.y = 286; orange.opacity = 1; parts.orange.setAttribute("opacity", 1); })
-      .fromTo(parts.orange, { attr: { r: 0 } }, { attr: { r: 14 }, duration: .4, ease: "back.out(2)", immediateRender: false });
-    // Only animate while the hero is on screen.
-    new IntersectionObserver(([entry]) => entry.isIntersecting ? tl.resume() : tl.pause()).observe($("hero-title").closest(".hero"));
-  }
 
   /* ---------- Headline and entrance ---------- */
   const title = $("hero-title");

@@ -38,11 +38,13 @@ main { z-index: 1 }
 @keyframes scan { from { transform: translateY(-100%) } to { transform: translateY(260%) } }
 .hero-eyebrow { display: flex; align-items: center; gap: 10px; font: 600 .75rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: #c9c3b5; margin-bottom: 18px }
 .live-dot { width: 8px; height: 8px; background: var(--signal); box-shadow: 0 0 0 0 rgba(255,90,31,.7); animation: pulse 1.6s ease-in-out infinite }
-.hero-title { font-size: clamp(2.2rem, 4.4vw, 4rem); line-height: 1.02; letter-spacing: -.01em; max-width: 15ch }
-.hero-title em { font-style: normal; color: var(--signal) }
+.hero-title { font-family: "Bahnschrift Condensed", "Bahnschrift SemiCondensed", var(--display); font-weight: 700; font-stretch: condensed;
+  font-size: clamp(3rem, 6.4vw, 6.6rem); line-height: .9; letter-spacing: -.02em; text-transform: uppercase }
+.hero-title .line { display: block; white-space: nowrap }
+.hero-title .accent { color: var(--signal); text-shadow: 0 0 40px rgba(255,90,31,.35) }
 .hero-title .word { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .06em }
 .hero-title .word > span { display: inline-block }
-.hero-lede { margin-top: 18px; max-width: 52ch; color: #c9c3b5; font-size: 1.02rem }
+.hero-lede { margin-top: 22px; max-width: 52ch; color: #c9c3b5; font-size: 1.02rem }
 .hero-actions { display: flex; gap: 10px; margin-top: 24px }
 .hero .button.primary { box-shadow: 4px 4px 0 #8a2e0c }
 .button.ghost { background: transparent; color: var(--paper); border-color: #5c574c }
@@ -53,10 +55,13 @@ main { z-index: 1 }
 .hero-stats dt { color: #8f8979; font: .7rem var(--mono); letter-spacing: .1em; text-transform: uppercase }
 .hero-stats dd { font: 600 1.9rem var(--display); color: var(--paper); font-variant-numeric: tabular-nums; text-align: left }
 .hero-stats dd i { font-style: normal; color: var(--signal); padding: 0 .3em }
-.hero-arm { margin: 0; border: 1px solid #3b372f; background: rgba(13,12,10,.6) }
-.hero-arm svg { display: block; width: 100%; height: auto }
-.hero-arm .dim path { stroke: #8f8979; fill: none }
-.hero-arm .dim text { fill: #8f8979; font: 10px var(--mono); text-anchor: middle; letter-spacing: .08em }
+.hero-arm { position: relative; margin: 0; border: 1px solid #3b372f; background: radial-gradient(70% 60% at 55% 60%, rgba(255,90,31,.10), transparent 70%), rgba(13,12,10,.55) }
+.arm-stage { position: relative; height: clamp(320px, 38vw, 500px) }
+.arm-stage canvas { display: block; width: 100%; height: 100%; opacity: 0; transition: opacity .9s ease }
+.arm-stage.ready canvas { opacity: 1 }
+.arm-stage.failed { display: grid; place-items: center; color: #8f8979; font: .8rem var(--mono) }
+.arm-stage.failed::after { content: "3D view needs WebGL" }
+.arm-tag { position: absolute; top: 10px; left: 12px; z-index: 1; font: .68rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #8f8979 }
 .arm-readout { display: flex; flex-wrap: wrap; gap: 4px 18px; padding: 8px 12px; border-top: 1px solid #3b372f; font: .72rem var(--mono); color: #8f8979 }
 .arm-readout b { color: var(--paper); font-weight: 600; font-variant-numeric: tabular-nums }
 .ro-phase { margin-left: auto; color: var(--signal); text-transform: uppercase; letter-spacing: .1em }
@@ -300,3 +305,39 @@ tbody td { transition: background-color .18s ease }
   .fields, .comparison-fields { grid-template-columns: 1fr }
   .wide { grid-column: auto }
 }
+
+/* How it works */
+.flow-wrap { padding: 0; background: var(--ink); border-color: var(--ink); overflow: hidden }
+.flow-wrap::before { content: ""; display: block; height: 0 }
+#flow-chart { background: radial-gradient(60% 80% at 70% 50%, rgba(255,90,31,.12), transparent 70%),
+  linear-gradient(rgba(243,240,232,.04) 1px, transparent 1px) 0 0 / 32px 32px,
+  linear-gradient(90deg, rgba(243,240,232,.04) 1px, transparent 1px) 0 0 / 32px 32px }
+.flow-svg { display: block; width: 100%; height: auto; padding: 10px 6px }
+.flow-edge { fill: none; stroke-width: 2; stroke-opacity: .55; transition: stroke-opacity .3s ease, stroke-width .3s ease }
+.flow-box { fill: #1f1c17; stroke: #4a443a; transition: stroke .3s ease, fill .3s ease }
+.flow-node { transition: opacity .3s ease }
+.flow-node:hover .flow-box { stroke: var(--paper); fill: #26221c }
+.flow-title { fill: var(--paper); font: 600 15px var(--display); letter-spacing: .04em; text-transform: uppercase }
+.flow-line { fill: #b9b3a5; font: 12px var(--mono) }
+.flow-lane { fill: #8f8979; font: 11px var(--mono); letter-spacing: .12em; text-transform: uppercase }
+.flow-svg.focusing .flow-node:not(.focus) { opacity: .25 }
+.flow-svg.focusing .flow-edge:not(.focus) { stroke-opacity: .1 }
+.flow-svg.focusing .flow-edge.focus { stroke-opacity: 1; stroke-width: 3 }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0; padding: 10px 16px 14px; list-style: none; border-top: 1px solid #3b372f; font: .75rem var(--mono); color: #c9c3b5 }
+.flow-legend li::before { content: ""; display: inline-block; width: 18px; height: 3px; margin-right: 8px; vertical-align: middle; background: currentColor }
+.flow-legend .c2::before { background: var(--signal) } .flow-legend .c1::before { background: #c9c3b5 } .flow-legend .ab::before { background: #7fd18f }
+.versions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 22px 0 }
+.version-card { position: relative; padding: 18px 18px 16px; background: var(--sheet); border: 1px solid var(--rule); transition: transform .25s ease, box-shadow .25s ease }
+.version-card:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink) }
+.v-tag { display: inline-grid; place-items: center; min-width: 38px; height: 30px; padding: 0 8px; background: var(--ink); color: var(--paper); font: 700 .95rem var(--display); letter-spacing: .06em }
+.v-tag.c1 { background: #5f5a4f } .v-tag.c2 { background: var(--signal); color: var(--ink) }
+.version-card h3 { margin: 12px 0 6px; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .04em }
+.v-what { color: var(--muted); font-size: .9rem; min-height: 4.2em }
+.version-card dl { margin-top: 12px; border-top: 1px solid var(--hair) }
+.version-card dt { margin-top: 10px; font: 600 .68rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+.version-card dd { font-weight: 500; font-size: .9rem }
+.version-card dd[data-flow] { font: 600 1rem var(--mono) }
+.fair ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 8px; color: var(--muted) }
+.fair b { color: var(--ink) }
+@media (max-width: 1000px) { .versions { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 700px) { .versions { grid-template-columns: 1fr } }

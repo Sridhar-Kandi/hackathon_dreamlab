@@ -72,7 +72,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def file(self,path,download=False):
-        types = {".ttf":"font/ttf", ".jsonl":"application/x-ndjson", ".mp4":"video/mp4"}
+        types = {".ttf":"font/ttf", ".jsonl":"application/x-ndjson", ".mp4":"video/mp4", ".js":"text/javascript", ".stl":"model/stl", ".svg":"image/svg+xml"}
         kind = types.get(path.suffix.lower()) or mimetypes.guess_type(path.name)[0] or "application/octet-stream"
         size = path.stat().st_size
         wanted = re.fullmatch(r"bytes=(\d*)-(\d*)", self.headers.get("Range", ""))
@@ -160,9 +160,12 @@ class Handler(BaseHTTPRequestHandler):
                 if parts[3]=="resume":
                     return self.respond(execution.resume(parts[2]))
             raise KeyError
-        static={"/":"index.html","/app.js":"app.js","/style.css":"style.css","/gsap.min.js":"gsap.min.js","/motion.js":"motion.js","/hero.js":"hero.js"}
+        static={"/":"index.html","/app.js":"app.js","/style.css":"style.css","/motion.js":"motion.js","/hero.js":"hero.js",
+                "/hero3d.js":"hero3d.js","/flow.js":"flow.js"}
         if path in static:
             return self.file(WEB/static[path])
+        if re.fullmatch(r"/assets/(vendor|yam)/[\w.-]+", path):
+            return self.file(WEB/path.lstrip("/"))
         if path=="/api/health":
             return self.respond({"missing_dependencies":execution.missing_simulator_dependencies()})
         if path=="/api/budget":

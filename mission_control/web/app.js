@@ -854,7 +854,7 @@ byId("ladder-collection").onchange = () => loadLadder().catch(error => notice(er
 async function route() {
   const token = ++state.request;
   const [hash,id,trial] = location.hash.slice(1).split("/").map(decodeURIComponent);
-  const page = ["workspace","setup","runs","run","ladder","compare","datasets"].includes(hash) ? hash : "workspace";
+  const page = ["workspace","flow","setup","runs","run","ladder","compare","datasets"].includes(hash) ? hash : "workspace";
   const viewKey = page + "/" + (id || "");
   const changed = state.viewKey !== viewKey;
   state.viewKey = viewKey;
@@ -880,6 +880,7 @@ async function route() {
     if (page === "compare") compareOptions();
     if (page === "datasets") await loadDatasets();
     if (page === "ladder") await loadLadder();
+    if (page === "flow") window.flow?.render();
     if (token === state.request) window.motion?.enterView(page, changed);
     for (const video of document.querySelectorAll("[data-view]:not([hidden]) video")) video.play().catch(() => {});
   } catch (error) { notice(error.message); }
