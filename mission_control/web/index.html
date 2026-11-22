@@ -1,0 +1,147 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#142133">
+  <title>YAM Simulation Console</title>
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#workspace">Skip to workspace</a>
+  <aside class="sidebar">
+    <a class="brand" href="#workspace" aria-label="YAM Simulation Console home">
+      <span class="brand-mark" aria-hidden="true">Y</span>
+      <span>YAM<span class="brand-subtitle">Simulation Console</span></span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#workspace" data-tab="workspace" aria-current="page">Overview</a>
+      <a href="#runs" data-tab="runs">Run log</a>
+      <a href="#compare" data-tab="compare">Compare runs</a>
+      <a href="#datasets" data-tab="datasets">Datasets</a>
+    </nav>
+    <div class="sidebar-footer">
+      <span>Local environment</span>
+      <strong>Dream YAM · MuJoCo</strong>
+    </div>
+  </aside>
+  <main id="workspace" tabindex="-1">
+    <div id="notice" role="alert" hidden></div>
+    <div id="loading" class="loading" role="status"><span class="loading-cursor" aria-hidden="true">&gt;_</span> Loading simulation records</div>
+    <section class="view" id="workspace-view" data-view="workspace" aria-labelledby="workspace-title">
+      <header class="page-header">
+        <div><div class="context-label" aria-hidden="true">[ YAM / MUJOCO ]</div><h1 id="workspace-title">Where did the robot stop?</h1><p>Pick up an object, move it to the target, then let it settle. Each row below shows which stages the simulator verified.</p></div>
+        <a class="button primary" id="new-run" href="#setup">Run a task</a>
+      </header>
+      <div class="workspace-grid">
+        <div class="workspace-primary">
+          <section class="panel procedure-panel" aria-labelledby="procedure-title">
+            <div class="panel-heading"><h2 id="procedure-title">Tabletop placement sequence</h2><span id="procedure-status" class="status">Not started</span></div>
+            <p id="procedure-description" class="section-copy">Place the orange in the bowl, then the banana on the plate. The banana step starts only after the orange is released and settled.</p>
+            <div id="procedure-steps"></div>
+            <div class="procedure-footer" id="procedure-footer"></div>
+          </section>
+          <section class="panel run-summary" aria-labelledby="latest-title">
+            <div class="panel-heading"><h2 id="latest-title">What the simulator measured</h2></div>
+            <p class="section-copy">Contact means a gripper touched the object. Lift means the object stayed at least 5 cm above its starting height for five simulation steps while in contact. To settle, it must stay at the destination for one second after release.</p>
+            <div class="trace-legend" aria-hidden="true">CONTACT <span>---&gt;</span> LIFT <span>---&gt;</span> SETTLE</div>
+          </section>
+        </div>
+        <aside class="workspace-secondary">
+          <section class="panel scene-panel" aria-labelledby="scene-title">
+            <div class="panel-heading"><h2 id="scene-title">Simulation scene</h2></div>
+            <figure>
+              <img src="/stock-scene.png" alt="Overhead stock simulator view of two robot arms at a table with a bowl, a plate, an orange and a banana." width="320" height="176">
+              <figcaption>Stock tabletop scene · reference view</figcaption>
+            </figure>
+            <dl class="scene-facts"><div><dt>Robot</dt><dd>Dual-arm YAM</dd></div><div><dt>Physics</dt><dd>MuJoCo</dd></div></dl>
+          </section>
+          <section class="panel connection-panel" aria-labelledby="connection-title">
+            <div class="panel-heading"><h2 id="connection-title">Simulator connection</h2></div>
+            <div id="connection" role="status">Checking local installation…</div>
+            <button id="workspace-check" class="button" type="button">Check simulator</button>
+          </section>
+        </aside>
+      </div>
+      <section class="panel results-panel" aria-labelledby="results-title">
+        <div class="panel-heading"><h2 id="results-title">Fresh trial results</h2><a class="text-link" href="#runs">Open run log</a></div>
+        <p class="section-copy">Select a seed to see its recording and event times. The short time-limit run shows what happens when the first step cannot finish.</p>
+        <div id="fresh-results" aria-live="polite"></div>
+      </section>
+    </section>
+    <section class="view" data-view="setup" aria-labelledby="setup-title" hidden>
+      <header class="page-header"><div><h1 id="setup-title">Run a task</h1><p>Choose one placement or the two-step sequence. The scripted controller runs locally without credits.</p></div></header>
+      <form id="setup-form" class="workspace-grid">
+        <section class="panel settings-panel">
+          <div class="panel-heading"><h2>Procedure and controller</h2></div>
+          <div class="fields">
+            <label class="wide">Procedure<select name="task" id="task" required></select></label>
+            <label class="wide">Robot instruction<textarea name="instruction" rows="2" maxlength="400" required></textarea></label>
+            <label>Simulator scene<select name="scene" required></select></label>
+            <label>Controller<select name="model" required></select></label>
+            <label>Number of trials<input type="number" name="trials" min="1" max="20" required></label>
+            <label class="check"><input type="checkbox" name="record">Save camera recording</label>
+          </div>
+          <details class="settings-details">
+            <summary>Advanced settings</summary>
+            <div class="fields">
+              <label>Action rows per reply<input type="number" name="actions" min="1" max="48" required></label>
+              <label>Simulation limit (seconds)<input type="number" name="sim_seconds" min="1" max="420" step="0.05" required></label>
+              <label>First seed<input type="number" name="seed0" min="0" max="2147483628" required></label>
+              <label>Reset variation (cm)<input type="number" name="jitter_cm" min="0" max="2" step="0.1" required></label>
+              <label>Model requests per trial<input type="number" name="request_cap" min="1" max="8400" required></label>
+              <label>Testing allocation<select name="purpose"><option value="connectivity">Integration smoke · 8 credits</option><option value="primary">Primary evaluation · 20 credits</option><option value="paired">Controlled comparison · 36 credits</option><option value="secondary">Secondary evaluation · 8 credits</option><option value="demo">Rehearsal · 12 credits</option><option value="reserve">Reserve · 36 credits</option></select></label>
+              <label>Testing credit cap<input name="max_credits" type="number" min="0" max="120" step="0.01" required></label>
+              <label>Estimated USD cap<input name="max_usd" type="number" min="0" max="100" step="0.01" required></label>
+              <label class="wide check"><input type="checkbox" name="record_episode">Save synchronized training samples</label>
+            </div>
+          </details>
+          <div class="form-actions">
+            <button type="button" id="review">Review procedure</button>
+            <button type="submit" class="primary" id="launch" disabled>Start simulation</button>
+          </div>
+          <div id="setup-status" role="status"></div>
+        </section>
+        <aside class="workspace-secondary">
+          <section class="panel">
+            <div class="panel-heading"><h2>Procedure review</h2></div>
+            <div id="plan-preview"><p class="empty">Review the procedure to see its steps, limits and seed list.</p></div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading"><h2>Local readiness</h2></div>
+            <div id="readiness"><p class="empty">The readiness check renders a local camera sample and validates the selected configuration.</p></div>
+            <button type="button" id="check" class="button secondary-action">Check readiness</button>
+          </section>
+        </aside>
+      </form>
+    </section>
+    <section class="view" data-view="runs" aria-labelledby="runs-title" hidden>
+      <header class="page-header">
+        <div><h1 id="runs-title">Run log</h1><p>Open a run to see each trial, its placement checks and the original results.</p></div>
+        <a class="button primary" href="#setup">Configure run</a>
+      </header>
+      <section class="panel"><div id="run-list"></div></section>
+    </section>
+    <section class="view" data-view="run" aria-labelledby="run-title" hidden>
+      <a class="back" href="#runs">Run log</a>
+      <header class="page-header"><div><h1 id="run-title">Simulation run</h1><p id="run-subtitle"></p></div><div class="form-actions" id="run-actions"></div></header>
+      <div id="run-content"></div>
+    </section>
+    <section class="view" data-view="compare" aria-labelledby="compare-title" hidden>
+      <header class="page-header"><div><h1 id="compare-title">Compare runs</h1><p>Compare recorded outcomes for trials with matching starts.</p></div></header>
+      <form id="comparison-form" class="panel comparison-fields" hidden>
+        <label>Baseline run<select id="baseline" required></select></label>
+        <label>Comparison run<select id="changed" required></select></label>
+        <button type="submit" class="primary">Compare</button>
+      </form>
+      <div id="comparison" aria-live="polite"></div>
+    </section>
+    <section class="view" data-view="datasets" aria-labelledby="datasets-title" hidden>
+      <header class="page-header"><div><h1 id="datasets-title">Prepare a fine-tuning run</h1><p>Review successful episodes, validate a dataset locally, then upload it to Dream Labs for training.</p></div></header>
+      <div id="dataset-content" aria-live="polite"></div>
+    </section>
+  </main>
+  <noscript>Enable JavaScript to use the simulator console.</noscript>
+</body>
+</html>

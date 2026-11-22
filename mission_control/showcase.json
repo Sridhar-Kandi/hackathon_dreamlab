@@ -1,0 +1,65 @@
+{
+  "dream1_racks_success_s302.gif": {
+    "run": "dream_racks",
+    "seed": 302,
+    "actions": 24,
+    "instruction": "put the red tube in the red rack and the blue tube in the blue rack",
+    "mode": "plain",
+    "kind": "baseline",
+    "label": "Dream-1 sorts both tubes"
+  },
+  "dream1_hold_fill_success_s309.gif": {
+    "run": "dream_hold_fill",
+    "seed": 309,
+    "actions": 24,
+    "instruction": "hold the white cup up by its handle with the left arm, and put the red tube into the cup with the right arm",
+    "mode": "plain",
+    "kind": "baseline",
+    "label": "Dream-1 holds the cup and inserts the tube"
+  },
+  "plain_stack3_s300.gif": {
+    "run": "assist_stack3",
+    "seed": 300,
+    "actions": 24,
+    "instruction": "put the red block on the yellow block, then put the blue block on the red block",
+    "mode": "plain",
+    "kind": "baseline",
+    "label": "Dream-1 completes the three-block stack"
+  },
+  "assist_place_banana_success_s101.gif": {
+    "run": "place_banana",
+    "seed": 101,
+    "actions": 24,
+    "instruction": "put banana on plate",
+    "mode": "assist_place",
+    "kind": "assisted",
+    "label": "Assisted banana placement using simulator positions"
+  },
+  "assist_place_stack3_s300.gif": {
+    "run": "assist_stack3",
+    "seed": 300,
+    "actions": 24,
+    "instruction": "put the red block on the yellow block, then put the blue block on the red block",
+    "mode": "assist_place",
+    "kind": "assisted",
+    "label": "Assisted three-block stack using simulator positions"
+  },
+  "oracle_hanoi_s300.gif": {
+    "run": "hanoi_oracle",
+    "seed": 300,
+    "actions": 24,
+    "instruction": "solve the tower of hanoi",
+    "mode": "plain",
+    "kind": "oracle",
+    "label": "Scripted oracle solves Tower of Hanoi"
+  },
+  "oracle_hold_fill_s300.gif": {
+    "run": "oracle_hold_fill",
+    "seed": 300,
+    "actions": 24,
+    "instruction": "oracle",
+    "mode": "plain",
+    "kind": "oracle",
+    "label": "Scripted oracle holds the cup and inserts the tube"
+  }
+}

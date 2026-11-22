@@ -366,3 +366,91 @@ class SequenceTracker:
             sequence=[f"{o}:{g}" for o, g in self.spec],
         )
         return base
+
+
+class OrderedPlanTracker:
+    """Keep per-step grading and verify that completed placements still hold at the end."""
+
+    def __init__(self, env, steps, emit):
+        self.steps = steps
+        self.emit = emit
+        self.row = 0
+        self.index = 0
+        self.started_row = 0
+        self.trackers = [Tracker(env, steps[0]["target"], steps[0]["goal"])]
+        self.completed = []
+        self.failure = None
+        self.emit("step_started", step_id=self.step["id"], sim_s=0)
+
+    @property
+    def step(self):
+        return self.steps[self.index]
+
+    def _current(self):
+        return self.trackers[self.index]
+
+    @property
+    def max_height(self):
+        return self._current().max_height
+
+    @property
+    def lifted_at(self):
+        return self._current().lifted_at
+
+    @property
+    def success(self):
+        return len(self.completed) == len(self.steps) and self.failure is None
+
+    @property
+    def done(self):
+        return self.success or self.failure is not None
+
+    def update(self, env):
+        self.row += 1
+        for tracker in self.trackers:
+            tracker.update(env)
+        tracker = self._current()
+        sim_s = self.row / 20
+        for milestone, reached in (("contact", tracker.first_contact), ("lift", tracker.lifted_at)):
+            if reached == tracker.row - 1:
+                self.emit(milestone, step_id=self.step["id"], sim_s=sim_s)
+
+        if tracker.success:
+            summary = tracker.summary(env)
+            if self.index == len(self.steps) - 1:
+                lost = [step["id"] for step, graded in zip(self.steps, self.trackers)
+                        if graded.goal_run < graded.goal_rows]
+                if lost:
+                    self.failure = "final_placement_lost"
+                    self.emit("step_failed", step_id=self.step["id"], sim_s=sim_s,
+                              reason=self.failure, lost_goals=lost, evidence=summary)
+                    return
+            self.completed.append(self.step["id"])
+            self.emit("step_succeeded", step_id=self.step["id"], sim_s=sim_s,
+                      settled_s=tracker.goal_rows / 20, evidence=summary)
+            if not self.success:
+                self.index += 1
+                self.started_row = self.row
+                self.trackers.append(Tracker(env, self.step["target"], self.step["goal"]))
+                self.emit("step_started", step_id=self.step["id"], sim_s=sim_s)
+        elif self.row - self.started_row >= self.step["max_rows"]:
+            self.failure = "task_timeout"
+            self.emit("step_failed", step_id=self.step["id"], sim_s=sim_s,
+                      reason=self.failure, evidence=tracker.summary(env))
+
+    def summary(self, env):
+        active = self._current().summary(env)
+        evidence = []
+        for index, step in enumerate(self.steps):
+            if index < len(self.completed):
+                state = "succeeded"
+            elif index == self.index:
+                state = "task_failed" if self.failure else "interrupted"
+            else:
+                state = "pending"
+            detail = self.trackers[index].summary(env) if index < len(self.trackers) else None
+            evidence.append(dict(id=step["id"], status=state, evidence=detail))
+        return {**active, "rows": self.row, "success": self.success,
+                "outcome": "success" if self.success else self.failure or "partial",
+                "progress": len(self.completed), "progress_of": len(self.steps),
+                "ordered_steps": evidence, "detector_version": "stock-tracker-v1"}

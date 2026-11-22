@@ -1,3 +1,33 @@
+# YAM Simulation Console
+
+From `hackathon_dreamlab`, start the console with the repository's virtual environment.
+
+```powershell
+& .\.venv\Scripts\python.exe -m mission_control
+```
+
+Open [http://127.0.0.1:8765](http://127.0.0.1:8765). The **Overview** explains what the simulator measures and shows contact, lift and settlement for the fresh trials. Open **Run log** to inspect individual trials, view playback, or download the original result records.
+
+## Verify the local simulator
+
+Set up Python 3.13 with the dependencies in `mission_control/requirements-sim.txt`. The stock probe passed with Dream Labs 1.0.42 and MuJoCo 3.17.0.
+
+```powershell
+& .\.venv\Scripts\python.exe -m pip install -r mission_control/requirements-sim.txt
+& .\.venv\Scripts\python.exe -m mission_control.execution --probe stock
+```
+
+Choose **Run a task**, keep **Tabletop placement sequence** and **Scripted simulator**, then select **Review procedure** and **Start simulation**. The order is orange into bowl, followed by banana onto plate in the same simulation. Both placements must pass the final check. For a timeout check, set **Simulation limit** under **Advanced settings** to one second. The first step should fail after 0.5 seconds and the banana step should stay unreached.
+
+Fresh results are stored under `dreameval/.mission-control/runs/`. The original repository archive is outside the console's result index. The scripted controller uses simulator state and runs without a Dream-1 request. For Dream-1 access and the user-controlled fine-tuning workflow, see [execution and spending](mission_control/EXECUTION.md).
+
+- [Presentation walkthrough](mission_control/DEMO.md)
+- [Phase results](PHASE_RESULTS.md)
+- [Development plan](tasks.md)
+- [Showcase bundle with fresh results](YAM-Simulation-Console-showcase.zip)
+
+---
+
 # dreameval: an evaluation harness for Dream-1 (HackLab Berlin × BRISA, Dream Labs track)
 
 Handoff document: everything a teammate needs to continue from here (status as of Sat 21 Nov 2026, 23:15).

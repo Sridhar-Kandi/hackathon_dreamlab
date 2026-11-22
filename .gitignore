@@ -2,6 +2,10 @@ __pycache__/
 *.pyc
 .dreamlabs/
 credentials
+keys
+dreameval/.mission-control/
+dreameval/runs/mc-*/
+.venv/
 *.env
 .env
 dreameval/runs/**/frames/

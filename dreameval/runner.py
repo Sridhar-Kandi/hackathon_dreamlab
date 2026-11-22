@@ -7,6 +7,7 @@ Mirrors dream_control.main()'s request/validate/step loop, with three changes fo
 """
 
 import json
+import hashlib
 import os
 import sys
 import time
@@ -26,7 +27,7 @@ os.environ.setdefault("MUJOCO_GL", "glfw" if os.name == "nt" else "egl")
 import dream_control as dc  # noqa: E402
 import yam_env  # noqa: E402
 
-from detectors import SequenceTracker, Tracker  # noqa: E402
+from detectors import OrderedPlanTracker, SequenceTracker, Tracker  # noqa: E402
 
 ## Published Dream-1 price: $3/hour of action at 1.6 s of action per call -> 2250 calls/hour.
 USD_PER_CALL = 3.0 / 2250
@@ -211,12 +212,23 @@ def run_trial(
     stall_s=8.0,
     sequence=None,
     scene="stock",
+    before_request=None,
+    max_usd=None,
+    ordered_plan=None,
+    checkpoint=None,
+    on_event=None,
+    on_sample=None,
+    normalize_gripper=True,
 ):
     """Run one trial and return a result dict (never raises for API/validation errors; they become outcome='error')."""
-    config = dc.settings()
+    if max_usd is not None and (not np.isfinite(max_usd) or max_usd < 0):
+        raise ValueError("--max-usd must be finite and nonnegative")
+    config = {} if model == "oracle" else dc.settings()
     key = key or config.get("DREAM_API_KEY", "")
     gateway = config.get("DREAM_GATEWAY_URL", "https://api.dreamlabs.ai")
     rng = np.random.default_rng(seed)
+    if ordered_plan and (scene != "stock" or supervise or sequence):
+        raise ValueError("Ordered plans require an unassisted stock scene.")
     env.reset()
     if sequence:
         sequence = [tuple(x.split(":", 1)) if isinstance(x, str) else tuple(x) for x in sequence]
@@ -238,21 +250,32 @@ def run_trial(
             mujoco.mj_forward(env.model, env.data)
     elif jitter_cm:
         movers = sorted({o for o, _ in sequence}) if sequence else [target]
+        if ordered_plan:
+            movers = sorted({step["target"] for step in ordered_plan})
         if scene == "hold_fill":
             movers = ["cup", "red_tube"]
         randomize(env, rng, jitter_cm / 100, movers)
 
+    def emit(kind, **detail):
+        if on_event:
+            on_event(kind, **detail)
+
+    initial_state_fingerprint = hashlib.sha256(env.data.qpos.tobytes() + env.data.qvel.tobytes()).hexdigest()
     windows = {name: deque(maxlen=dc.FRAMES) for name in dc.VIDEO_ROLES}
     steps = 0
     hold = env.state()
     while any(len(w) < dc.FRAMES for w in windows.values()):
+        if checkpoint:
+            checkpoint()
         env.step(hold["left"], hold["right"])
         if steps % dc.FRAME_EVERY_STEPS == 0:
             capture(env, windows)
         steps += 1
 
     stats = None
-    if scene == "hanoi":
+    if ordered_plan:
+        tracker = OrderedPlanTracker(env, ordered_plan, emit)
+    elif scene == "hanoi":
         tracker = hanoi.HanoiTracker(env)
     elif scene == "hold_fill":
         import bimanual
@@ -282,17 +305,28 @@ def run_trial(
         watch = None
     budget_rows = int(round(sim_seconds * 20))
     rtts, error, policy = [], None, None
+    request_attempts, timeout_count = 0, 0
+    first_response_s = None
     near_replies = [0]
     interventions = []
     rows_trace = []
     started = time.monotonic()
     poses = model in dc.POSE_MODELS
-    prompt = task
+    prompt = tracker.step["instruction"] if ordered_plan else task
     state = {"steps": steps}
 
     def advance(l, r):
         """One 50 ms row: physics, grading, camera windows, recording. Returns the rendered images or None."""
+        if checkpoint:
+            checkpoint(tracker.row / 20)
+        if on_sample:
+            sample_windows = {name: deque(maxlen=1) for name in dc.VIDEO_ROLES}
+            capture(env, sample_windows)
+            on_sample(tracker.row, tracker.step["id"], prompt, env.state(), l, r,
+                      {name: frames[-1] for name, frames in sample_windows.items()})
         env.step(l, r)
+        if ordered_plan and (not np.isfinite(env.data.qpos).all() or not np.isfinite(env.data.qvel).all()):
+            raise RuntimeError("Invalid numeric simulator state.")
         tracker.update(env)
         if stats is not None:
             stats.update(env)
@@ -324,8 +358,10 @@ def run_trial(
     def open_session():
         nonlocal policy, poses
         # DA-2000 NO_CAPACITY (pool full) is a transient server state, not a trial outcome: back off and retry.
-        for wait in (5, 10, 20, 40, 60, 90, 0):
+        for wait in ((0,) if checkpoint else (5, 10, 20, 40, 60, 90, 0)):
             try:
+                if checkpoint:
+                    checkpoint()
                 policy = dc.open_policy(dc.policy_config(model, gateway, poses), key)
                 break
             except Exception as exc:
@@ -337,7 +373,19 @@ def run_trial(
     if model == "oracle":
         import oracle
 
-        if scene in ("racks", "hold_fill"):
+        if ordered_plan:
+            bot = oracle.Oracle(env)
+
+            def ordered_rows():
+                while not tracker.done:
+                    step = tracker.step
+                    for left, right in bot.plan([(step["target"], step["goal"])]):
+                        yield left, right
+                        if tracker.done or tracker.step is not step:
+                            break
+
+            rows = ordered_rows()
+        elif scene in ("racks", "hold_fill"):
             import bimanual
 
             bot, rows = bimanual.oracle_plan(env, scene)
@@ -346,8 +394,10 @@ def run_trial(
             bot, rows = oracle.plan(env, steps)
         try:
             for l, r in rows:
+                if ordered_plan:
+                    prompt = tracker.step["instruction"]
                 advance(l, r)
-                if (stop_on_success and tracker.success) or tracker.row >= budget_rows:
+                if (ordered_plan and tracker.done) or (stop_on_success and tracker.success) or tracker.row >= budget_rows:
                     break
         except Exception as exc:
             error = f"{type(exc).__name__}: {exc}"[:300]
@@ -364,6 +414,12 @@ def run_trial(
             if time.monotonic() - started > wall_timeout:
                 error = "wall_timeout"
                 break
+            if ordered_plan and tracker.step["instruction"] != prompt:
+                prompt = tracker.step["instruction"]
+                policy.close()
+                policy = None
+                capture(env, windows)
+                open_session()
             if stepwise:
                 nxt = tracker.next_prompt()
                 if nxt and nxt != prompt:
@@ -374,10 +430,21 @@ def run_trial(
                     policy.close()
                     policy = None
                     open_session()
+            if max_usd is not None and (request_attempts + 1) * USD_PER_CALL > max_usd:
+                raise RuntimeError("BUDGET_STOPPED: estimated USD cap reached")
+            if before_request is not None:
+                before_request()
+            request_attempts += 1
             t0 = time.monotonic()
+            if on_event:
+                emit("request_started", sim_s=tracker.row / 20, attempted=request_attempts)
             try:
                 reply = policy.get_action()
             except Exception as exc:  # mirror the stock runner's two recoveries
+                if isinstance(exc, TimeoutError) or "timeout" in type(exc).__name__.lower():
+                    timeout_count += 1
+                if checkpoint:
+                    raise
                 if type(exc).__name__ == "DreamSessionExpired" and restarts < 3:
                     restarts += 1
                     continue
@@ -393,9 +460,15 @@ def run_trial(
                     continue
                 raise
             restarts = 0
-            rtts.append(time.monotonic() - t0)
-            reply = _clamp_gripper(reply)
+            if normalize_gripper:
+                reply = _clamp_gripper(reply)
             left, right = dc.validate_chunk(env, reply, actions, verbose=False)
+            rtts.append(time.monotonic() - t0)
+            if first_response_s is None:
+                first_response_s = rtts[0]
+            if on_event:
+                emit("request_completed", sim_s=tracker.row / 20, completed=len(rtts),
+                     latency_s=round(rtts[-1], 3))
             run_rows = actions
             if helper is not None and helper.near():
                 run_rows = min(actions, helper.near_rows)
@@ -404,6 +477,9 @@ def run_trial(
                 if helper is not None:
                     l, r = helper.filter(l, r)
                 images = advance(l, r)
+                if ordered_plan and (tracker.done or tracker.step["instruction"] != prompt):
+                    done = tracker.done
+                    break
                 if helper is not None:
                     helper.after()
                     act = helper.take()
@@ -461,6 +537,11 @@ def run_trial(
             except Exception:
                 pass
 
+    if error and key:
+        error = error.replace(key, "[redacted]")
+        # A truncated SDK error may contain only the beginning of the credential.
+        if len(key) >= 8 and key[:8] in error:
+            error = error.split(key[:8], 1)[0] + "[redacted]"
     if helper is not None:
         interventions = helper.events
     if stepwise:
@@ -478,6 +559,12 @@ def run_trial(
         **tracker.summary(env),
         **(stats.summary() if stats is not None else {}),
         "calls": len(rtts),
+        "request_attempts": request_attempts,
+        "request_errors": request_attempts - len(rtts),
+        "timeout_count": timeout_count,
+        "first_response_s": round(first_response_s, 3) if first_response_s is not None else None,
+        "slowest_rtt_s": round(max(rtts), 3) if rtts else None,
+        "p95_rtt_s": round(float(np.percentile(rtts, 95)), 3) if len(rtts) >= 20 else None,
         "median_rtt_s": round(float(np.median(rtts)), 3) if rtts else None,
         "wall_s": round(time.monotonic() - started, 1),
         "est_cost_usd": round(len(rtts) * USD_PER_CALL, 4),
@@ -490,13 +577,17 @@ def run_trial(
     if error:
         result["outcome"] = "error"
         result["success"] = False
+    result["initial_state_fingerprint"] = initial_state_fingerprint
+    if recorder:
+        try:
+            result["recording"] = recorder.save(
+                f"{result['outcome'].upper()}  lift {result['max_lift_cm']}cm  bowl dist {result['final_bowl_dist_cm']}cm"
+                f"  seed {seed}  {task}"
+            )
+        except (OSError, ValueError):
+            result["recording_error"] = "Could not save the camera replay."
     if trace:
         result["trace"] = rows_trace
-    if recorder:
-        result["recording"] = recorder.save(
-            f"{result['outcome'].upper()}  lift {result['max_lift_cm']}cm  bowl dist {result['final_bowl_dist_cm']}cm"
-            f"  seed {seed}  {task}"
-        )
     return result
 
 
@@ -509,6 +600,7 @@ if __name__ == "__main__":
     p.add_argument("--goal", default="inside_bowl")
     p.add_argument("--actions", type=int, default=48)
     p.add_argument("--sim-seconds", type=float, default=40)
+    p.add_argument("--max-usd", type=float, help="Estimated USD ceiling for attempted action requests in this trial")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--jitter-cm", type=float, default=0)
     p.add_argument("--record", help="save a GIF of the three camera views here")
@@ -531,6 +623,7 @@ if __name__ == "__main__":
             goal=a.goal,
             actions=a.actions,
             sim_seconds=a.sim_seconds,
+            max_usd=a.max_usd,
             seed=a.seed,
             jitter_cm=a.jitter_cm,
             record=a.record,
