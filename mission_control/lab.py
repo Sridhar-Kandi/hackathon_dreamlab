@@ -56,6 +56,7 @@ FAILURES = {
 LOCK = threading.RLock()
 WAKE = threading.Event()
 RUNNING = {}
+CURRENT = {"id": None}  # the experiment the worker thread is running
 
 
 class LabError(ValueError):
@@ -396,18 +397,31 @@ def analytics(trials):
 
 
 def delete(exp_id):
+    import shutil
+
+    folder = folder_of(exp_id)
+    status = read_json(folder / "status.json")
+    if status is None:
+        raise KeyError(exp_id)
+    if status["status"] in ACTIVE:
+        cancel(exp_id)
+    # Wait for the worker to let go of this experiment before removing its files.
+    deadline = time.monotonic() + 30
+    while CURRENT["id"] == exp_id and time.monotonic() < deadline:
+        time.sleep(0.2)
+    if CURRENT["id"] == exp_id:
+        raise LabError("The experiment is still stopping. Try deleting it again in a moment.")
     with LOCK:
-        folder = folder_of(exp_id)
-        status = read_json(folder / "status.json")
-        if status is None:
-            raise KeyError(exp_id)
-        if status["status"] in ACTIVE:
-            cancel(exp_id)
-            deadline = time.monotonic() + 15
-            while exp_id in RUNNING and time.monotonic() < deadline:
-                time.sleep(0.2)
-        import shutil
-        shutil.rmtree(folder)
+        for attempt in range(10):
+            try:
+                shutil.rmtree(folder)
+                break
+            except FileNotFoundError:
+                break
+            except OSError:
+                if attempt == 9:
+                    raise LabError("Some files are still in use. Try deleting it again in a moment.") from None
+                time.sleep(0.3)
     return dict(deleted=exp_id)
 
 
@@ -485,7 +499,11 @@ def worker_loop():
                 if config is None:
                     break
                 set_status(config["id"], status="running", message="Running trials.", started_at=now())
-            run_experiment(config)
+                CURRENT["id"] = config["id"]
+            try:
+                run_experiment(config)
+            finally:
+                CURRENT["id"] = None
 
 
 def run_experiment(config):
