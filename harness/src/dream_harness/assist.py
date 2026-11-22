@@ -9,31 +9,36 @@ Four parts, each switchable:
                 until Dream-1 itself opens past the object's width (its release).
   width     (2) width gate: after a close, if the measured opening is clearly below the object's width while the
                 object has not come up, the fingers are pinching an edge -> the same regrasp.
-  backtrack (4) on a stalled grasp (touched `stall_s` without lift), open and replay the last 1.5 s of commanded
-                motion in reverse, then re-open the Dream session from that nearby state (instead of going home).
-  adaptive  (3) execute only `near_rows` rows of a reply while the gripper is near the target (grasp) or the held
+  backtrack (4) on a stalled grasp (touched STALL_S without lift), open and replay the replay buffer (REPLAY_BUFFER_S
+                of commanded motion) in reverse, then re-open the Dream session from that nearby state.
+  adaptive  (3) execute only NEAR_ROWS rows of a reply while the gripper is near the target (grasp) or the held
                 target is near its support (placement); full replies in free space.
-"""
 
-from collections import deque
+Every number comes from a HarnessConfig (see settings.py); keyword arguments override single values.
+"""
 
 import numpy as np
 
-import detectors
-from oracle import ArmIK, smooth
+from . import geometry as detectors
+from .buffer import ReplayBuffer
+from .kinematics import ArmIK, smooth
+from .settings import HarnessConfig
 
-HZ = 20
 FULL_W = 0.095  # gripper opening (m) at normalized 1.0
 
 
 class Assist:
-    def __init__(self, env, tracker, parts=("depth", "width", "backtrack"), near_rows=12, high_m=0.005,
-                 max_regrasps=3, stall_s=8.0):
-        self.env, self.tracker, self.parts = env, tracker, set(parts)
-        self.near_rows, self.high_m, self.max_regrasps = near_rows, high_m, max_regrasps
-        self.stall_rows = int(stall_s * HZ)
+    def __init__(self, env, tracker, parts=("depth", "width", "backtrack"), config=None, near_rows=None,
+                 high_m=None, max_regrasps=None, stall_s=None):
+        config = config or HarnessConfig()
+        hz = config.CONTROL_HZ
+        self.env, self.tracker, self.parts, self.config = env, tracker, set(parts), config
+        self.near_rows = config.NEAR_ROWS if near_rows is None else near_rows
+        self.high_m = config.HIGH_M if high_m is None else high_m
+        self.max_regrasps = config.MAX_REGRASPS if max_regrasps is None else max_regrasps
+        self.stall_rows = int((config.STALL_S if stall_s is None else stall_s) * hz)
         self.ik = {s: ArmIK(env, s) for s in ("left", "right")}
-        self.history = deque(maxlen=int(1.5 * HZ))
+        self.history = ReplayBuffer.from_config(config)
         self.last_cmd = {"left": 1.0, "right": 1.0}
         self.latch = {"left": None, "right": None}  # side -> object while the assist holds the grip
         self.pending = None
@@ -42,7 +47,7 @@ class Assist:
         self.closed_rows = {"left": 0, "right": 0}
         self.contact_row = None
         self.step_obj = None
-        self.hover, self.hover_rows, self.last_obj_pos = 0, int(1.5 * HZ), None
+        self.hover, self.hover_rows, self.last_obj_pos = 0, int(config.HOVER_S * hz), None
         self.post_place = None
 
     # --- helpers ---------------------------------------------------------------------------------------------
@@ -100,7 +105,7 @@ class Assist:
                 if np.linalg.norm(tcp[:2] - p[:2]) < 0.03 and tcp[2] - top > self.high_m:
                     self.pending = ("depth_too_high", side, round(100 * (tcp[2] - top), 1))
             self.last_cmd[side] = cmd
-        self.history.append((l.copy(), r.copy()))
+        self.history.append(l, r)
         return l, r
 
     def after(self):
@@ -141,7 +146,7 @@ class Assist:
         w["touch_sides"] |= set(touching)
         w["max_speed"] = max(w["max_speed"], detectors.body_speed(self.env, obj))
         w["at_goal"] += bool(self._step().goal(self.env, obj))
-        if w["rows"] >= 2 * HZ:
+        if w["rows"] >= 2 * self.config.CONTROL_HZ:
             w["touch_sides"] = sorted(w["touch_sides"])
             w["max_speed"] = round(w["max_speed"], 3)
             self.events.append({"row": self.tracker.row, "reason": "after_place", "info": w})
@@ -204,7 +209,8 @@ class Assist:
         env, obj = self.env, self._obj()
         p = env.data.body(obj).xpos
         if not self._lifted(obj):
-            return any(np.linalg.norm(env.data.site(f"{s}_tcp").xpos - p) < 0.07 for s in ("left", "right"))
+            radius = self.config.NEAR_RADIUS_M
+            return any(np.linalg.norm(env.data.site(f"{s}_tcp").xpos - p) < radius for s in ("left", "right"))
         goal = self._step().goal_name or ""
         if goal.startswith("on:"):
             return float(np.linalg.norm(p[:2] - env.data.body(goal[3:]).xpos[:2])) < 0.05
@@ -316,9 +322,8 @@ class Assist:
                            "handback_grip": round(float(self.env.state()[side][6]), 3), "first_free": None}
 
     def _backtrack(self):
-        """Open the grippers, then replay the recent commanded joints in reverse (about 1.5 s)."""
-        past = list(self.history)[::-1]
-        self.history.clear()
+        """Open the grippers, then replay the replay buffer's commanded joints in reverse."""
+        past = self.history.drain_reversed()
         if not past:
             return
         for l, r in past:

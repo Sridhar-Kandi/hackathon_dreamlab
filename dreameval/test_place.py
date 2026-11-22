@@ -3,7 +3,8 @@ over the blue block with an xy error and releases. Plain should fall off; assist
 import warnings
 warnings.filterwarnings("ignore")
 import numpy as np
-import scenes, detectors, assist, oracle
+import scenes, detectors, oracle
+from dream_harness import assist
 from detectors import Tracker
 
 def sloppy(env, err):

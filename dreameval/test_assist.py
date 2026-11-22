@@ -3,7 +3,8 @@
 import sys, warnings
 warnings.filterwarnings("ignore")
 import numpy as np
-import runner, scenes, detectors, assist, oracle
+import runner, scenes, detectors, oracle
+from dream_harness import assist
 from detectors import Tracker
 
 def bad_policy(env, obj, side, high):

@@ -1,2 +1,4 @@
 dreamlabs==1.0.42
 mujoco>=3.3.5,<4
+# Spotter harness library, built from ./harness (run from the repository root)
+./wheels/dream_harness-0.1.0-py3-none-any.whl
