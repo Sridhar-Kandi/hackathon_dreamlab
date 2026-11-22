@@ -1,0 +1,844 @@
+{
+ "experiment": {
+  "id": "sample-scripted",
+  "name": "Sample C \u00b7 Scripted expert",
+  "description": "Sample save file. Scripted forward-kinematics expert producing ideal demonstrations.",
+  "controller": "expert",
+  "scene": "stock",
+  "steps": [
+   {
+    "instruction": "Put the orange into the bowl",
+    "target": "orange",
+    "goal": "inside_bowl"
+   },
+   {
+    "instruction": "Put the banana onto the plate",
+    "target": "banana",
+    "goal": "on_plate"
+   }
+  ],
+  "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+  "seeds": [
+   3000,
+   3001,
+   3002,
+   3003,
+   3004,
+   3005,
+   3006,
+   3007,
+   3008,
+   3009,
+   3010,
+   3011
+  ],
+  "trials_per_seed": 1,
+  "sim_seconds": 120.0,
+  "jitter_cm": 2.0,
+  "model": "oracle",
+  "rows_per_reply": 24,
+  "max_usd": 0.0,
+  "harness": {
+   "enabled": false
+  },
+  "save": {
+   "request_json": true,
+   "gifs": false
+  },
+  "kind": "scripted",
+  "created_at": "2026-11-21T13:05:00+00:00",
+  "estimate": {
+   "trials": 12,
+   "max_calls": 0,
+   "max_usd": 0.0
+  }
+ },
+ "status": {
+  "status": "completed",
+  "total": 12,
+  "done": 12,
+  "errors": 0,
+  "current": null,
+  "message": "All trials finished.",
+  "updated_at": "2026-11-21T13:05:00+00:00"
+ },
+ "request": {
+  "name": "Sample C \u00b7 Scripted expert",
+  "description": "Sample save file. Scripted forward-kinematics expert producing ideal demonstrations.",
+  "controller": "expert",
+  "model": "oracle",
+  "scene": "stock",
+  "steps": [
+   {
+    "instruction": "Put the orange into the bowl",
+    "target": "orange",
+    "goal": "inside_bowl"
+   },
+   {
+    "instruction": "Put the banana onto the plate",
+    "target": "banana",
+    "goal": "on_plate"
+   }
+  ],
+  "seeds": [
+   3000,
+   3001,
+   3002,
+   3003,
+   3004,
+   3005,
+   3006,
+   3007,
+   3008,
+   3009,
+   3010,
+   3011
+  ],
+  "trials_per_seed": 1,
+  "sim_seconds": 120.0,
+  "jitter_cm": 2.0,
+  "rows_per_reply": 24,
+  "max_usd": 0.0,
+  "harness": {
+   "enabled": false
+  },
+  "save": {
+   "request_json": true,
+   "gifs": false
+  }
+ },
+ "trials": [
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "oracle",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3000,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 509,
+   "first_contact_row": 90,
+   "lifted_row": 125,
+   "goal_row": 195,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 13.6,
+   "contact_rows": 255,
+   "final_bowl_dist_cm": 1.5,
+   "calls": 0,
+   "request_attempts": 0,
+   "request_errors": 0,
+   "median_rtt_s": null,
+   "p95_rtt_s": null,
+   "wall_s": 10.9,
+   "est_cost_usd": 0.0,
+   "episode": {
+    "frames": 254,
+    "error": null,
+    "source": "scripted_simulator"
+   },
+   "steering": [
+    "scripted teacher reads simulator object positions"
+   ],
+   "clean": false,
+   "request": {
+    "model": "oracle",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3000,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0
+   },
+   "started_at": "2026-11-21T13:05:00+00:00",
+   "ended_at": "2026-11-21T13:05:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "oracle",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3001,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 525,
+   "first_contact_row": 90,
+   "lifted_row": 125,
+   "goal_row": 195,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 15.8,
+   "contact_rows": 167,
+   "final_bowl_dist_cm": 2.3,
+   "calls": 0,
+   "request_attempts": 0,
+   "request_errors": 0,
+   "median_rtt_s": null,
+   "p95_rtt_s": null,
+   "wall_s": 12.1,
+   "est_cost_usd": 0.0,
+   "episode": {
+    "frames": 262,
+    "error": null,
+    "source": "scripted_simulator"
+   },
+   "steering": [
+    "scripted teacher reads simulator object positions"
+   ],
+   "clean": false,
+   "request": {
+    "model": "oracle",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3001,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0
+   },
+   "started_at": "2026-11-21T13:05:00+00:00",
+   "ended_at": "2026-11-21T13:05:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "oracle",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3002,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 536,
+   "first_contact_row": 90,
+   "lifted_row": 125,
+   "goal_row": 195,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 6.6,
+   "contact_rows": 327,
+   "final_bowl_dist_cm": 0.4,
+   "calls": 0,
+   "request_attempts": 0,
+   "request_errors": 0,
+   "median_rtt_s": null,
+   "p95_rtt_s": null,
+   "wall_s": 10.3,
+   "est_cost_usd": 0.0,
+   "episode": {
+    "frames": 268,
+    "error": null,
+    "source": "scripted_simulator"
+   },
+   "steering": [
+    "scripted teacher reads simulator object positions"
+   ],
+   "clean": false,
+   "request": {
+    "model": "oracle",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3002,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0
+   },
+   "started_at": "2026-11-21T13:05:00+00:00",
+   "ended_at": "2026-11-21T13:05:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "oracle",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3003,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 542,
+   "first_contact_row": 90,
+   "lifted_row": 125,
+   "goal_row": 195,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 13.0,
+   "contact_rows": 338,
+   "final_bowl_dist_cm": 1.7,
+   "calls": 0,
+   "request_attempts": 0,
+   "request_errors": 0,
+   "median_rtt_s": null,
+   "p95_rtt_s": null,
+   "wall_s": 9.1,
+   "est_cost_usd": 0.0,
+   "episode": {
+    "frames": 271,
+    "error": null,
+    "source": "scripted_simulator"
+   },
+   "steering": [
+    "scripted teacher reads simulator object positions"
+   ],
+   "clean": false,
+   "request": {
+    "model": "oracle",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3003,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0
+   },
+   "started_at": "2026-11-21T13:05:00+00:00",
+   "ended_at": "2026-11-21T13:05:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "oracle",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3004,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 498,
+   "first_contact_row": 90,
+   "lifted_row": 125,
+   "goal_row": 195,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 10.3,
+   "contact_rows": 364,
+   "final_bowl_dist_cm": 0.3,
+   "calls": 0,
+   "request_attempts": 0,
+   "request_errors": 0,
+   "median_rtt_s": null,
+   "p95_rtt_s": null,
+   "wall_s": 10.1,
+   "est_cost_usd": 0.0,
+   "episode": {
+    "frames": 249,
+    "error": null,
+    "source": "scripted_simulator"
+   },
+   "steering": [
+    "scripted teacher reads simulator object positions"
+   ],
+   "clean": false,
+   "request": {
+    "model": "oracle",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3004,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0
+   },
+   "started_at": "2026-11-21T13:05:00+00:00",
+   "ended_at": "2026-11-21T13:05:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "oracle",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3005,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 526,
+   "first_contact_row": 90,
+   "lifted_row": 125,
+   "goal_row": 195,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 7.8,
+   "contact_rows": 284,
+   "final_bowl_dist_cm": 0.9,
+   "calls": 0,
+   "request_attempts": 0,
+   "request_errors": 0,
+   "median_rtt_s": null,
+   "p95_rtt_s": null,
+   "wall_s": 11.3,
+   "est_cost_usd": 0.0,
+   "episode": {
+    "frames": 263,
+    "error": null,
+    "source": "scripted_simulator"
+   },
+   "steering": [
+    "scripted teacher reads simulator object positions"
+   ],
+   "clean": false,
+   "request": {
+    "model": "oracle",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3005,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0
+   },
+   "started_at": "2026-11-21T13:05:00+00:00",
+   "ended_at": "2026-11-21T13:05:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "oracle",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3006,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 544,
+   "first_contact_row": 90,
+   "lifted_row": 125,
+   "goal_row": 195,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 5.5,
+   "contact_rows": 301,
+   "final_bowl_dist_cm": 0.6,
+   "calls": 0,
+   "request_attempts": 0,
+   "request_errors": 0,
+   "median_rtt_s": null,
+   "p95_rtt_s": null,
+   "wall_s": 13.9,
+   "est_cost_usd": 0.0,
+   "episode": {
+    "frames": 272,
+    "error": null,
+    "source": "scripted_simulator"
+   },
+   "steering": [
+    "scripted teacher reads simulator object positions"
+   ],
+   "clean": false,
+   "request": {
+    "model": "oracle",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3006,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0
+   },
+   "started_at": "2026-11-21T13:05:00+00:00",
+   "ended_at": "2026-11-21T13:05:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "oracle",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3007,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 525,
+   "first_contact_row": 90,
+   "lifted_row": 125,
+   "goal_row": 195,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 4.2,
+   "contact_rows": 254,
+   "final_bowl_dist_cm": 0.2,
+   "calls": 0,
+   "request_attempts": 0,
+   "request_errors": 0,
+   "median_rtt_s": null,
+   "p95_rtt_s": null,
+   "wall_s": 11.5,
+   "est_cost_usd": 0.0,
+   "episode": {
+    "frames": 262,
+    "error": null,
+    "source": "scripted_simulator"
+   },
+   "steering": [
+    "scripted teacher reads simulator object positions"
+   ],
+   "clean": false,
+   "request": {
+    "model": "oracle",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3007,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0
+   },
+   "started_at": "2026-11-21T13:05:00+00:00",
+   "ended_at": "2026-11-21T13:05:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "oracle",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3008,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 523,
+   "first_contact_row": 90,
+   "lifted_row": 125,
+   "goal_row": 195,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 16.9,
+   "contact_rows": 218,
+   "final_bowl_dist_cm": 0.6,
+   "calls": 0,
+   "request_attempts": 0,
+   "request_errors": 0,
+   "median_rtt_s": null,
+   "p95_rtt_s": null,
+   "wall_s": 13.7,
+   "est_cost_usd": 0.0,
+   "episode": {
+    "frames": 261,
+    "error": null,
+    "source": "scripted_simulator"
+   },
+   "steering": [
+    "scripted teacher reads simulator object positions"
+   ],
+   "clean": false,
+   "request": {
+    "model": "oracle",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3008,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0
+   },
+   "started_at": "2026-11-21T13:05:00+00:00",
+   "ended_at": "2026-11-21T13:05:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "oracle",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3009,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 508,
+   "first_contact_row": 90,
+   "lifted_row": 125,
+   "goal_row": 195,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 5.0,
+   "contact_rows": 66,
+   "final_bowl_dist_cm": 0.4,
+   "calls": 0,
+   "request_attempts": 0,
+   "request_errors": 0,
+   "median_rtt_s": null,
+   "p95_rtt_s": null,
+   "wall_s": 11.6,
+   "est_cost_usd": 0.0,
+   "episode": {
+    "frames": 254,
+    "error": null,
+    "source": "scripted_simulator"
+   },
+   "steering": [
+    "scripted teacher reads simulator object positions"
+   ],
+   "clean": false,
+   "request": {
+    "model": "oracle",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3009,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0
+   },
+   "started_at": "2026-11-21T13:05:00+00:00",
+   "ended_at": "2026-11-21T13:05:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "oracle",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3010,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 518,
+   "first_contact_row": 90,
+   "lifted_row": 125,
+   "goal_row": 195,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 5.7,
+   "contact_rows": 343,
+   "final_bowl_dist_cm": 1.5,
+   "calls": 0,
+   "request_attempts": 0,
+   "request_errors": 0,
+   "median_rtt_s": null,
+   "p95_rtt_s": null,
+   "wall_s": 13.4,
+   "est_cost_usd": 0.0,
+   "episode": {
+    "frames": 259,
+    "error": null,
+    "source": "scripted_simulator"
+   },
+   "steering": [
+    "scripted teacher reads simulator object positions"
+   ],
+   "clean": false,
+   "request": {
+    "model": "oracle",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3010,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0
+   },
+   "started_at": "2026-11-21T13:05:00+00:00",
+   "ended_at": "2026-11-21T13:05:00+00:00"
+  },
+  {
+   "task": "Put the orange into the bowl. Then Put the banana onto the plate.",
+   "scene": "stock",
+   "target": "orange",
+   "goal": "inside_bowl",
+   "model": "oracle",
+   "actions": 24,
+   "sim_seconds": 120.0,
+   "seed": 3011,
+   "trial": 1,
+   "jitter_cm": 2.0,
+   "outcome": "success",
+   "success": true,
+   "interventions": [],
+   "error": null,
+   "rows": 540,
+   "first_contact_row": 90,
+   "lifted_row": 125,
+   "goal_row": 195,
+   "progress": 2,
+   "progress_of": 2,
+   "step_outcomes": [
+    "success",
+    "success"
+   ],
+   "max_lift_cm": 8.7,
+   "contact_rows": 274,
+   "final_bowl_dist_cm": 2.7,
+   "calls": 0,
+   "request_attempts": 0,
+   "request_errors": 0,
+   "median_rtt_s": null,
+   "p95_rtt_s": null,
+   "wall_s": 11.4,
+   "est_cost_usd": 0.0,
+   "episode": {
+    "frames": 270,
+    "error": null,
+    "source": "scripted_simulator"
+   },
+   "steering": [
+    "scripted teacher reads simulator object positions"
+   ],
+   "clean": false,
+   "request": {
+    "model": "oracle",
+    "scene": "stock",
+    "instruction": "Put the orange into the bowl. Then Put the banana onto the plate.",
+    "steps": [
+     "orange:inside_bowl",
+     "banana:on_plate"
+    ],
+    "seed": 3011,
+    "trial": 1,
+    "rows_per_reply": 24,
+    "sim_seconds": 120.0,
+    "jitter_cm": 2.0
+   },
+   "started_at": "2026-11-21T13:05:00+00:00",
+   "ended_at": "2026-11-21T13:05:00+00:00"
+  }
+ ]
+}
