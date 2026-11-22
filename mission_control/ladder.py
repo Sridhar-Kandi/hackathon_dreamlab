@@ -41,6 +41,8 @@ ARMS = {
     "teacher": dict(model="oracle", actions=24, label="Scripted teacher (reads simulator state; demonstrations only)"),
     "stock": dict(model=BASE, actions=48, label="Dream-1 base, stock 48 rows per reply"),
     "tuned": dict(model=BASE, actions=24, label="Dream-1 base, Spotter-tuned 24 rows per reply"),
+    "assist_place": dict(model=BASE, actions=24, assist=["depth", "width", "backtrack", "place"],
+                         label="Dream-1 base, 24 rows per reply, harness assists (depth, width, backtrack, place)"),
 }
 JITTER_CM = 2.0
 ROOT_NAME = "ladder"
@@ -111,6 +113,7 @@ def run_one(job):
                 sequence=level["sequence"], model=job["model"], actions=job["actions"], seed=job["seed"],
                 sim_seconds=level["sim_seconds"], jitter_cm=JITTER_CM, record=str(video) if video else None,
                 on_sample=episode.add if episode else None, wall_timeout=job["wall_timeout"],
+                assist_parts=job.get("assist"),
             )
         except Exception as exc:
             row = {"outcome": "error", "success": False, "error": f"{type(exc).__name__}: {exc}"[:300]}
@@ -166,7 +169,7 @@ def run(args):
                 if (level, arm["arm"], seed) in done:
                     continue
                 jobs.append(dict(level=level, arm=arm["arm"], label=arm["label"], model=arm["model"],
-                                 actions=arm["actions"], seed=seed, folder=str(folder), episode=args.episodes,
+                                 actions=arm["actions"], assist=arm.get("assist"), seed=seed, folder=str(folder), episode=args.episodes,
                                  video=args.video, wall_timeout=1500 if level == "L4" else 900,
                                  stagger_s=3 * len(jobs) if len(jobs) < args.workers else 0))
     config = folder / "config.json"

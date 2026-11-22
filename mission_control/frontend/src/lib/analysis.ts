@@ -47,6 +47,55 @@ export function failureOf(trial: Trial) {
   return FAILURES[trial.outcome] ?? { category: "Other", phase: null, why: humanize(trial.outcome) }
 }
 
+type StepResult = {
+  outcome?: string; target?: string; goal?: string; first_contact_row?: number | null; lifted_row?: number | null
+  max_lift_cm?: number | null; final_bowl_dist_cm?: number | null; final_plate_dist_cm?: number | null
+  touched_other_first?: string | null
+}
+
+const atTime = (row?: number | null) => (row === null || row === undefined ? "an unknown time" : `${(row / 20).toFixed(1)} s`)
+const objectName = (code?: string | null) => (code ?? "object").replace(/_/g, " ")
+
+function goalDistance(r: StepResult) {
+  if (r.goal === "inside_bowl" && r.final_bowl_dist_cm != null) return `; it ended ${r.final_bowl_dist_cm} cm from the bowl`
+  if (r.goal === "on_plate" && r.final_plate_dist_cm != null) return `; it ended ${r.final_plate_dist_cm} cm from the plate`
+  return ""
+}
+
+function stepReason(outcome: string, r: StepResult) {
+  const lift = r.max_lift_cm != null ? ` (max lift ${r.max_lift_cm} cm)` : ""
+  switch (outcome) {
+    case "never_touched": return `Never touched the ${objectName(r.target)}`
+    case "touched_no_lift": return `Touched the ${objectName(r.target)} at ${atTime(r.first_contact_row)} but never lifted it${lift}`
+    case "lifted_missed_goal": return `Lifted the ${objectName(r.target)} at ${atTime(r.lifted_row)}${lift} but did not get it ${humanize(r.goal)}${goalDistance(r)}`
+    case "wrong_object": return `Went for the ${objectName(r.touched_other_first)} instead of the ${objectName(r.target)}`
+    case "wrong_order": return `Moved the ${objectName(r.target)} out of turn (steps done in the wrong order)`
+    case "fell_off_table": return `The ${objectName(r.target)} fell off the table`
+    default: return humanize(outcome)
+  }
+}
+
+/** One concrete line saying why a trial did not succeed: the exception for an error, otherwise what went wrong in
+ *  the first step that failed. Null for a success. */
+export function trialReason(trial: Trial): string | null {
+  if (trial.success || trial.outcome === "success") return null
+  if (trial.outcome === "error") {
+    const text = String(trial.error ?? "The trial stopped with an error and no message.")
+    // Keep the exception and message, but shorten long Windows paths to their file name.
+    return text.replace(/'[A-Za-z]:\\[^']*\\([^'\\]+)'/g, "'…\\$1'")
+  }
+  const record = trial as unknown as { step_details?: StepResult[] } & StepResult
+  const details = record.step_details ?? []
+  const index = details.findIndex((d) => d.outcome !== "success")
+  if (index >= 0) {
+    const step = details[index]
+    const prefix = details.length > 1 ? `Step ${index + 1} (${objectName(step.target)} → ${humanize(step.goal)}): ` : ""
+    return prefix + stepReason(step.outcome ?? trial.outcome, step)
+  }
+  const done = trial.progress_of && trial.progress_of > 1 ? `Completed ${trial.progress ?? 0} of ${trial.progress_of} steps. ` : ""
+  return done + stepReason(trial.outcome === "partial" ? "lifted_missed_goal" : trial.outcome, record)
+}
+
 // Phase spans in seconds, from the milestone rows the grader records (20 control rows per second).
 export function phases(trial: Trial) {
   const end = (trial.rows ?? 0) / 20
@@ -150,7 +199,7 @@ export function configRows(files: SaveFile[]) {
     rows.push({ group, label, values: files.map((f) => value(f, fn)) })
 
   add("Run", "Type", (e) => e.kind)
-  add("Run", "Controller", (e) => (e.controller === "expert" ? "Scripted expert" : "Dream-1"))
+  add("Run", "Controller", (e) => (e.controller === "expert" ? "Scripted expert" : e.controller === "recovery" ? "Scripted expert (failure replay)" : "Dream-1"))
   add("Run", "Model", (e) => modelLabel(e.model))
   add("Run", "Source", (e) => e.source)
   add("Task", "Scene", (e) => e.scene)
@@ -160,7 +209,7 @@ export function configRows(files: SaveFile[]) {
   add("Trials", "Trials per seed", (e) => e.trials_per_seed)
   add("Trials", "Total trials", (e) => e.seeds.length * e.trials_per_seed)
   add("Hyperparameters", "Simulated seconds", (e) => e.sim_seconds)
-  add("Hyperparameters", "Rows per reply", (e) => (e.controller === "expert" ? null : e.rows_per_reply))
+  add("Hyperparameters", "Rows per reply", (e) => (e.controller === "dream1" ? e.rows_per_reply : null))
   add("Hyperparameters", "Object jitter (cm)", (e) => e.jitter_cm)
   add("Hyperparameters", "API cost cap (USD)", (e) => e.max_usd)
   add("Harness", "Harness enabled", (e) => (e.harness?.enabled ? "Yes" : "No"))

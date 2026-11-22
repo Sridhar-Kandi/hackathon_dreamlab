@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
 import { PageHeader } from "@/components/app-shell"
-import { KindBadge, SourceBadge, StatusBadge } from "@/components/badges"
+import { FineTunedBadge, KindBadge, SourceBadge, StatusBadge } from "@/components/badges"
 import { DataTable, SortHeader } from "@/components/data-table"
 import { FINISHED } from "@/components/finetune"
 import { FineTuneModal } from "@/components/finetune-modal"
@@ -57,7 +57,7 @@ export function ExperimentsPage() {
   const filtered = useMemo(() => experiments.filter((e) =>
     e.name.toLowerCase().includes(search.trim().toLowerCase())
     && (modelFilter === "all" || e.model === modelFilter)
-    && (kindFilter === "all" || e.kind === kindFilter),
+    && (kindFilter === "all" || e.kind === kindFilter || (kindFilter === "finetuned" && e.finetuned)),
   ), [experiments, search, modelFilter, kindFilter])
   const selected = experiments.filter((e) => selection[e.id])
   const takenNames = useMemo(() => new Set(experiments.map((e) => e.name.toLowerCase())), [experiments])
@@ -111,6 +111,7 @@ export function ExperimentsPage() {
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
           <KindBadge kind={row.original.kind} />
+          {row.original.finetuned && <FineTunedBadge />}
           {row.original.harness && (
             <Tooltip>
               <TooltipTrigger asChild><span className="text-[0.75rem] text-muted-foreground">{row.original.harness_modules.length} mod.</span></TooltipTrigger>
@@ -251,6 +252,8 @@ export function ExperimentsPage() {
               <SelectItem value="vanilla">Vanilla</SelectItem>
               <SelectItem value="harness">Harness</SelectItem>
               <SelectItem value="scripted">Scripted</SelectItem>
+              <SelectItem value="recovery">Success from failures</SelectItem>
+              <SelectItem value="finetuned">Fine-tuned model</SelectItem>
             </SelectContent>
           </Select>
           <Button variant="ghost" size="sm" className="gap-1 text-[0.875rem]" onClick={refresh}>
@@ -279,6 +282,7 @@ export function ExperimentsPage() {
         }}
         meta={meta}
         takenNames={takenNames}
+        experiments={experiments}
         initialModel={presetModel}
         onCreated={refresh}
       />

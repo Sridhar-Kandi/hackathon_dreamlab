@@ -211,6 +211,7 @@
 }
 @layer base {
   /* Text sizes are in rem, so the root sets the scale: slightly larger on laptops, larger again on big screens. */
+  html, body, #root { height: 100%; overflow: hidden; }
   html { font-size: 16px; }
   @media (min-width: 1440px) { html { font-size: 16.5px; } }
   @media (min-width: 1920px) { html { font-size: 18px; } }

@@ -20,6 +20,7 @@ interface DataTableProps<T> {
   pageSize?: number
   empty?: string
   initialSorting?: SortingState
+  className?: string
 }
 
 export function SortHeader({ label, column }: { label: string; column: { getIsSorted: () => false | "asc" | "desc"; toggleSorting: (desc?: boolean) => void } }) {
@@ -39,7 +40,7 @@ export function SortHeader({ label, column }: { label: string; column: { getIsSo
 
 export function DataTable<T>({
   columns, data, getRowId, selectable = false, rowSelection, onRowSelectionChange, onRowClick, pageSize = 15,
-  empty = "No rows.", initialSorting = [],
+  empty = "No rows.", initialSorting = [], className,
 }: DataTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>(initialSorting)
   const [localSelection, setLocalSelection] = useState<RowSelectionState>({})
@@ -89,7 +90,7 @@ export function DataTable<T>({
   const { pageIndex } = table.getState().pagination
   const rows = table.getRowModel().rows
   return (
-    <div className="overflow-hidden rounded-xl border bg-card">
+    <div className={cn("overflow-hidden rounded-xl border bg-card", className)}>
       <Table className="text-[0.875rem]">
         <TableHeader className="bg-background">
           {table.getHeaderGroups().map((group) => (
@@ -110,6 +111,13 @@ export function DataTable<T>({
               data-state={row.getIsSelected() ? "selected" : undefined}
               className={cn("data-[state=selected]:bg-accent", onRowClick && "cursor-pointer")}
               onClick={() => onRowClick?.(row.original)}
+              tabIndex={onRowClick ? 0 : undefined}
+              onKeyDown={onRowClick ? (event) => {
+                if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+                  event.preventDefault()
+                  onRowClick(row.original)
+                }
+              } : undefined}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id} className="px-3 py-2">

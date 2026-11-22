@@ -1,7 +1,7 @@
 // Types and calls for the console's /api/lab endpoints (mission_control/lab.py).
 
-export type Kind = "vanilla" | "harness" | "scripted"
-export type Controller = "dream1" | "expert"
+export type Kind = "vanilla" | "harness" | "scripted" | "recovery"
+export type Controller = "dream1" | "expert" | "recovery"
 
 export interface Step {
   instruction: string
@@ -53,6 +53,10 @@ export interface ExperimentSummary {
   seeds: number
   harness: boolean
   harness_modules: string[]
+  // Run on a Dream Labs fine-tuned checkpoint (dream-1-ft:...).
+  finetuned?: boolean
+  // For a successes-from-failures run: the harness experiment whose failed seeds it replays.
+  source_experiment?: { id: string; name: string } | null
   status: string
   message: string | null
   total: number
@@ -142,6 +146,7 @@ export interface ExperimentConfig {
   max_usd: number | null
   harness: { enabled: boolean; modules?: string[]; values?: Record<string, number | string> }
   save: { request_json: boolean; gifs: boolean; episodes?: boolean }
+  source_experiment?: { id: string; name: string }
   kind: Kind
   source: string
   created_at: string | null
@@ -205,6 +210,7 @@ export interface CreateExperimentRequest {
   name: string
   description: string
   controller: Controller
+  source_experiment?: string
   model?: string
   scene: string
   steps: Step[]

@@ -39,7 +39,9 @@ SCENES = {
     "blocks3": dict(label="Three blocks", objects=["yellow_block", "red_block", "blue_block"],
                     goals=["on:yellow_block", "on:red_block", "on:blue_block"]),
 }
-CONTROLLERS = {"dream1": "Dream-1 policy", "expert": "Scripted expert (forward kinematics)"}
+CONTROLLERS = {"dream1": "Dream-1 policy", "expert": "Scripted expert (forward kinematics)",
+               "recovery": "Successes from failures (scripted expert on a harness run's failed seeds)"}
+FINE_TUNED_PREFIX = "dream-1-ft:"
 FINISHED = ("completed", "completed_with_errors")
 ACTIVE = ("queued", "running", "stopping")
 
@@ -163,7 +165,9 @@ def validate(data):
 
     controller = data.get("controller")
     if controller not in CONTROLLERS:
-        raise LabError("Choose Dream-1 or the scripted expert as the controller.")
+        raise LabError("Choose a controller from the available options.")
+    if controller == "recovery":
+        return recovery_config(name, description.strip(), data)
     scene = data.get("scene", "stock")
     if scene not in SCENES:
         raise LabError("Choose a supported scene.")
@@ -232,7 +236,35 @@ def validate(data):
     return config
 
 
+def recovery_config(name, description, data):
+    """A scripted-expert run on exactly the seeds where a harness experiment failed, with the same task and timing.
+    Its successes are the teacher corrections for those failures; it keeps the harness run's id so a fine-tune can
+    pair the corrections with that run's own successes."""
+    source_id = data.get("source_experiment")
+    try:
+        source, status, trials = find(source_id)
+    except KeyError:
+        raise LabError("Choose the harness experiment whose failures should be replayed.") from None
+    if source.get("kind") != "harness":
+        raise LabError(f"\"{source['name']}\" is not a harness experiment.")
+    if status.get("status") not in FINISHED:
+        raise LabError(f"\"{source['name']}\" has not finished running yet.")
+    failed_seeds = sorted({t["seed"] for t in trials if not t.get("success") and t.get("outcome") != "error"})
+    if not failed_seeds:
+        raise LabError(f"\"{source['name']}\" has no failed trials to replay.")
+    config = dict(name=name, description=description, controller="recovery", model="oracle", scene=source["scene"],
+                  steps=source["steps"], instruction=source["instruction"], seeds=failed_seeds, trials_per_seed=1,
+                  sim_seconds=source["sim_seconds"], jitter_cm=source["jitter_cm"], rows_per_reply=24, max_usd=0.0,
+                  harness=dict(enabled=False), source_experiment=dict(id=source["id"], name=source["name"]),
+                  save=dict(request_json=True, gifs=False, episodes=True))
+    config["kind"] = kind_of(config)
+    config["estimate"] = estimate(config)
+    return config
+
+
 def kind_of(config):
+    if config["controller"] == "recovery":
+        return "recovery"
     if config["controller"] == "expert":
         return "scripted"
     return "harness" if config.get("harness", {}).get("enabled") else "vanilla"
@@ -240,7 +272,7 @@ def kind_of(config):
 
 def estimate(config):
     trials = len(config["seeds"]) * config["trials_per_seed"]
-    if config["controller"] == "expert":
+    if config["controller"] in ("expert", "recovery"):
         return dict(trials=trials, max_calls=0, max_usd=0.0)
     calls = int(config["sim_seconds"] * 20 / config["rows_per_reply"]) + 1
     return dict(trials=trials, max_calls=calls * trials, max_usd=round(min(calls * trials * USD_PER_CALL, config["max_usd"]), 2))
@@ -348,6 +380,8 @@ def summary_of(config, status, trials):
                                           "rows_per_reply", "sim_seconds")},
             "steps": len(config.get("steps") or []), "seeds": len(config.get("seeds") or []),
             "harness": bool(config.get("harness", {}).get("enabled")),
+            "finetuned": str(config.get("model") or "").startswith(FINE_TUNED_PREFIX),
+            "source_experiment": config.get("source_experiment"),
             "harness_modules": config.get("harness", {}).get("modules", []),
             "status": status.get("status", "unknown"), "message": status.get("message"),
             "total": total, "done": status.get("done", len(trials)), "errors": status.get("errors", 0),
@@ -361,7 +395,10 @@ def live_current(config, status):
     current = status.get("current")
     if not current or config.get("source") != "console":
         return current
-    live = read_json(folder_of(config["id"]) / "work" / f"s{current['seed']}-t{current['trial']}.progress.json")
+    try:
+        live = read_json(folder_of(config["id"]) / "work" / f"s{current['seed']}-t{current['trial']}.progress.json")
+    except (OSError, ValueError):
+        live = None
     if not live:
         return current
     fraction = min(1.0, live["sim_s"] / live["sim_total"]) if live.get("sim_total") else 0.0
@@ -576,20 +613,30 @@ def run_trial_process(exp_id, seed, trial, budget_usd):
     started = now()
     proc = subprocess.Popen([sys.executable, "-m", "mission_control.lab", "--trial", exp_id, str(seed), str(trial),
                              f"{budget_usd:.4f}"], cwd=Path(__file__).resolve().parents[1],
-                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
     RUNNING[exp_id] = proc
+    timed_out = False
     try:
-        proc.wait(timeout=TRIAL_TIMEOUT_S)
+        _, stderr = proc.communicate(timeout=TRIAL_TIMEOUT_S)
     except subprocess.TimeoutExpired:
+        timed_out = True
         proc.kill()
-        proc.wait()
+        _, stderr = proc.communicate()
     finally:
         RUNNING.pop(exp_id, None)
     row = read_json(out)
     if row is None:
         stopped = read_json(folder / "status.json", {}).get("status") == "stopping"
-        row = dict(outcome="error", success=False,
-                   error="Cancelled." if stopped else "The trial process exited or exceeded its time limit.")
+        if stopped:
+            error = "Cancelled."
+        elif timed_out:
+            error = f"The trial process exceeded its {TRIAL_TIMEOUT_S}-second time limit."
+        else:
+            diagnostic = stderr.decode("utf-8", errors="replace").strip()
+            error = f"The trial process exited with code {proc.returncode} before saving a result."
+            if diagnostic:
+                error = f"{diagnostic.splitlines()[-1]}\n\n{error}\n{diagnostic}"
+        row = dict(outcome="error", success=False, error=error)
     row.update(seed=seed, trial=trial, started_at=started, ended_at=now())
     return row
 
@@ -615,7 +662,10 @@ def run_one_trial(exp_id, seed, trial, budget_usd):
 
     def report(**changes):
         live.update(changes, updated_at=now())
-        write_json(progress_path, live)
+        try:
+            write_json(progress_path, live)
+        except OSError:
+            pass
 
     def on_event(kind, sim_s=0.0, attempted=None, completed=None, **_):
         if kind == "request_started":
@@ -666,7 +716,7 @@ def run_one_trial(exp_id, seed, trial, budget_usd):
             row["media_type"] = "video"
         row.pop("recording", None)
     except Exception as exc:
-        row = dict(outcome="error", success=False, error=f"{type(exc).__name__}: {exc}"[:300])
+        row = dict(outcome="error", success=False, error=f"{type(exc).__name__}: {exc}")
     row["request"] = request
     write_json(folder / "work" / f"s{seed}-t{trial}.json", row)
 

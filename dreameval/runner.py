@@ -436,7 +436,7 @@ def run_trial(
                 if (ordered_plan and tracker.done) or (stop_on_success and tracker.success) or tracker.row >= budget_rows:
                     break
         except Exception as exc:
-            error = f"{type(exc).__name__}: {exc}"[:300]
+            error = f"{type(exc).__name__}: {exc}"
         interventions = bot.events
         policy = "oracle"
     try:
@@ -566,7 +566,7 @@ def run_trial(
     except _Skip:
         policy = None
     except Exception as exc:
-        error = f"{type(exc).__name__}: {exc}"[:300]
+        error = f"{type(exc).__name__}: {exc}"
     finally:
         if policy is not None:
             try:

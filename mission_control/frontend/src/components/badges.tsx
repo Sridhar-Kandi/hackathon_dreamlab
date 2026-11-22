@@ -52,8 +52,18 @@ export function OutcomeBadge({ outcome, success }: { outcome: string; success?: 
 
 export function KindBadge({ kind }: { kind: Kind }) {
   return (
-    <Badge variant="outline" className="rounded-sm font-normal text-foreground bg-card">
+    <Badge variant="outline" className={cn("rounded-sm font-normal text-foreground bg-card",
+      kind === "recovery" && "border-success-border bg-success-bg text-success")}>
       {KIND_LABEL[kind] ?? kind}
+    </Badge>
+  )
+}
+
+/** Tag for experiments run on a Dream Labs fine-tuned checkpoint. */
+export function FineTunedBadge() {
+  return (
+    <Badge variant="outline" className="rounded-sm border-warning-border bg-warning-bg font-normal text-warning">
+      Fine-tuned
     </Badge>
   )
 }

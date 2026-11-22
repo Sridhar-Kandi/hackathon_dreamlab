@@ -10,7 +10,7 @@ import { PipelineBuilder } from "@/pages/analyze/pipeline"
 
 const FINISHED = new Set(["completed", "completed_with_errors"])
 
-/** The one fine-tune modal: choose the sources of both datasets for the mixture, then start the Dream Labs job.
+/** Choose one training dataset, then start the Dream Labs job.
  *  Opened from the Fine-tuning page and from the Experiments page (with the ticked experiments preselected). */
 export function FineTuneModal({ open, onOpenChange, preferred, onStarted }: {
   open: boolean
@@ -51,8 +51,8 @@ export function FineTuneModal({ open, onOpenChange, preferred, onStarted }: {
         <DialogHeader>
           <DialogTitle>Fine-tune Dream-1</DialogTitle>
           <DialogDescription>
-            Choose the sources of both datasets: Dataset 1 is complete scripted sessions (gold standard), Dataset 2 pairs
-            failures with the scripted expert's corrected run on the same seed, plus a share of scripted rows.
+            Choose one dataset. Dataset 1 uses complete scripted sessions. Dataset 2 combines successful teacher
+            corrections with successful trials from the linked harness experiment.
           </DialogDescription>
         </DialogHeader>
         {files === null

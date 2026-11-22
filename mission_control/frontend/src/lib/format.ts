@@ -37,6 +37,7 @@ export const KIND_LABEL: Record<Kind, string> = {
   vanilla: "Vanilla",
   harness: "Harness",
   scripted: "Scripted",
+  recovery: "Success from failures",
 }
 
 export function humanize(code: string | null | undefined) {

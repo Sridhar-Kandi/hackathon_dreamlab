@@ -1,4 +1,4 @@
-import { Bot, Cpu, Info, Loader2, Plus, RotateCcw, Trash2 } from "lucide-react"
+import { Bot, Cpu, Info, Loader2, Plus, RotateCcw, Trash2, Wrench } from "lucide-react"
 import { useEffect, useMemo, useState, type ReactNode } from "react"
 import { toast } from "sonner"
 import { JsonViewer } from "@/components/json-viewer"
@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { api, type Controller, type CreateExperimentRequest, type Meta, type Step } from "@/lib/api"
+import { api, type Controller, type CreateExperimentRequest, type ExperimentSummary, type Meta, type Step } from "@/lib/api"
 import { humanize, parseSeeds, usd } from "@/lib/format"
 import { MODULE_INFO, SETTING_GROUPS } from "@/lib/harness-info"
 import { cn } from "@/lib/utils"
@@ -45,11 +45,12 @@ function FormSection({ number, title, children }: { number: number; title: strin
   )
 }
 
-export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, initialModel, onCreated }: {
+export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, initialModel, onCreated, experiments = [] }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   meta: Meta | null
   takenNames: Set<string>
+  experiments?: ExperimentSummary[]
   initialModel?: string | null
   onCreated: () => void
 }) {
@@ -72,6 +73,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
   const [saveRequest, setSaveRequest] = useState(true)
   const [saveGifs, setSaveGifs] = useState(true)
   const [saveEpisodes, setSaveEpisodes] = useState(true)
+  const [sourceId, setSourceId] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
 
@@ -120,6 +122,11 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
   const estimatedUsd = controller === "dream1"
     ? Math.min(callsPerTrial * totalTrials * (meta?.usd_per_call ?? 3 / 2250), maxUsd) : 0
   const selectedModel = meta?.models.find((m) => m.id === model)
+  // "Success from failures" replays the failed seeds of a finished harness experiment with the scripted expert.
+  const isRecovery = controller === "recovery"
+  const harnessRuns = experiments.filter((e) => e.kind === "harness" && (e.status === "completed" || e.status === "completed_with_errors"))
+  const failedTrials = (e: ExperimentSummary) => e.graded - e.successes
+  const source = harnessRuns.find((e) => e.id === sourceId)
 
   function changeScene(next: string) {
     setScene(next)
@@ -134,7 +141,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
 
   function changeController(next: Controller) {
     setController(next)
-    if (next === "expert") setHarnessOn(false)
+    if (next !== "dream1") setHarnessOn(false)
   }
 
   function updateStep(index: number, patch: Partial<Step>) {
@@ -150,15 +157,24 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
   }
 
   const activeSteps = taskMode === "single" ? steps.slice(0, 1) : steps
-  const request: CreateExperimentRequest = {
+  const fullRequest: CreateExperimentRequest = {
     name: trimmedName, description: description.trim(), controller, scene, steps: activeSteps,
     seeds: seedParse.seeds, trials_per_seed: trialsPerSeed, sim_seconds: simSeconds, jitter_cm: jitter,
     ...(controller === "dream1" ? { model, rows_per_reply: rowsPerReply, max_usd: maxUsd } : {}),
     harness: { enabled: harnessOn, modules: harnessOn ? modules : [], values: harnessOn ? changedValues(values, defaults) : {} },
     save: { request_json: saveRequest, gifs: saveGifs, episodes: saveEpisodes },
   }
+  // A recovery run takes its task, seeds and timing from the source experiment, so only these fields are sent.
+  const request = isRecovery
+    ? { name: trimmedName, description: description.trim(), controller, source_experiment: sourceId } as CreateExperimentRequest
+    : fullRequest
 
-  const blockers = [
+  const blockers = isRecovery ? [
+    !trimmedName && "Enter an experiment name.",
+    nameError,
+    !source && "Choose the harness experiment whose failures the scripted expert should replay.",
+    source && failedTrials(source) === 0 && `"${source.name}" has no failed trials to replay.`,
+  ].filter(Boolean) as string[] : [
     !trimmedName && "Enter an experiment name.",
     nameError,
     seedParse.error,
@@ -179,7 +195,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
     setServerError(null)
     try {
       const created = await api.create(request)
-      toast.success(`Experiment "${created.name}" queued`, { description: `${totalTrials} trials will run in order.` })
+      toast.success(`Experiment "${created.name}" queued`, { description: `${created.seeds} seeds will run in order.` })
       onCreated()
       onOpenChange(false)
       setName("")
@@ -215,10 +231,11 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
             </FormSection>
 
             <FormSection number={2} title="Controller">
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-3 md:grid-cols-3">
                 {([
                   ["dream1", Bot, "Dream-1 policy", "The model drives the arms from camera frames. The harness can wrap it."],
                   ["expert", Cpu, "Scripted expert (forward kinematics)", "Reads simulator state and solves each move with IK. Produces ideal demonstrations; no API cost."],
+                  ["recovery", Wrench, "Success from failures", "The scripted expert replays every seed a harness experiment failed, producing the corrections for a fine-tune. No API cost."],
                 ] as const).map(([value, Icon, title, text]) => (
                   <button key={value} type="button" onClick={() => changeController(value)}
                     className={cn("flex gap-3 rounded-sm border p-3 text-left hover:border-ring",
@@ -231,6 +248,27 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
                   </button>
                 ))}
               </div>
+              {isRecovery && (
+                <div className="mt-3 grid gap-2">
+                  <Field label="Harness experiment to recover" hint="Only finished harness experiments are listed. Task, scene, timing and seeds are copied from it.">
+                    <Select value={sourceId} onValueChange={setSourceId}>
+                      <SelectTrigger className="w-full"><SelectValue placeholder="Choose a harness experiment" /></SelectTrigger>
+                      <SelectContent>
+                        {harnessRuns.map((e) => (
+                          <SelectItem key={e.id} value={e.id} disabled={failedTrials(e) === 0}>
+                            {e.name} · {failedTrials(e)} failed of {e.graded}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  {!harnessRuns.length && <p className="text-[0.8125rem] text-warning">No finished harness experiment yet. Run one with the harness on first.</p>}
+                  <p className="text-[0.8125rem] text-muted-foreground">
+                    The new experiment is tagged “Success from failures”. In the fine-tune builder, picking it for Dataset 2 brings in
+                    these teacher corrections together with the harness experiment's own successes. The other settings below do not apply.
+                  </p>
+                </div>
+              )}
               {controller === "dream1" && (
                 <div className="grid gap-4 md:grid-cols-3">
                   <Field label="Model" hint={selectedModel && selectedModel.source !== "base" ? selectedModel.id : undefined}>
@@ -255,6 +293,7 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
               )}
             </FormSection>
 
+            <fieldset disabled={isRecovery} className={cn("grid min-w-0 gap-5", isRecovery && "pointer-events-none opacity-40")}>
             <FormSection number={3} title="Task">
               <div className="flex flex-wrap items-end gap-4">
                 <Field label="Scene" className="w-56">
@@ -426,12 +465,14 @@ export function CreateExperimentDialog({ open, onOpenChange, meta, takenNames, i
               </div>
               <JsonViewer title="Preview request JSON" data={request} />
             </FormSection>
+            </fieldset>
           </div>
         </div>
         <DialogFooter className="flex-col items-stretch gap-2 border-t bg-background px-6 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-[0.8125rem] text-muted-foreground">
             {serverError ? <span className="text-destructive">{serverError}</span>
               : blockers.length ? <span className="text-warning">{blockers[0]}</span>
+              : isRecovery ? <>{source ? `${failedTrials(source)} failed trials of “${source.name}” replayed` : ""} · no API cost</>
               : <>{totalTrials} trials · {controller === "dream1" ? `up to ${(callsPerTrial * totalTrials).toLocaleString()} model calls · est. ≤ ${usd(estimatedUsd)}` : "no API cost"}</>}
           </div>
           <div className="flex gap-2">
