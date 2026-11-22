@@ -15,6 +15,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -97,19 +98,31 @@ def folder_of(exp_id):
 # --- models ------------------------------------------------------------------------------------------------
 
 def models():
-    """Models an experiment can run: the base, real ladder checkpoints, and fine-tunes saved from this console."""
+    """Models an experiment can run: the base, fine-tunes started here or by the ladder, and every other
+    fine-tuned checkpoint on the Dream Labs account."""
+    refresh_account()
     out = [dict(id=BASE_MODEL, label="Dream-1 (base)", source="base", runnable=True)]
+    for job in finetunes():
+        if job.get("model_id") and not job.get("dry_run"):
+            out.append(dict(id=job["model_id"], label=job.get("model_name") or f"Fine-tune {job['name']}",
+                            source="console", runnable=True, finetune_id=job["id"]))
     try:
         for job in ladder.finetunes():
             if job.get("checkpoint"):
                 out.append(dict(id=job["checkpoint"], label=f"Fine-tune {job['suffix']}", source="ladder", runnable=True))
     except (OSError, ValueError, KeyError):
         pass
-    for job in finetunes():
-        if job.get("model_id"):
-            out.append(dict(id=job["model_id"], label=job.get("model_name") or job["name"], source="console",
-                            runnable=False, finetune_id=job["id"]))
-    return out
+    for job in ACCOUNT["jobs"] or []:
+        if job.get("fine_tuned_model"):
+            out.append(dict(id=job["fine_tuned_model"], label=f"Fine-tune {job.get('suffix')}", source="account",
+                            runnable=True))
+    seen = set()
+    unique = []
+    for model in out:
+        if model["id"] not in seen:
+            seen.add(model["id"])
+            unique.append(model)
+    return unique
 
 
 # --- validation --------------------------------------------------------------------------------------------
@@ -198,7 +211,7 @@ def validate(data):
         if model not in known:
             raise LabError("Choose a model from the list.")
         if not known[model]["runnable"]:
-            raise LabError("This model comes from a dry-run fine-tune and has no live checkpoint to run yet.")
+            raise LabError("This model has no published checkpoint to run yet.")
         config.update(model=model, rows_per_reply=_number(data, "rows_per_reply", 24, 1, 48, integer=True),
                       max_usd=_number(data, "max_usd", 5, 0, 500))
         if harness.get("enabled"):
@@ -212,7 +225,8 @@ def validate(data):
             config["harness"] = dict(enabled=False)
 
     save = data.get("save") or {}
-    config["save"] = dict(request_json=bool(save.get("request_json", True)), gifs=bool(save.get("gifs", False)))
+    config["save"] = dict(request_json=bool(save.get("request_json", True)), gifs=bool(save.get("gifs", False)),
+                          episodes=bool(save.get("episodes", True)))
     config["kind"] = kind_of(config)
     config["estimate"] = estimate(config)
     return config
@@ -304,7 +318,7 @@ def ladder_experiments():
             trials = []
             for row in sorted(rows, key=lambda r: r["seed"]):
                 media = f"/ladder-media/{folder.name}/{row['trial_id']}" if row.get("video") else None
-                trials.append({**{k: v for k, v in row.items() if k not in ("video", "recording", "episode")},
+                trials.append({**{k: v for k, v in row.items() if k not in ("video", "recording")},
                                "trial": 1, "media": media, "media_type": "video" if media else None})
             done = sum(t.get("outcome") != "error" for t in trials)
             status = dict(status="completed" if done == len(trials) else "completed_with_errors", total=len(trials),
@@ -479,6 +493,7 @@ def start_worker():
     recover()
     threading.Thread(target=worker_loop, daemon=True).start()
     WAKE.set()
+    start_finetune_worker()
 
 
 def next_queued():
@@ -587,6 +602,13 @@ def run_one_trial(exp_id, seed, trial, budget_usd):
         env = scenes.make_env(config["scene"])
         gif = folder / "media" / f"s{seed}-t{trial}.gif" if config["save"]["gifs"] else None
         steps = config["steps"]
+        episode = episode_path = None
+        if config["save"].get("episodes"):
+            from .datasets import EpisodeRecorder
+            episode_path = folder / "episodes" / f"s{seed}-t{trial}.jsonl"
+            episode_path.parent.mkdir(exist_ok=True)
+            episode_path.unlink(missing_ok=True)
+            episode = EpisodeRecorder(episode_path)
         try:
             row = runner.run_trial(
                 env, task=config["instruction"], target=steps[0]["target"], goal=steps[0]["goal"],
@@ -594,11 +616,16 @@ def run_one_trial(exp_id, seed, trial, budget_usd):
                 sim_seconds=config["sim_seconds"], jitter_cm=config["jitter_cm"],
                 sequence=[f"{s['target']}:{s['goal']}" for s in steps] if len(steps) > 1 else None,
                 max_usd=budget_usd if config["controller"] == "dream1" else None,
-                record=str(gif) if gif else None,
+                record=str(gif) if gif else None, on_sample=episode.add if episode else None,
                 harness=request.get("harness") if config["harness"].get("enabled") else None)
         finally:
             env.close()
+            if episode:
+                episode.close()
         row.pop("trace", None)
+        if episode:
+            row["episode"] = dict(path=str(episode_path), frames=episode.count, error=episode.error,
+                                  source="scripted_teacher" if config["model"] == "oracle" else "model_generated")
         if gif and row.get("recording"):
             row["media"] = f"/lab-media/{exp_id}/{gif.name}"
             row["media_type"] = "gif"
@@ -609,11 +636,29 @@ def run_one_trial(exp_id, seed, trial, budget_usd):
     write_json(folder / "work" / f"s{seed}-t{trial}.json", row)
 
 
-# --- fine-tuning (dry run) ---------------------------------------------------------------------------------
-# The console simulates the Dream fine-tuning API: the stages, timing and returned model id follow the real
-# service, but no data is uploaded and nothing is billed. ladder.py's `train` is the live path.
+# --- fine-tuning ---------------------------------------------------------------------------------------------
+# A console fine-tune is a real Dream Labs job. One background thread moves each job through
+#   preparing  -> build a LeRobot dataset from the recorded successful episodes and validate it locally
+#   uploading  -> upload it (an upload interrupted earlier is picked up by name, not repeated)
+#   processing -> wait for Dream Labs to process it
+#   submitting -> create the paid job (a job created before a crash is found by suffix, never created twice)
+#   queued / training -> poll the job until its checkpoint is published
+# and ends in `completed` (model_id is the runnable checkpoint) or `failed`. The same thread refreshes the
+# account's job list, so any fine-tuned model on the account shows up as runnable without a manual update.
+# Jobs saved by the older dry-run simulation (dry_run=True) are still shown but never produce a model.
 
 STAGES = (("Formatting datasets", 0.08), ("Uploading", 0.12), ("Training Dream-1", 0.75), ("Finalizing weights", 0.05))
+USD_PER_STEP = 0.20
+FT_POLL_S = 60
+FT_ACTIVE = ("preparing", "uploading", "processing", "submitting", "queued", "training")
+FT_STAGE = {"preparing": "Building dataset", "uploading": "Uploading", "processing": "Processing dataset",
+            "submitting": "Submitting job", "queued": "Queued", "training": "Training Dream-1",
+            "completed": "Completed", "failed": "Failed"}
+FT_PHASE = {"waiting_for_gpu": "Waiting for a GPU", "preparing": "Preparing training", "saving": "Saving checkpoint"}
+FT_WAKE = threading.Event()
+FT_THREAD = {"thread": None}
+ACCOUNT = {"at": 0.0, "jobs": None, "queue": None, "error": None, "updated_at": None}
+ACCOUNT_LOCK = threading.Lock()
 
 
 def finetune_root():
@@ -622,35 +667,78 @@ def finetune_root():
     return folder
 
 
+def training_episodes(exp_id, trials):
+    """Successful trials whose aligned episode was recorded completely: what a fine-tune can train on."""
+    out = []
+    for t in trials:
+        episode = t.get("episode") or {}
+        path = episode.get("path")
+        if (t.get("success") and path and not episode.get("error") and episode.get("frames")
+                and episode["frames"] == t.get("rows") and Path(path).is_file()):
+            out.append(dict(id=f"{exp_id}/s{t.get('seed')}-t{t.get('trial', 1)}", path=str(path),
+                            frames=episode["frames"], seed=t.get("seed"),
+                            source=episode.get("source") or "model_generated",
+                            fingerprint=t.get("initial_state_fingerprint")))
+    return out
+
+
 def start_finetune(data):
     if not isinstance(data, dict):
         raise LabError("Send the fine-tune request as a JSON object.")
-    name = _text(data.get("name"), "a fine-tune name", 60)
-    if not re.fullmatch(r"[\w.-]+", name):
-        raise LabError("Use letters, numbers, dots, dashes and underscores in the fine-tune name.")
-    if any(job["name"].casefold() == name.casefold() for job in finetunes()):
+    name = _text(data.get("name"), "a fine-tune name", 40).lower()
+    if not re.fullmatch(r"[a-z0-9-]{1,40}", name):
+        raise LabError("Use lowercase letters, numbers and dashes in the fine-tune name (up to 40 characters).")
+    if any(job["name"] == name for job in finetunes()):
         raise LabError(f"A fine-tune named \"{name}\" already exists.")
+    if any(job.get("suffix") == name for job in ACCOUNT.get("jobs") or []):
+        raise LabError(f"Your Dream Labs account already has a fine-tune named \"{name}\". Choose another name.")
+    if data.get("confirm_charge") is not True:
+        raise LabError("Confirm the Dream Labs charge to start a real fine-tune.")
+    if not execution.credential_source():
+        raise LabError("No Dream API key is configured. Restart with --prompt-key or log in to Dream Labs.")
+    steps = _number(data, "steps", 1000, 500, 10000, integer=True)
+    if steps % 100:
+        raise LabError("Training steps must be a multiple of 100 between 500 and 10,000.")
     ids = data.get("experiment_ids")
     if not isinstance(ids, list) or not ids or len(ids) > 20:
         raise LabError("Select between one and twenty experiments to fine-tune on.")
-    sources = []
+    picks = data.get("trials")
+    if picks is not None and (not isinstance(picks, list) or not all(
+            isinstance(p, dict) and p.get("experiment_id") in ids for p in picks)):
+        raise LabError("List the trials to train on as {experiment_id, seed, trial} from the selected experiments.")
+    sources, episodes, available = [], [], {}
     for exp_id in ids:
         config, status, trials = find(exp_id)
         if status.get("status") not in FINISHED:
             raise LabError(f"\"{config['name']}\" has not finished running, so it has no data to train on yet.")
+        chosen = training_episodes(exp_id, trials)
         sources.append(dict(id=exp_id, name=config["name"], kind=config.get("kind"), trials=len(trials),
-                            successes=sum(bool(t.get("success")) for t in trials)))
-    steps = _number(data, "steps", 1000, 50, 5000, integer=True)
-    dataset = data.get("dataset") if isinstance(data.get("dataset"), dict) else None
-    job = dict(id="ftl-" + uuid4().hex[:12], name=name, base_model=BASE_MODEL, steps=steps, sources=sources,
-               dataset=dataset, created_at=now(), started=time.time(), dry_run=True,
-               # About two minutes per 1000 steps, so the whole flow can be watched end to end.
-               duration_s=max(30.0, steps * 0.12), estimated_usd=round(steps * 0.20, 2))
+                            successes=sum(bool(t.get("success")) for t in trials), episodes=len(chosen)))
+        episodes += chosen
+        for episode in chosen:
+            available[episode["id"]] = episode
+    if picks is not None:
+        # The Analyze pipeline names the exact trajectories of its dataset mix; repeats weight an episode.
+        wanted = [f"{p['experiment_id']}/s{p.get('seed')}-t{p.get('trial', 1)}" for p in picks]
+        missing = [w for w in wanted if w not in available]
+        if missing:
+            raise LabError(f"{len(missing)} of the planned trajectories have no recorded episode (first: {missing[0]}). "
+                           "Rerun those experiments with \"Record training episodes\" on.")
+        episodes = [available[w] for w in wanted]
+    if not episodes:
+        raise LabError("None of the selected experiments has a recorded successful episode to train on. Run an "
+                       "experiment with \"Record training episodes\" on (the scripted expert is the quickest source).")
+    job = dict(id="ftl-" + uuid4().hex[:12], name=name, suffix=name, base_model=BASE_MODEL, steps=steps,
+               sources=sources, episodes=episodes, dataset=None, created_at=now(), dry_run=False,
+               state="preparing", estimated_usd=round(steps * USD_PER_STEP, 2))
     write_json(finetune_root() / f"{job['id']}.json", job)
+    start_finetune_worker()
+    FT_WAKE.set()
     return finetune_view(job)
 
 
-def finetune_view(job):
+def _dry_view(job):
+    """The view of a job saved by the older dry-run simulation."""
     elapsed = time.time() - job["started"]
     fraction = min(1.0, elapsed / job["duration_s"])
     stage, start = STAGES[-1][0], 0.0
@@ -664,10 +752,42 @@ def finetune_view(job):
                 status="completed" if fraction >= 1 else "running",
                 eta_s=round(max(0.0, job["duration_s"] - elapsed)),
                 step=int(job["steps"] * min(1.0, max(0.0, (fraction - 0.2) / 0.75))))
-    if fraction >= 1 and not job.get("model_id"):
-        job["model_id"] = f"console/{job['name']}-{job['id'][4:10]}"
-        write_json(finetune_root() / f"{job['id']}.json", job)
-        view["model_id"] = job["model_id"]
+    return view
+
+
+def _seconds_since(stamp):
+    try:
+        from datetime import datetime
+        return max(0.0, time.time() - datetime.fromisoformat(str(stamp).replace("Z", "+00:00")).timestamp())
+    except ValueError:
+        return None
+
+
+def finetune_view(job):
+    if job.get("dry_run"):
+        return _dry_view(job)
+    state = job.get("state", "preparing")
+    remote = job.get("remote") or {}
+    progress = remote.get("progress") or {}
+    total = progress.get("total_steps") or job["steps"]
+    step = progress.get("step") or 0
+    phase = progress.get("phase")
+    fixed = {"preparing": 0.02, "uploading": 0.06, "processing": 0.10, "submitting": 0.13, "queued": 0.15,
+             "completed": 1.0}
+    fraction = fixed.get(state, 0.15 + 0.8 * min(1.0, step / total))
+    if state == "training" and phase == "saving":
+        fraction = 0.96
+    stage = FT_PHASE.get(phase, FT_STAGE[state]) if state == "training" else FT_STAGE.get(state, state)
+    eta = None
+    started = _seconds_since(remote["started_at"]) if remote.get("started_at") else None
+    if state == "training" and step and started:
+        eta = round(started / step * max(0, total - step) + 120)
+    view = {k: v for k, v in job.items() if k != "episodes"}
+    view.update(episodes=len(job.get("episodes") or []), progress=round(fraction, 4), stage=stage,
+                status="completed" if state == "completed" else "failed" if state == "failed" else "running",
+                step=step, eta_s=eta, queue_position=remote.get("queue_position"), loss=progress.get("loss"),
+                charge=remote.get("charge"),
+                price_usd=remote["price_cents"] / 100 if remote.get("price_cents") else None)
     return view
 
 
@@ -683,13 +803,164 @@ def save_model(job_id, data):
     job = read_json(path)
     if job is None:
         raise KeyError(job_id)
-    view = finetune_view(job)
-    if view["status"] != "completed":
+    if finetune_view(job)["status"] != "completed":
         raise LabError("Wait for the fine-tune to finish before saving its model.")
-    job = read_json(path)
     job["model_name"] = _text((data or {}).get("name"), "a model name", 60)
     write_json(path, job)
     return finetune_view(job)
+
+
+# --- fine-tuning worker ------------------------------------------------------------------------------------
+
+def start_finetune_worker():
+    with LOCK:
+        thread = FT_THREAD["thread"]
+        if thread is None or not thread.is_alive():
+            FT_THREAD["thread"] = threading.Thread(target=finetune_loop, daemon=True, name="finetune")
+            FT_THREAD["thread"].start()
+
+
+def finetune_loop():
+    while True:
+        refresh_account(force=True)
+        for path in sorted(finetune_root().glob("ftl-*.json")):
+            job = read_json(path)
+            if not job or job.get("dry_run") or job.get("state") not in FT_ACTIVE:
+                continue
+            try:
+                advance_finetune(path, job)
+            except Exception as exc:  # network trouble and the like: keep the state and try again next pass
+                job["last_error"] = f"{type(exc).__name__}: {exc}"[:300]
+                job["last_error_at"] = now()
+                write_json(path, job)
+        FT_WAKE.wait(FT_POLL_S)
+        FT_WAKE.clear()
+
+
+def advance_finetune(path, job):
+    import dream
+    from dream import fine_tuning
+
+    from . import datasets
+
+    client = dream.DreamClient()
+
+    def save(**changes):
+        job.update(changes, last_error=None, updated_at=now())
+        write_json(path, job)
+
+    def apply_remote(remote):
+        checkpoint = remote.get("fine_tuned_model")
+        status = remote.get("status")
+        if checkpoint:
+            state = "completed"
+        elif status in ("failed", "cancelled"):
+            state = "failed"
+        else:
+            state = "queued" if status == "queued" else "training"
+        save(state=state, job_id=remote.get("id"), model_id=checkpoint,
+             error=(remote.get("error") or f"The Dream Labs job was {status}.") if state == "failed" else None,
+             remote={k: remote.get(k) for k in ("status", "progress", "queue_position", "price_cents", "charge",
+                                                 "charged_cents", "started_at", "finished_at", "notice")})
+
+    while job.get("state") in FT_ACTIVE:
+        state = job["state"]
+        if state == "preparing":
+            folder = path.with_suffix("")
+            data = folder / "data"
+            if data.exists():
+                shutil.rmtree(data)
+            folder.mkdir(exist_ok=True)
+            chosen = [dict(e, path=Path(e["path"])) for e in job["episodes"]]
+            try:
+                datasets.write_dataset(data, chosen, [], recipe=dict(
+                    description=f"Console fine-tune {job['name']}: {len(chosen)} successful episodes from "
+                                + ", ".join(s["name"] for s in job["sources"])))
+                datasets.validate(data)
+            except (ValueError, OSError, KeyError) as exc:
+                save(state="failed", error=f"Could not build a valid dataset: {exc}"[:300])
+                return
+            save(state="uploading", dataset_path=str(data))
+        elif state == "uploading":
+            dataset_name = job.get("dataset_upload_name") or f"console-{job['id'][4:]}"
+            embodiment = job.get("embodiment") or client.get_embodiments()[0].name
+            save(dataset_upload_name=dataset_name, embodiment=embodiment)
+            found = [d for d in client.get_datasets() if d.name.endswith("/" + dataset_name)]
+            dataset = (found[0] if found and found[0].status not in ("failed", "uploading")
+                       else client.upload_dataset(job["dataset_path"], dataset_name, embodiment))
+            save(state="processing", dataset_id=dataset.id, dataset_name=dataset.name, dataset_status=dataset.status)
+        elif state == "processing":
+            dataset = client.get_dataset_status(job["dataset_id"])
+            if dataset.status == "processed":
+                save(state="submitting", dataset_status=dataset.status)
+            elif dataset.status == "failed":
+                save(state="failed", dataset_status=dataset.status,
+                     error=f"Dream Labs could not process the dataset: {dataset.error}"[:300])
+                return
+            else:
+                save(dataset_status=dataset.status)
+                return
+        elif state == "submitting":
+            match = next((j for j in fine_tuning.list()
+                          if j.get("suffix") == job["suffix"] and j.get("dataset") == job["dataset_name"]), None)
+            if match is None:
+                try:
+                    match = client.finetune(job["dataset_name"], job["suffix"], steps=job["steps"], lr_schedule="cosine")
+                except dream.DreamServerError as exc:
+                    if getattr(exc, "retryable", False):
+                        raise
+                    save(state="failed", error=f"Dream Labs refused the job ({getattr(exc, 'code', 'error')}): {exc}"[:300])
+                    return
+                save(submitted_at=now())
+            apply_remote(match)
+            refresh_account(force=True)
+        else:  # queued / training
+            apply_remote(client.get_finetuning_status(job["job_id"]))
+            return
+
+
+# --- account ---------------------------------------------------------------------------------------------------
+
+def refresh_account(force=False):
+    """Cache the account's fine-tuning jobs and the training queue (Dream Labs has no balance endpoint)."""
+    if not force and time.time() - ACCOUNT["at"] < FT_POLL_S:
+        return
+    with ACCOUNT_LOCK:
+        if not force and time.time() - ACCOUNT["at"] < FT_POLL_S:
+            return
+        ACCOUNT["at"] = time.time()
+        if not execution.credential_source():
+            ACCOUNT.update(error="No Dream API key is configured.")
+            return
+        try:
+            from dream import fine_tuning
+            jobs, queue = fine_tuning.list(), fine_tuning.queue()
+        except Exception as exc:
+            ACCOUNT.update(error=f"{type(exc).__name__}: {exc}"[:200])
+            return
+        ACCOUNT.update(jobs=jobs, queue=queue, error=None, updated_at=now())
+
+
+def account():
+    start_finetune_worker()
+    refresh_account()
+    jobs = ACCOUNT["jobs"] or []
+    charged = sum(j.get("charged_cents") or 0 for j in jobs if j.get("charge") == "charged") / 100
+    held = sum(j.get("price_cents") or 0 for j in jobs if j.get("charge") == "held") / 100
+    try:
+        budget = float(os.environ["DREAM_FINETUNE_BUDGET_USD"])
+    except (KeyError, ValueError):
+        budget = None
+    return dict(
+        balance_api=False,
+        note="Dream Labs does not publish an account balance; these totals add up your fine-tuning jobs' charges.",
+        charged_usd=round(charged, 2), held_usd=round(held, 2), budget_usd=budget,
+        remaining_usd=round(budget - charged - held, 2) if budget is not None else None,
+        usd_per_step=USD_PER_STEP, jobs=len(jobs),
+        active=sum(j.get("status") in ("queued", "running") for j in jobs),
+        models=[dict(id=j["fine_tuned_model"], suffix=j.get("suffix"), finished_at=j.get("finished_at"))
+                for j in jobs if j.get("fine_tuned_model")],
+        queue=ACCOUNT["queue"], updated_at=ACCOUNT["updated_at"], error=ACCOUNT["error"])
 
 
 def meta():

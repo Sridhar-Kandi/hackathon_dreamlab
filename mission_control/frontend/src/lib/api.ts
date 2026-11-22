@@ -20,7 +20,7 @@ export interface HarnessSettingInfo {
 export interface ModelInfo {
   id: string
   label: string
-  source: "base" | "ladder" | "console"
+  source: "base" | "ladder" | "console" | "account"
   runnable: boolean
   finetune_id?: string
 }
@@ -136,7 +136,7 @@ export interface ExperimentConfig {
   rows_per_reply: number | null
   max_usd: number | null
   harness: { enabled: boolean; modules?: string[]; values?: Record<string, number | string> }
-  save: { request_json: boolean; gifs: boolean }
+  save: { request_json: boolean; gifs: boolean; episodes?: boolean }
   kind: Kind
   source: string
   created_at: string | null
@@ -158,17 +158,41 @@ export interface FineTuneJob {
   base_model: string
   steps: number
   step: number
-  sources: { id: string; name: string; kind: Kind; trials: number; successes: number }[]
-  dataset: Record<string, unknown> | null
+  sources: { id: string; name: string; kind: Kind; trials: number; successes: number; episodes?: number }[]
   created_at: string
   progress: number
   stage: string
-  status: "running" | "completed"
-  eta_s: number
+  status: "running" | "completed" | "failed"
+  eta_s: number | null
   dry_run: boolean
   estimated_usd: number
-  model_id?: string
+  episodes?: number
+  state?: string
+  error?: string | null
+  last_error?: string | null
+  queue_position?: number | null
+  loss?: number | null
+  charge?: string | null
+  price_usd?: number | null
+  job_id?: string
+  model_id?: string | null
   model_name?: string
+}
+
+export interface AccountInfo {
+  balance_api: boolean
+  note: string
+  charged_usd: number
+  held_usd: number
+  budget_usd: number | null
+  remaining_usd: number | null
+  usd_per_step: number
+  jobs: number
+  active: number
+  models: { id: string; suffix: string; finished_at: string | null }[]
+  queue: { jobs_ahead_of_new: number; running: number; slots_free: number; slots_total: number } | null
+  updated_at: string | null
+  error: string | null
 }
 
 export interface CreateExperimentRequest {
@@ -185,7 +209,7 @@ export interface CreateExperimentRequest {
   rows_per_reply?: number
   max_usd?: number
   harness: { enabled: boolean; modules: string[]; values: Record<string, number | string> }
-  save: { request_json: boolean; gifs: boolean }
+  save: { request_json: boolean; gifs: boolean; episodes: boolean }
 }
 
 async function call<T>(path: string, body?: unknown): Promise<T> {
@@ -209,7 +233,11 @@ export const api = {
   remove: (id: string) => call<{ deleted: string }>(`/api/lab/experiments/${encodeURIComponent(id)}/delete`, {}),
   cancel: (id: string) => call<ExperimentSummary>(`/api/lab/experiments/${encodeURIComponent(id)}/cancel`, {}),
   finetunes: () => call<{ finetunes: FineTuneJob[] }>("/api/lab/finetunes"),
-  startFinetune: (body: { name: string; experiment_ids: string[]; steps: number; dataset?: unknown }) =>
+  account: () => call<AccountInfo>("/api/lab/account"),
+  startFinetune: (body: {
+    name: string; experiment_ids: string[]; steps: number; confirm_charge: boolean
+    trials?: { experiment_id: string; seed: number; trial: number }[]
+  }) =>
     call<FineTuneJob>("/api/lab/finetunes", body),
   saveModel: (id: string, name: string) => call<FineTuneJob>(`/api/lab/finetunes/${id}/save`, { name }),
   exportUrl: (ids: string[]) => `/api/lab/export?ids=${ids.map(encodeURIComponent).join(",")}`,

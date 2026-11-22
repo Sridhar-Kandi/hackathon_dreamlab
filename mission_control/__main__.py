@@ -265,6 +265,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.respond({"experiments": lab.list_experiments(), "finetunes": lab.finetunes()})
         if path == "/api/lab/finetunes":
             return self.respond({"finetunes": lab.finetunes()})
+        if path == "/api/lab/account":
+            return self.respond(lab.account())
         if path == "/api/lab/export":
             ids = [i for i in ",".join(query.get("ids", [])).split(",") if i]
             name = "experiments.json" if len(ids) != 1 else re.sub(r"[^\w.-]+", "_", ids[0]) + ".json"

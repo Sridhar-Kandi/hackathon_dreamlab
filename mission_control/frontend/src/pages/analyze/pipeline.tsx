@@ -2,7 +2,7 @@ import { AlertTriangle, Loader2, Rocket } from "lucide-react"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { KindBadge } from "@/components/badges"
-import { FineTuneJobCard } from "@/components/finetune"
+import { AccountSpend, FineTuneJobCard } from "@/components/finetune"
 import { JsonViewer } from "@/components/json-viewer"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -17,6 +17,8 @@ import { humanize, usd } from "@/lib/format"
 interface DatasetRow {
   dataset: "D1 gold" | "D2 correction" | "D2 scripted mix"
   source: string
+  // The successful trajectory this row trains on (for a correction: the scripted fix); none for an unpaired failure.
+  train?: { experiment_id: string; seed: number; trial: number }
   seed: number
   trial: number
   frames: number
@@ -61,6 +63,7 @@ export function PipelineBuilder({ files, finetunes, onChanged }: {
   const [steps, setSteps] = useState(1000)
   const [jobId, setJobId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [confirmed, setConfirmed] = useState(false)
 
   const toggle = (setter: typeof setD1) => (id: string, on: boolean) =>
     setter((current) => { const next = new Set(current); if (on) next.add(id); else next.delete(id); return next })
@@ -71,7 +74,10 @@ export function PipelineBuilder({ files, finetunes, onChanged }: {
     for (const id of d1) {
       const f = byId.get(id)
       for (const t of f?.trials ?? []) {
-        if (t.success) gold.push({ dataset: "D1 gold", source: f!.name, seed: t.seed, trial: t.trial, frames: frames(t), instruction: f!.experiment.instruction })
+        if (t.success) gold.push({
+          dataset: "D1 gold", source: f!.name, seed: t.seed, trial: t.trial, frames: frames(t), instruction: f!.experiment.instruction,
+          train: { experiment_id: f!.id, seed: t.seed, trial: t.trial },
+        })
       }
     }
     const corrections = new Map<number, { trial: Trial; file: SaveFile }>()
@@ -92,12 +98,14 @@ export function PipelineBuilder({ files, finetunes, onChanged }: {
           dataset: "D2 correction", source: f!.name, seed: t.seed, trial: t.trial,
           frames: fix ? frames(fix.trial) : frames(t), instruction: f!.experiment.instruction,
           failure: `${failureOf(t)?.category}: ${humanize(t.outcome)}`, corrects: fix ? `${fix.file.name} · seed ${t.seed}` : "unpaired (failure only)",
+          train: fix ? { experiment_id: fix.file.id, seed: fix.trial.seed, trial: fix.trial.trial } : undefined,
         })
       }
     }
     const scriptedWanted = mix >= 100 ? 0 : Math.round((failureRows.length * mix) / (100 - mix))
     const pool = gold.length ? gold : [...corrections.values()].map(({ trial, file }) => ({
       dataset: "D1 gold" as const, source: file.name, seed: trial.seed, trial: trial.trial, frames: frames(trial), instruction: file.experiment.instruction,
+      train: { experiment_id: file.id, seed: trial.seed, trial: trial.trial },
     }))
     const scriptedRows: DatasetRow[] = pool.slice(0, scriptedWanted).map((r) => ({ ...r, dataset: "D2 scripted mix" }))
     const d2Rows = [...failureRows, ...scriptedRows]
@@ -110,27 +118,25 @@ export function PipelineBuilder({ files, finetunes, onChanged }: {
 
   const serverIds = [...new Set([...d1, ...d2Failures, ...d2Corrections])]
     .map((id) => files.find((f) => f.id === id)).filter((f) => f?.origin === "server").map((f) => f!.id)
+  const trainRows = [...plan.gold, ...plan.failureRows, ...plan.scriptedRows].flatMap((r) => r.train ? [r.train] : [])
+  const trainIds = [...new Set(trainRows.map((t) => t.experiment_id))]
+  const trainable = trainRows.length > 0 && trainIds.every((id) => serverIds.includes(id))
   const job = finetunes.find((j) => j.id === jobId)
-  const nameOk = /^[\w.-]{1,60}$/.test(name)
+  const nameOk = /^[a-z0-9-]{1,40}$/.test(name)
   const blockers = [
     !plan.gold.length && "Dataset 1 is empty: choose at least one scripted save file with successful trials.",
     !plan.failureRows.length && "Dataset 2 has no failure cases: choose a run with failing trials and a correction source with the same seeds.",
     !serverIds.length && "Pick at least one save file stored on the console server.",
-    !nameOk && "Name the fine-tune with letters, numbers, dots, dashes or underscores.",
+    !trainable && "Every planned trajectory must come from a save file stored on the console server.",
+    !nameOk && "Name the fine-tune with lowercase letters, numbers and dashes (up to 40).",
+    (steps < 500 || steps > 10000 || steps % 100 !== 0) && "Training steps must be a multiple of 100 between 500 and 10,000.",
+    !confirmed && "Tick the box to authorize the Dream Labs charge.",
   ].filter(Boolean) as string[]
 
   async function start() {
     setBusy(true)
     try {
-      const spec = {
-        dataset_1: { sources: [...d1], episodes: plan.gold.length, frames: plan.goldFrames },
-        dataset_2: {
-          failure_sources: [...d2Failures], correction_sources: [...d2Corrections], scripted_mix_percent: mix,
-          include_unpaired: includeUnpaired, failure_episodes: plan.failureRows.length, scripted_episodes: plan.scriptedRows.length,
-          frames: plan.d2Frames,
-        },
-      }
-      const created = await api.startFinetune({ name, experiment_ids: serverIds, steps, dataset: spec })
+      const created = await api.startFinetune({ name, experiment_ids: trainIds, steps, trials: trainRows, confirm_charge: true })
       setJobId(created.id)
       toast.success(`Fine-tune "${created.name}" started`)
       onChanged()
@@ -254,7 +260,7 @@ export function PipelineBuilder({ files, finetunes, onChanged }: {
           </div>
           <div className="grid gap-1">
             <Label className="text-[12px] font-semibold">Training steps</Label>
-            <Input type="number" min={50} max={5000} value={steps} onChange={(e) => setSteps(Number(e.target.value))} className="h-8 w-32" />
+            <Input type="number" min={500} max={10000} step={100} value={steps} onChange={(e) => setSteps(Number(e.target.value))} className="h-8 w-32" />
           </div>
           <div className="grid gap-1">
             <Label className="text-[12px] font-semibold">Base model</Label>
@@ -264,10 +270,15 @@ export function PipelineBuilder({ files, finetunes, onChanged }: {
             {busy ? <Loader2 className="size-4 animate-spin" /> : <Rocket className="size-4" />} Start fine-tuning
           </Button>
         </div>
+        <label className="mt-3 flex items-center gap-2 text-[12px]">
+          <Checkbox checked={confirmed} onCheckedChange={(v) => setConfirmed(!!v)} />
+          Train {trainRows.length} trajectories on Dream Labs and charge about <b>{usd(steps * 0.2)}</b> to the account
+        </label>
         <p className="mt-2 text-[12px] text-muted-foreground">
           {blockers.length ? <span className="text-[#8a5300]">{blockers[0]}</span>
-            : `Dry run of the Dream-1 fine-tuning API: stages and timing are simulated, nothing is uploaded or billed (a live job would cost about ${usd(steps * 0.2)}).`}
+            : "Real fine-tune: the dataset is built from the recorded episodes, uploaded and trained by Dream Labs (about 8 hours per 1,000 steps). The model becomes runnable here when its checkpoint is published."}
         </p>
+        <div className="mt-3"><AccountSpend /></div>
         {job && <div className="mt-3"><FineTuneJobCard job={job} onChanged={onChanged} /></div>}
       </div>
     </div>
