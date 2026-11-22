@@ -39,8 +39,15 @@ def quality(row):
         reasons.append("steered")
     if (row.get("arm_table_rows") or 0) > 20:
         reasons.append("arm scraped the table for over 1 s")
-    if row.get("touched_other_first"):
-        reasons.append(f"touched {row['touched_other_first']} before the target")
+    # In a multi-step task the row's target is the last step's object, so touching an earlier step's object
+    # first is expected; only objects that belong to no step count as stray grabs.
+    steps = row.get("step_details") or [row]
+    task_objects = {step.get("target") for step in steps} | {row.get("target")}
+    for step in steps:
+        touched = step.get("touched_other_first")
+        if touched and touched not in task_objects:
+            reasons.append(f"touched {touched} before the target")
+            break
     return reasons
 
 
