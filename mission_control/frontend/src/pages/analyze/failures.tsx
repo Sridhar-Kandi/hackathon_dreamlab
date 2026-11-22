@@ -98,9 +98,9 @@ function RunPicker({ label, files, value, onChange, allowNone = false }: {
 }) {
   return (
     <div className="grid gap-1">
-      <span className="text-[12px] font-semibold text-[#323130]">{label}</span>
+      <span className="text-[12px] font-semibold text-foreground">{label}</span>
       <Select value={String(value)} onValueChange={(v) => onChange(Number(v))}>
-        <SelectTrigger size="sm" className="w-72 bg-white text-[13px]"><SelectValue /></SelectTrigger>
+        <SelectTrigger size="sm" className="w-72 bg-card text-[13px]"><SelectValue /></SelectTrigger>
         <SelectContent>
           {allowNone && <SelectItem value="-1">None</SelectItem>}
           {files.map((f, i) => <SelectItem key={f.id} value={String(i)}>{SLOT_LETTERS[i]} · {f.name}</SelectItem>)}
@@ -138,13 +138,13 @@ function TraceComparison({ files, targetIndex, referenceIndex, trial }: {
                 <span className="size-2.5 rounded-[2px]" style={{ background: SERIES[index] }} />
                 {SLOT_LETTERS[index]}{index === targetIndex ? "*" : ""}
               </span>
-              <div className="relative h-6 rounded-[2px] bg-[#f3f2f1]">
+              <div className="relative h-6 rounded-[2px] bg-muted">
                 {p.spans.map((span) => {
                   const info = PHASES.find((x) => x.key === span.phase)!
                   return (
                     <Tooltip key={span.phase}>
                       <TooltipTrigger asChild>
-                        <div className="absolute top-0 h-full border-r border-white"
+                        <div className="absolute top-0 h-full border-r border-card"
                           style={{ left: `${(span.start / maxEnd) * 100}%`, width: `${((span.end - span.start) / maxEnd) * 100}%`, background: info.color }} />
                       </TooltipTrigger>
                       <TooltipContent>{info.label}: {span.start.toFixed(1)}–{span.end.toFixed(1)} s</TooltipContent>
@@ -154,16 +154,16 @@ function TraceComparison({ files, targetIndex, referenceIndex, trial }: {
                 {(t!.interventions ?? []).filter(isIntervention).map((i, k) => (
                   <Tooltip key={k}>
                     <TooltipTrigger asChild>
-                      <div className="absolute -top-1 h-8 w-0.5 bg-[#eda100]" style={{ left: `${(i.row / 20 / maxEnd) * 100}%` }} />
+                      <div className="absolute -top-1 h-8 w-0.5 bg-chart-4" style={{ left: `${(i.row / 20 / maxEnd) * 100}%` }} />
                     </TooltipTrigger>
                     <TooltipContent>Harness at {(i.row / 20).toFixed(1)} s: {humanize(i.reason)}</TooltipContent>
                   </Tooltip>
                 ))}
                 {index === targetIndex && diverged.at !== null && (
-                  <div className="absolute -top-1 h-8 border-l-2 border-dashed border-[#a4262c]" style={{ left: `${(diverged.at / maxEnd) * 100}%` }}
+                  <div className="absolute -top-1 h-8 border-l-2 border-dashed border-destructive" style={{ left: `${(diverged.at / maxEnd) * 100}%` }}
                     title="Divergence point" />
                 )}
-                <span className="absolute top-1/2 right-1 -translate-y-1/2 text-[10px] font-semibold text-[#323130]">
+              <span className="absolute top-1/2 right-1 -translate-y-1/2 rounded-sm bg-card/90 px-1 text-[10px] font-semibold text-foreground">
                   {t!.success ? "✓" : humanize(t!.outcome)}
                 </span>
               </div>
@@ -173,8 +173,8 @@ function TraceComparison({ files, targetIndex, referenceIndex, trial }: {
         <div className="ml-[60px] flex justify-between text-[10px] text-muted-foreground"><span>0 s</span><span>{maxEnd.toFixed(0)} s</span></div>
         <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
           {PHASES.map((p) => <span key={p.key} className="flex items-center gap-1"><span className="size-2.5 rounded-[2px]" style={{ background: p.color }} />{p.label}</span>)}
-          <span className="flex items-center gap-1"><span className="h-3 w-0.5 bg-[#eda100]" />Harness intervention</span>
-          <span className="flex items-center gap-1"><span className="h-3 border-l-2 border-dashed border-[#a4262c]" />Divergence</span>
+          <span className="flex items-center gap-1"><span className="h-3 w-0.5 bg-chart-4" />Harness intervention</span>
+          <span className="flex items-center gap-1"><span className="h-3 border-l-2 border-dashed border-destructive" />Divergence</span>
         </div>
       </div>
       <div className={cn("grid gap-3", reference && "md:grid-cols-2")}>
@@ -189,10 +189,10 @@ function TraceComparison({ files, targetIndex, referenceIndex, trial }: {
 function EventLog({ title, trial }: { title: string; trial: Trial }) {
   return (
     <div className="rounded-sm border">
-      <p className="border-b bg-[#faf9f8] px-2 py-1 text-[12px] font-semibold">{title}</p>
+      <p className="border-b bg-background px-2 py-1 text-[12px] font-semibold">{title}</p>
       <ol className="max-h-48 overflow-y-auto px-2 py-1 font-mono text-[11px]">
         {eventLog(trial).map((e, i) => (
-          <li key={i} className={cn("flex gap-2 py-0.5", e.kind === "intervention" && "text-[#8a5300]", e.kind === "end" && !trial.success && "text-[#a4262c]")}>
+          <li key={i} className={cn("flex gap-2 py-0.5", e.kind === "intervention" && "text-warning", e.kind === "end" && !trial.success && "text-destructive")}>
             <span className="w-12 shrink-0 text-right tabular-nums text-muted-foreground">{e.t.toFixed(1)}s</span>
             <span>{e.text}</span>
           </li>

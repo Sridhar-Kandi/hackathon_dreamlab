@@ -36,10 +36,10 @@ export const CATEGORIES = ["Approach", "Grasp", "Placement", "Task logic", "Infr
 
 export type Phase = "approach" | "grasp" | "carry" | "settle"
 export const PHASES: { key: Phase; label: string; color: string }[] = [
-  { key: "approach", label: "Approach", color: "#c7e0f4" },
-  { key: "grasp", label: "Grasp", color: "#71afe5" },
-  { key: "carry", label: "Carry & place", color: "#2b88d8" },
-  { key: "settle", label: "Settle", color: "#9fd89f" },
+  { key: "approach", label: "Approach", color: "var(--brand-peach-tint)" },
+  { key: "grasp", label: "Grasp", color: "var(--brand-peach)" },
+  { key: "carry", label: "Carry & place", color: "var(--brand-lavender)" },
+  { key: "settle", label: "Settle", color: "var(--brand-grass-light)" },
 ]
 
 export function failureOf(trial: Trial) {

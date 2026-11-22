@@ -74,7 +74,7 @@ export function ExperimentDetailDialog({ experimentId, onOpenChange, refreshKey 
                 <a href={api.exportUrl([detail.summary.id])}><Download className="size-3.5" /> Save to file</a>
               </Button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto bg-[#faf9f8] p-6">
+            <div className="min-h-0 flex-1 overflow-y-auto bg-background p-6">
               <TabsContent value="summary" className="mt-0">
                 <SummaryTab detail={detail} onPickTrial={(key) => { setSelectedTrial(key); setTab("trials") }} />
               </TabsContent>
@@ -83,7 +83,7 @@ export function ExperimentDetailDialog({ experimentId, onOpenChange, refreshKey 
               </TabsContent>
               <TabsContent value="request" className="mt-0 grid gap-3">
                 {detail.request ? <JsonViewer title="Request sent by the console" data={detail.request} defaultOpen />
-                  : <p className="rounded-sm border bg-white p-3 text-[13px] text-muted-foreground">
+                  : <p className="rounded-sm border bg-card p-3 text-[13px] text-muted-foreground">
                     {detail.summary.source === "console" ? "This experiment was created with “Save request JSON” turned off."
                       : "Imported experiments have no console request. The resolved configuration is below."}
                   </p>}
@@ -110,7 +110,7 @@ function SummaryTab({ detail, onPickTrial }: { detail: ExperimentDetail; onPickT
   return (
     <div className="grid gap-4">
       {isActive(s.status) && (
-        <div className="rounded-sm border bg-white p-3">
+        <div className="rounded-sm border bg-card p-3">
           <div className="mb-1.5 flex justify-between text-[12px]">
             <span>{s.current ? `Running seed ${s.current.seed}, trial ${s.current.trial}` : s.message}</span>
             <span className="tabular-nums">{s.done} / {s.total}</span>
@@ -127,11 +127,11 @@ function SummaryTab({ detail, onPickTrial }: { detail: ExperimentDetail; onPickT
         <StatTile label="API cost" value={usd(a.cost_usd)} sub={`wall ${number(a.mean_wall_s, 0, " s")} / trial`} />
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-sm border bg-white p-4">
+        <div className="rounded-sm border bg-card p-4">
           <h3 className="mb-2 text-[13px] font-semibold">Outcomes</h3>
           <HorizontalBars data={outcomeData} valueLabel="Trials" />
         </div>
-        <div className="rounded-sm border bg-white p-4">
+        <div className="rounded-sm border bg-card p-4">
           <h3 className="mb-1 text-[13px] font-semibold">Seed × trial results</h3>
           <p className="mb-2 text-[12px] text-muted-foreground">Each square is one trial. Select one to open it.</p>
           <div className="grid max-h-64 gap-1 overflow-y-auto">
@@ -144,9 +144,9 @@ function SummaryTab({ detail, onPickTrial }: { detail: ExperimentDetail; onPickT
                       <button type="button" onClick={() => onPickTrial(trialKey(t))}
                         aria-label={`Seed ${t.seed} trial ${t.trial}: ${t.outcome}`}
                         className={cn("flex size-6 items-center justify-center rounded-[2px] border text-[10px] font-semibold",
-                          t.success ? "border-[#9fd89f] bg-[#dff6dd] text-[#107c10]"
-                            : t.outcome === "error" ? "border-[#d2d0ce] bg-[#f3f2f1] text-[#605e5c]"
-                            : "border-[#f1bbbc] bg-[#fde7e9] text-[#a4262c]")}>
+                          t.success ? "border-success-border bg-success-bg text-success"
+                            : t.outcome === "error" ? "border-border bg-muted text-muted-foreground"
+                            : "border-danger-border bg-danger-bg text-destructive")}>
                         {t.success ? "✓" : t.outcome === "error" ? "!" : "✕"}
                       </button>
                     </TooltipTrigger>
@@ -160,7 +160,7 @@ function SummaryTab({ detail, onPickTrial }: { detail: ExperimentDetail; onPickT
         </div>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-sm border bg-white p-4">
+        <div className="rounded-sm border bg-card p-4">
           <h3 className="mb-2 text-[13px] font-semibold">Configuration</h3>
           <dl className="grid grid-cols-[150px_1fr] gap-x-3 gap-y-1.5 text-[13px]">
             <dt className="text-muted-foreground">Controller</dt><dd>{e.controller === "expert" ? "Scripted expert (FK/IK)" : "Dream-1 policy"}</dd>
@@ -176,7 +176,7 @@ function SummaryTab({ detail, onPickTrial }: { detail: ExperimentDetail; onPickT
             <dt className="text-muted-foreground">Created</dt><dd>{dateTime(e.created_at)}</dd>
           </dl>
         </div>
-        <div className="rounded-sm border bg-white p-4">
+        <div className="rounded-sm border bg-card p-4">
           <h3 className="mb-2 text-[13px] font-semibold">Harness interventions</h3>
           {interventionData.length ? <HorizontalBars data={interventionData} valueLabel="Interventions" />
             : <p className="text-[12px] text-muted-foreground">No interventions recorded.</p>}
@@ -204,7 +204,7 @@ function TrialsTab({ detail, selected, onSelect, trial }: {
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <DataTable columns={columns} data={detail.trials} getRowId={trialKey} pageSize={12}
         onRowClick={(t) => onSelect(trialKey(t))} empty="No trials have finished yet." />
-      <div className="rounded-sm border bg-white p-4">
+      <div className="rounded-sm border bg-card p-4">
         {!trial ? (
           <p className="py-10 text-center text-[13px] text-muted-foreground">Select a trial to see its replay, request and response.</p>
         ) : (
@@ -222,7 +222,7 @@ function TrialsTab({ detail, selected, onSelect, trial }: {
                 <ImageOff className="size-4" /> No replay saved for this trial.
               </div>
             )}
-            {trial.error && <p className="rounded-sm border border-[#f1bbbc] bg-[#fde7e9] p-2 text-[12px] text-[#a4262c]">{trial.error}</p>}
+            {trial.error && <p className="rounded-sm border border-danger-border bg-danger-bg p-2 text-[12px] text-destructive">{trial.error}</p>}
             {(trial.interventions ?? []).some(isIntervention) && (
               <div className="text-[12px]">
                 <p className="mb-1 font-semibold">Interventions</p>
