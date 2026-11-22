@@ -812,6 +812,7 @@ function showSideBySide(holder, name, level, seed, cells, arms) {
   requestAnimationFrame(tick);
   controls.append(toggle,clock,track,element("span",videos.length + " video" + (videos.length === 1 ? "" : "s"),"rate"));
   holder.replaceChildren(element("h3","Seed " + seed + " · same start for every version"),panes,controls);
+  window.motion?.revealPanes(holder);
   holder.scrollIntoView({behavior:"smooth",block:"start"});
 }
 const finetuneArms = {"c1-naive": "ft-naive", "c2-harness": "ft-harness"};
@@ -846,6 +847,7 @@ async function loadLadder() {
   const totals = element("p",s.trials + " trials · " + s.calls + " model calls · about $" + s.cost_usd.toFixed(2) +
     " · start variation ±" + s.jitter_cm + " cm","section-copy");
   byId("ladder-content").replaceChildren(totals,...s.levels.map(level => ladderLevel(data.name,level,data.trials)));
+  window.motion?.revealLadder(byId("ladder-content"));
 }
 byId("ladder-collection").onchange = () => loadLadder().catch(error => notice(error.message));
 
@@ -853,6 +855,9 @@ async function route() {
   const token = ++state.request;
   const [hash,id,trial] = location.hash.slice(1).split("/").map(decodeURIComponent);
   const page = ["workspace","setup","runs","run","ladder","compare","datasets"].includes(hash) ? hash : "workspace";
+  const viewKey = page + "/" + (id || "");
+  const changed = state.viewKey !== viewKey;
+  state.viewKey = viewKey;
   state.page = page;
   for (const section of document.querySelectorAll("[data-view]")) section.hidden = section.dataset.view !== page;
   for (const nav of document.querySelectorAll("[data-tab]")) {
@@ -860,6 +865,7 @@ async function route() {
     if (nav.dataset.tab === activePage) nav.setAttribute("aria-current","page");
     else nav.removeAttribute("aria-current");
   }
+  window.motion?.moveIndicator(!changed);
   for (const video of document.querySelectorAll("[data-view][hidden] video")) video.pause();
   notice("");
   try {
@@ -874,6 +880,7 @@ async function route() {
     if (page === "compare") compareOptions();
     if (page === "datasets") await loadDatasets();
     if (page === "ladder") await loadLadder();
+    if (token === state.request) window.motion?.enterView(page, changed);
     for (const video of document.querySelectorAll("[data-view]:not([hidden]) video")) video.play().catch(() => {});
   } catch (error) { notice(error.message); }
 }

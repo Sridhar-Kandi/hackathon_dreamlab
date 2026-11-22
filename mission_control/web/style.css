@@ -33,14 +33,23 @@ a:hover { color: var(--signal) }
 .skip:focus { left: 8px }
 
 /* Top bar */
-.topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: stretch; gap: 28px; padding: 0 clamp(16px, 3vw, 40px); background: var(--ink); color: var(--paper) }
+.topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: stretch; gap: 28px; padding: 0 clamp(16px, 3vw, 40px); background: var(--ink); color: var(--paper);
+  border-bottom: 1px solid transparent; transition: box-shadow .3s ease, border-color .3s ease }
+.topbar.scrolled { box-shadow: 0 10px 30px -12px rgba(22,20,15,.55); border-bottom-color: #2e2a23 }
 .brand { display: flex; align-items: center; font: 600 1.05rem var(--display); letter-spacing: .12em; color: var(--paper); text-decoration: none; white-space: nowrap }
-.brand span { color: var(--signal); padding: 0 .35em }
-nav { display: flex; gap: 0; margin-right: auto }
-nav a { display: flex; align-items: center; padding: 0 16px; color: #c9c3b5; text-decoration: none; font-size: .9rem; border-bottom: 3px solid transparent; min-height: 52px }
+.brand span { display: inline-block; color: var(--signal); padding: 0 .35em; transition: transform .4s cubic-bezier(.34,1.56,.64,1) }
+.brand:hover { color: var(--paper) }
+.brand:hover span { transform: rotate(180deg) }
+nav { position: relative; display: flex; gap: 0; margin-right: auto }
+nav a { position: relative; z-index: 1; display: flex; align-items: center; padding: 0 16px; color: #a9a293; text-decoration: none; font-size: .9rem; letter-spacing: .02em; min-height: 52px; transition: color .25s ease }
 nav a:hover { color: var(--paper) }
-nav a[aria-current="page"] { color: var(--paper); border-bottom-color: var(--signal) }
+nav a[aria-current="page"] { color: var(--paper) }
+nav a:focus-visible { outline-offset: -6px }
+.nav-indicator { position: absolute; left: 0; bottom: 0; height: 3px; width: 0; background: var(--signal); box-shadow: 0 0 14px rgba(255,90,31,.65); pointer-events: none }
+.nav-hover { position: absolute; left: 0; top: 9px; bottom: 9px; width: 0; background: rgba(243,240,232,.08); opacity: 0; pointer-events: none; transition: opacity .25s ease }
 .topbar .button { align-self: center }
+.topbar .button.primary { box-shadow: 3px 3px 0 #8a2e0c }
+.topbar .button.primary:hover { box-shadow: 4px 4px 0 #8a2e0c }
 
 main { max-width: 1500px; margin: 0 auto; padding: 28px clamp(16px, 3vw, 40px) 64px; outline: none }
 .page-header { display: grid; gap: 6px; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 2px solid var(--rule) }
@@ -118,6 +127,8 @@ th:nth-last-child(-n+3) .tip::after { left: auto; right: 0 }
 .status.good { color: var(--pass); background: var(--pass-bg) }
 .status.bad { color: var(--fail); background: var(--fail-bg) }
 .status.active { color: var(--ink); background: #ffe9dd; border-color: var(--signal) }
+.status.active::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; vertical-align: 1px; background: var(--signal); animation: pulse 1.4s ease-in-out infinite }
+@keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,90,31,.6) } 50% { opacity: .55; box-shadow: 0 0 0 5px rgba(255,90,31,0) } }
 .status.warn { color: #7a4a00; background: #f6e7c8 }
 .status.idle { color: var(--idle); background: transparent; border-style: dashed }
 
@@ -145,10 +156,17 @@ pre { margin: 10px 0 0; background: var(--paper); border: 1px solid var(--hair);
 /* Controls */
 button, .button, input, select, textarea { font: inherit }
 .button, button { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 6px 14px; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); font-size: .88rem; font-weight: 600; text-decoration: none; cursor: pointer }
-.button:hover, button:hover { background: #ebe5d8; color: var(--ink) }
+.button, button { transition: transform .15s ease, box-shadow .15s ease, background-color .2s ease }
+.button:hover, button:hover { background: #ebe5d8; color: var(--ink); transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink) }
+.button:active, button:active { transform: translate(1px,1px); box-shadow: 0 0 0 var(--ink); transition-duration: .05s }
 .primary, .button.primary { background: var(--signal); border-color: var(--signal); color: #16140f }
 .primary:hover, .button.primary:hover { background: #ff7440; color: #16140f }
-button:disabled { opacity: .45; cursor: default }
+button:disabled { opacity: .45; cursor: default; transform: none; box-shadow: none }
+.controls button:hover, .event-list button:hover { transform: none; box-shadow: none }
+.controls .marker:hover, .seed-grid button:hover { transform: none; box-shadow: none }
+#new-run { transition: box-shadow .15s ease, background-color .2s ease }
+input:not([type=checkbox]), select, textarea { transition: box-shadow .2s ease, border-color .2s ease }
+input:not([type=checkbox]):focus, select:focus, textarea:focus { outline: none; border-color: var(--signal); box-shadow: 0 0 0 3px rgba(255,90,31,.22) }
 .text-link { font-size: .9rem; font-weight: 600 }
 .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px }
 .wide { grid-column: 1 / -1 }
@@ -197,8 +215,15 @@ label.inline select { width: auto; min-width: 16ch }
 .sbs-pane figcaption .no { color: #ff7a63 }
 .sbs-track { width: 100%; accent-color: var(--signal) }
 
+tbody td { transition: background-color .18s ease }
+.seed-grid > * { transition: background-color .18s ease, outline-color .18s ease }
+.panel { transition: box-shadow .3s ease }
+.panel:hover { box-shadow: 5px 5px 0 rgba(22,20,15,.12) }
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth }
+}
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important }
+  * { transition: none !important; animation: none !important }
 }
 @media (max-width: 1000px) {
   .split, .legend { grid-template-columns: 1fr }
