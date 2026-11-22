@@ -28,6 +28,7 @@ import dream_control as dc  # noqa: E402
 import yam_env  # noqa: E402
 
 from detectors import OrderedPlanTracker, SequenceTracker, Tracker  # noqa: E402
+from dream_harness import GraspWatch, HarnessConfig, RetryPolicy, build_watches, clamp_gripper, open_waits  # noqa: E402
 
 ## Published Dream-1 price: $3/hour of action at 1.6 s of action per call -> 2250 calls/hour.
 USD_PER_CALL = 3.0 / 2250
@@ -182,80 +183,6 @@ class VideoRecorder:
         self.renderer_wrist.close()
 
 
-class WrongObjectWatch:
-    """Fires when an arm is holding a non-target object that has been moved (lifted >= 1.5 cm or slid >= 3 cm)
-    while the target has not been lifted. A brush or bump does not fire; a grab does."""
-
-    def __init__(self, env, target):
-        from detectors import free_objects
-
-        self.target = target
-        self.others = [o for o in free_objects(env.model) if o != target]
-        self.rebase(env)
-
-    def rebase(self, env):
-        self.start = {o: env.data.body(o).xpos.copy() for o in self.others}
-
-    def check(self, env, tracker):
-        from detectors import arm_touching
-
-        if tracker.lifted_at is not None:
-            return None
-        for o in self.others:
-            p = env.data.body(o).xpos
-            moved = p - self.start[o]
-            if (moved[2] >= 0.015 or np.linalg.norm(moved[:2]) >= 0.03) and arm_touching(env, o):
-                return o
-        return None
-
-
-class GraspWatch:
-    """Ace-style phase gate for Dream-1: fires when the current target has been touched for `stall_s` without a lift
-    (a stalled grasp), or was lifted and then dropped back to rest untouched for `drop_s` while its goal is not met.
-
-    Uses only ground truth the harness already has, so it is task-agnostic: on a sequence it watches the step in
-    progress."""
-
-    def __init__(self, env, stall_s=8.0, drop_s=2.0):
-        self.stall_rows, self.drop_rows = int(stall_s * 20), int(drop_s * 20)
-        self.rebase(env)
-
-    def rebase(self, env):
-        """Start a fresh attempt: contact/lift state is tracked per attempt, not per trial."""
-        self.contact_row = None
-        self.idle_rows = 0
-        self.lift_run = 0
-        self.lifted = False
-        self.step_obj = None
-
-    def check(self, env, tracker):
-        from detectors import arm_touching, body_pos
-
-        t = tracker._current() if hasattr(tracker, "_current") else tracker
-        if t.goal_at is not None:
-            return None
-        if t.obj != self.step_obj:  # a sequence moved on to its next step
-            self.rebase(env)
-            self.step_obj = t.obj
-        touched = bool(arm_touching(env, t.obj))
-        height = body_pos(env, t.obj)[2] - t.rest_z
-        if not self.lifted:
-            if touched and self.contact_row is None:
-                self.contact_row = t.row
-            self.lift_run = self.lift_run + 1 if (touched and height >= 0.05) else 0
-            self.lifted = self.lift_run >= 5
-            if not self.lifted and self.contact_row is not None and t.row - self.contact_row >= self.stall_rows:
-                return "grasp_stalled"
-            return None
-        # lifted in this attempt: watch for a drop back to the table, away from the goal
-        resting = height < 0.01
-        on_goal = t.goal is not None and t.goal(env, t.obj)
-        self.idle_rows = self.idle_rows + 1 if (resting and not touched and not on_goal) else 0
-        if self.idle_rows >= self.drop_rows:
-            return "dropped"
-        return None
-
-
 ASSIST_MODES = {
     "assist": ("depth", "width", "backtrack"),
     "assist_adaptive": ("depth", "width", "backtrack", "adaptive"),
@@ -267,20 +194,6 @@ ASSIST_MODES = {
 
 class _Skip(Exception):
     pass
-
-
-def _clamp_gripper(reply, slack=0.2):
-    """Dream-1 occasionally returns a gripper opening slightly outside 0..1 (seen: 1.055), which the stock
-    validator rejects as a contract error. Clip small overshoots; leave larger ones for the validator to flag."""
-    out = dict(reply)
-    for k in ("q_l_chunk", "q_r_chunk"):
-        a = np.array(reply[k], dtype=float, copy=True)
-        if a.ndim == 2 and a.shape[1] == 7:
-            g = a[:, 6]
-            near = (g > -slack) & (g < 1 + slack)
-            a[near, 6] = np.clip(g[near], 0.0, 1.0)
-        out[k] = a
-    return out
 
 
 def run_trial(
@@ -300,9 +213,9 @@ def run_trial(
     trace=False,
     record=None,
     supervise=False,
-    max_retries=2,
+    max_retries=None,
     retry_prompt=None,
-    stall_s=8.0,
+    stall_s=None,
     sequence=None,
     scene="stock",
     before_request=None,
@@ -315,12 +228,28 @@ def run_trial(
     assist_parts=None,
     watches=None,
     recover=False,
+    harness=None,
 ):
     """Run one trial and return a result dict (never raises for API/validation errors; they become outcome='error').
 
     Spotter modules can also be switched on one by one: `assist_parts` (any of depth, width, backtrack, place,
     adaptive), `watches` (any of "grasp", "wrong_object"), and `recover`, which keeps the network and capacity
-    retries on even when a console `checkpoint` is set."""
+    retries on even when a console `checkpoint` is set.
+
+    `harness` (a dream_harness.HarnessConfig or its dict form) replaces those four arguments with one module list and
+    supplies every tunable value; without it the library's static HarnessSettings defaults apply."""
+    if harness is not None:
+        if not isinstance(harness, HarnessConfig):
+            harness = HarnessConfig.from_dict(harness)
+        assist_parts, watches = harness.assist_parts, harness.watches
+        recover, normalize_gripper = harness.recover, harness.clamp_gripper
+    else:
+        harness = HarnessConfig.from_dict({})
+    if stall_s is not None:
+        harness.values["STALL_S"] = float(stall_s)
+    if max_retries is None:
+        max_retries = harness.MAX_SUPERVISOR_RETRIES
+    retry_prompt = retry_prompt or harness.RETRY_PROMPT or None
     if max_usd is not None and (not np.isfinite(max_usd) or max_usd < 0):
         raise ValueError("--max-usd must be finite and nonnegative")
     config = {} if model == "oracle" else dc.settings()
@@ -392,9 +321,9 @@ def run_trial(
     helper = None
     parts = ASSIST_MODES[supervise] if supervise in ASSIST_MODES else tuple(assist_parts or ())
     if parts:
-        import assist as assist_mod
+        from dream_harness import assist as assist_mod
 
-        helper = assist_mod.Assist(env, tracker, parts=parts, stall_s=stall_s)
+        helper = assist_mod.Assist(env, tracker, parts=parts, config=harness)
     video = VideoRecorder(record, env) if record and str(record).lower().endswith(".mp4") else None
     recorder = Recorder(record) if record and not video else None
     watch_names = list(watches or ())
@@ -402,11 +331,11 @@ def run_trial(
         watch_names.append("grasp")
     elif supervise and supervise not in ASSIST_MODES:
         watch_names.append("wrong_object")
-    watch_list = [GraspWatch(env, stall_s=stall_s) if name == "grasp" else WrongObjectWatch(env, target)
-                  for name in dict.fromkeys(watch_names)]
+    watch_list = build_watches(env, target, watch_names, harness)
     budget_rows = int(round(sim_seconds * 20))
     rtts, error, policy = [], None, None
-    request_attempts, timeout_count, network_retries = 0, 0, 0
+    request_attempts, timeout_count = 0, 0
+    retries = RetryPolicy(harness)
     first_response_s = None
     near_replies = [0]
     interventions = []
@@ -465,7 +394,7 @@ def run_trial(
     def open_session():
         nonlocal policy, poses
         # DA-2000 NO_CAPACITY (pool full) is a transient server state, not a trial outcome: back off and retry.
-        for wait in ((0,) if checkpoint and not recover else (5, 10, 20, 40, 60, 90, 0)):
+        for wait in open_waits(recover or not checkpoint):
             try:
                 if checkpoint:
                     checkpoint()
@@ -514,8 +443,6 @@ def run_trial(
         if policy == "oracle":
             raise _Skip
         open_session()
-        restarts = 0
-        busy_waits = 0
         done = False
         while not done and tracker.row < budget_rows:
             if time.monotonic() - started > wall_timeout:
@@ -552,28 +479,19 @@ def run_trial(
                     timeout_count += 1
                 if checkpoint and not recover:
                     raise
-                if type(exc).__name__ == "DreamSessionExpired" and restarts < 3:
-                    restarts += 1
-                    continue
-                if "NO_CAPACITY" in str(exc) and busy_waits < 8:
-                    # Pool full: physics is paused between replies anyway, so waiting does not change the trial.
-                    busy_waits += 1
-                    time.sleep(min(60, 5 * 2**busy_waits))
-                    continue
                 if not poses and dc.needs_poses(exc):
                     policy.close()
                     poses = True
                     open_session()
                     continue
-                if "could not reach" in str(exc) and network_retries < 5:
-                    # A dropped connection: physics is paused, so asking again for the same moment is harmless.
-                    network_retries += 1
-                    time.sleep(2 ** network_retries)
-                    continue
-                raise
-            restarts = 0
+                wait = retries.decide(exc)
+                if wait is None:
+                    raise
+                time.sleep(wait)
+                continue
+            retries.succeeded()
             if normalize_gripper:
-                reply = _clamp_gripper(reply)
+                reply = clamp_gripper(reply, harness.GRIPPER_SLACK)
             left, right = dc.validate_chunk(env, reply, actions, verbose=False)
             rtts.append(time.monotonic() - t0)
             if first_response_s is None:
@@ -632,7 +550,7 @@ def run_trial(
                         interventions.append({"row": tracker.row, "reason": "wrong_object", "object": grabbed})
                     policy.close()
                     policy = None
-                    for hl, hr in yam_env.home_path(env.state(), seconds=2.0):
+                    for hl, hr in yam_env.home_path(env.state(), seconds=harness.HOME_SECONDS):
                         advance(hl, hr)
                         if tracker.row >= budget_rows:
                             break
@@ -680,7 +598,7 @@ def run_trial(
         "calls": len(rtts),
         "request_attempts": request_attempts,
         "request_errors": request_attempts - len(rtts),
-        "network_retries": network_retries,
+        "network_retries": retries.network_retries,
         "timeout_count": timeout_count,
         "first_response_s": round(first_response_s, 3) if first_response_s is not None else None,
         "slowest_rtt_s": round(max(rtts), 3) if rtts else None,
@@ -691,7 +609,7 @@ def run_trial(
         "error": error,
         "supervised": supervise,
         "spotter": {"assist": list(assist_parts or ()), "watches": list(watches or ()), "recover": recover,
-                    "clamp_gripper": normalize_gripper},
+                    "clamp_gripper": normalize_gripper, "harness": harness.to_dict()},
         "short_replies": near_replies[0],
         "retries": sum(1 for i in interventions if (i.get("reason") not in (None, "latch_release")) or i.get("phase") == "grasp_failed"),
         "interventions": interventions,
@@ -749,7 +667,7 @@ if __name__ == "__main__":
     p.add_argument("--supervise", nargs="?", const="wrong_object", default=False, choices=["wrong_object", "grasp", "assist", "assist_adaptive", "adaptive", "assist_place", "place_only", "stepwise"],
                    help="home and re-prompt after a wrong-object grab, or (grasp) after a stalled grasp / drop")
     p.add_argument("--model", default=dc.BETA_MODEL, help="Dream model id, or 'oracle' for the scripted controller")
-    p.add_argument("--max-retries", type=int, default=2)
+    p.add_argument("--max-retries", type=int)
     p.add_argument("--retry-prompt")
     p.add_argument("--scene", default="stock")
     p.add_argument("--sequence", help="ordered steps, e.g. apple:inside_bowl,orange:inside_bowl")
