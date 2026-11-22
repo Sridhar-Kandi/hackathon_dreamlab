@@ -160,7 +160,7 @@ class Handler(BaseHTTPRequestHandler):
                 if parts[3]=="resume":
                     return self.respond(execution.resume(parts[2]))
             raise KeyError
-        static={"/":"index.html","/app.js":"app.js","/style.css":"style.css","/gsap.min.js":"gsap.min.js","/motion.js":"motion.js"}
+        static={"/":"index.html","/app.js":"app.js","/style.css":"style.css","/gsap.min.js":"gsap.min.js","/motion.js":"motion.js","/hero.js":"hero.js"}
         if path in static:
             return self.file(WEB/static[path])
         if path=="/api/health":
