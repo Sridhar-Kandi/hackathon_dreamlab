@@ -1,13 +1,11 @@
 /* Overview hero: the real YAM arm (I2RT meshes, MIT) rendered with three.js.
    The kinematic chain is rebuilt from the URDF joint origins; the pick-and-place poses were solved
-   offline by inverse kinematics against the same chain (assets/yam/keys.json), and GSAP plays them
-   as one timeline in joint space. */
+   offline by inverse kinematics against the same chain (assets/yam/keys.json). The hero shows one
+   still frame: the orange grasped and lifted. */
 import * as THREE from "/assets/vendor/three.module.min.js";
 import { STLLoader } from "/assets/vendor/STLLoader.js";
 
 const holder = document.getElementById("arm3d");
-const gsap = window.gsap;
-const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const $ = id => document.getElementById(id);
 
 function webglAvailable() {
@@ -186,76 +184,34 @@ async function start() {
   }
   apply();
 
-  const phase = text => () => { $("ro-phase").textContent = text; };
+  /* A still frame: the arm has grasped the orange and lifted it. */
   const k = keys.keys;
   const CLOSED = .011;  // finger travel until the jaws meet the orange
-  if (gsap && !reduced) {
-    const tl = gsap.timeline({ repeat: -1, repeatDelay: .4, defaults: { ease: "power2.inOut" }, onUpdate: apply });
-    tl.call(phase("reach"))
-      .to(pose, { ...asPose(k.above_orange), duration: 1.6 })
-      .call(phase("descend"))
-      .to(pose, { ...asPose(k.grasp), duration: .9, ease: "power1.inOut" })
-      .call(phase("grasp"))
-      .to(pose, { close: CLOSED, duration: .4, ease: "power2.out" })
-      .call(() => wrist.attach(orange))
-      .call(phase("lift"))
-      .to(pose, { ...asPose(k.lift), duration: .8, ease: "power2.out" })
-      .call(phase("transfer"))
-      .to(pose, { ...asPose(k.above_bowl), duration: 1.5 })
-      .to(pose, { ...asPose(k.release), duration: .8, ease: "power1.inOut" })
-      .call(phase("release"))
-      .to(pose, { close: 0, duration: .35 })
-      .call(() => {
-        scene.attach(orange);
-        gsap.to(orange.position, { y: bowl.position.y + .045, duration: .45, ease: "bounce.out" });
-      })
-      .call(phase("settled ✓"))
-      .to(pose, { ...asPose(k.above_bowl), duration: .8, delay: .3 })
-      .call(phase("home"))
-      .to(pose, { ...home, duration: 1.4 })
-      .to(orange.scale, { x: .001, y: .001, z: .001, duration: .35, ease: "power2.in" }, "<")
-      .call(() => { orange.position.copy(orangeHome); orange.rotation.set(0, 0, 0); })
-      .to(orange.scale, { x: 1, y: 1, z: 1, duration: .5, ease: "back.out(2.2)" });
-    new IntersectionObserver(([entry]) => entry.isIntersecting ? tl.resume() : tl.pause()).observe(holder);
-  }
+  Object.assign(pose, asPose(k.grasp), { close: CLOSED });
+  apply();
+  wrist.attach(orange);
+  Object.assign(pose, asPose(k.lift));
+  apply();
+  trail.visible = false;
+  $("ro-phase").textContent = "lift";
 
-  /* Camera: a slow drift plus a little parallax from the pointer. */
-  const pointer = { x: 0, y: 0 };
-  holder.closest(".hero").addEventListener("pointermove", event => {
-    const r = holder.getBoundingClientRect();
-    pointer.x = (event.clientX - r.left) / r.width - .5;
-    pointer.y = (event.clientY - r.top) / r.height - .5;
-  });
+  const angle = .62, radius = 1.18;
+  camera.position.set(focus.x + Math.sin(angle) * radius, .5, focus.z + Math.cos(angle) * radius);
+  camera.lookAt(focus);
   function resize() {
     const { width, height } = holder.getBoundingClientRect();
     renderer.setSize(width, height, false);
     camera.aspect = width / Math.max(height, 1);
     camera.updateProjectionMatrix();
+    renderer.render(scene, camera);
   }
   new ResizeObserver(resize).observe(holder);
   resize();
-
-  let visible = true;
-  new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(holder);
-  const clock = new THREE.Clock();
-  const eye = { x: 0, y: 0 };
-  renderer.setAnimationLoop(() => {
-    if (!visible || document.hidden) return;
-    const t = clock.getElapsedTime();
-    eye.x += ((reduced ? 0 : pointer.x) - eye.x) * .05;
-    eye.y += ((reduced ? 0 : pointer.y) - eye.y) * .05;
-    const angle = .62 + (reduced ? 0 : Math.sin(t * .18) * .12) + eye.x * .35;
-    const radius = 1.18;
-    camera.position.set(focus.x + Math.sin(angle) * radius, .5 + eye.y * -.18, focus.z + Math.cos(angle) * radius);
-    camera.lookAt(focus);
-    renderer.render(scene, camera);
-  });
   holder.classList.add("ready");
 }
 
 if (holder && webglAvailable()) {
-  // Build the scene after the headline intro so the shader compile does not stall the text animation.
-  new Promise(resolve => setTimeout(resolve, 1800)).then(start).catch(error => {
+  Promise.resolve().then(start).catch(error => {
     console.warn("3D hero unavailable:", error);
     holder.classList.add("failed");
   });

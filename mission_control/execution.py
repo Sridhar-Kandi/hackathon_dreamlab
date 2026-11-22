@@ -65,12 +65,18 @@ def now():
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+# Spotter: optional modules around Dream-1. Each one is switched on separately from the console.
+SPOTTER_ASSIST = {"grasp_depth": "depth", "edge_pinch": "width", "backtrack": "backtrack", "place": "place"}
+SPOTTER_WATCHES = {"wrong_object": "wrong_object", "grasp_retry": "grasp"}
+SPOTTER_MODULES = ("reconnect", "clamp_gripper", *SPOTTER_WATCHES, *SPOTTER_ASSIST)
+
+
 def validate_config(payload):
     if not isinstance(payload, dict):
         raise ValueError("Send an experiment configuration as a JSON object.")
     allowed = {"task_id", "scene", "model", "instruction", "actions", "trials", "sim_seconds",
                "seed", "seed0", "seeds", "jitter_cm", "record", "max_usd", "purpose", "max_credits",
-               "request_cap", "record_episode"}
+               "request_cap", "record_episode", "spotter"}
     if set(payload) - allowed:
         raise ValueError("The configuration contains an unsupported setting.")
     task = next((t for t in tasks() if t["id"] == payload.get("task_id", plans.COMPOUND)), None)
@@ -108,6 +114,12 @@ def validate_config(payload):
         raise ValueError("Choose a valid recording setting and testing allocation.")
     if config["record_episode"] and task["id"] != plans.COMPOUND:
         raise plans.InvalidPlan("Episode recording requires the compound preset.", "record_episode")
+    spotter = payload.get("spotter", [])
+    if not isinstance(spotter, list) or any(name not in SPOTTER_MODULES for name in spotter):
+        raise plans.InvalidPlan("Choose Spotter modules from the list.", "spotter")
+    if spotter and config["model"] == "oracle":
+        raise plans.InvalidPlan("Spotter works around Dream-1; the scripted controller does not use it.", "spotter")
+    config["spotter"] = [name for name in SPOTTER_MODULES if name in spotter]
     seeds = payload.get("seeds", list(range(config["seed0"], config["seed0"] + config["trials"])))
     if (not isinstance(seeds, list) or len(seeds) != config["trials"]
             or any(type(seed) is not int or not 0 <= seed < 2**31 for seed in seeds)
@@ -708,6 +720,7 @@ def run_attempt(run_id, attempt_id, parent_closed):
                 if quote() is None:
                     raise RuntimeError("BUDGET_STOPPED: provider quote expired")
             env = scenes.make_env(config["scene"])
+            spotter = config.get("spotter", [])
             try:
                 if config.get("record_episode"):
                     from .datasets import EpisodeRecorder
@@ -719,7 +732,10 @@ def run_attempt(run_id, attempt_id, parent_closed):
                     jitter_cm=config["jitter_cm"], before_request=request, checkpoint=checkpoint, on_event=emit,
                     record=str(recording) if recording else None,
                     on_sample=episode.add if episode else None,
-                    normalize_gripper=False,
+                    normalize_gripper="clamp_gripper" in spotter,
+                    recover="reconnect" in spotter,
+                    assist_parts=[part for name, part in SPOTTER_ASSIST.items() if name in spotter],
+                    watches=[watch for name, watch in SPOTTER_WATCHES.items() if name in spotter],
                     # Clean mode: the robot gets one instruction for the whole trial. Each step is still graded,
                     # but the simulator never tells the robot that a step finished.
                     sequence=[f"{step['target']}:{step['goal']}" for step in saved.get("plan", {}).get("steps", [])]

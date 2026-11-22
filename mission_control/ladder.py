@@ -40,7 +40,7 @@ BASE = "dreamlabs/dream-1-beta"
 ARMS = {
     "teacher": dict(model="oracle", actions=24, label="Scripted teacher (reads simulator state; demonstrations only)"),
     "stock": dict(model=BASE, actions=48, label="Dream-1 base, stock 48 rows per reply"),
-    "tuned": dict(model=BASE, actions=24, label="Dream-1 base, harness-tuned 24 rows per reply"),
+    "tuned": dict(model=BASE, actions=24, label="Dream-1 base, Spotter-tuned 24 rows per reply"),
 }
 JITTER_CM = 2.0
 ROOT_NAME = "ladder"

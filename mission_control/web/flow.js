@@ -17,7 +17,7 @@
     ftC1:    { x: 940,  y: 50,  w: 190, lane: "c1", title: "Fine-tune C1", lines: ["60 episodes · 1000 steps", "{c1}"] },
     base:    { x: 690,  y: 410, w: 220, lane: "ab", title: "Base Dream-1", lines: ["A · 48 rows per reply", "B · 24 rows per reply"] },
     heldout: { x: 940,  y: 410, w: 190, lane: "shared", title: "Held-out seeds", lines: ["2000–2019, unseen", "same start, every version"] },
-    evaluate:{ x: 1160, y: 140, w: 250, h: 268, lane: "shared", title: "05 · Prove", lines: ["L1 orange · L2 two-step", "L3 stack · L4 Hanoi", "", "A stock    {A}", "B tuned    {B}", "C1 naive   {C1}", "C2 harness {C2}", "", "Wilson CI · McNemar pairs"] },
+    evaluate:{ x: 1160, y: 140, w: 250, h: 268, lane: "shared", title: "05 · Prove", lines: ["L1 orange · L2 two-step", "L3 stack · L4 Hanoi", "", "A stock    {A}", "B tuned    {B}", "C1 naive   {C1}", "C2 Spotter {C2}", "", "Wilson CI · McNemar pairs"] },
   };
   const edges = [
     ["seeds", "profile", "c2"], ["profile", "diagnose", "c2"], ["diagnose", "teachC2", "c2"], ["teachC2", "ftC2", "c2"], ["ftC2", "evaluate", "c2"],
@@ -45,7 +45,7 @@
   let built = false, particles = [], values = {};
   function build(holder) {
     const svg = el("svg", { viewBox: "0 0 1420 520", class: "flow-svg", role: "img", "aria-label": "Pipeline from training seeds to held-out evaluation" });
-    const laneLabels = [["C1 lane · naive data", 690, 50], ["C2 lane · harness-chosen data", 220, 230], ["A / B · base model, no training", 690, 410]];
+    const laneLabels = [["C1 lane · naive data", 690, 50], ["C2 lane · Spotter-chosen data", 220, 230], ["A / B · base model, no training", 690, 410]];
     for (const [text, x, y] of laneLabels) svg.append(el("text", { x, y: y - 12, class: "flow-lane" }, text));
     const edgeLayer = el("g"), nodeLayer = el("g"), dotLayer = el("g");
     svg.append(edgeLayer, dotLayer, nodeLayer);

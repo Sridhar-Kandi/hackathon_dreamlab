@@ -72,7 +72,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def file(self,path,download=False):
-        types = {".ttf":"font/ttf", ".jsonl":"application/x-ndjson", ".mp4":"video/mp4", ".js":"text/javascript", ".stl":"model/stl", ".svg":"image/svg+xml"}
+        types = {".ttf":"font/ttf", ".woff2":"font/woff2", ".jsonl":"application/x-ndjson", ".mp4":"video/mp4", ".js":"text/javascript", ".stl":"model/stl", ".svg":"image/svg+xml"}
         kind = types.get(path.suffix.lower()) or mimetypes.guess_type(path.name)[0] or "application/octet-stream"
         size = path.stat().st_size
         wanted = re.fullmatch(r"bytes=(\d*)-(\d*)", self.headers.get("Range", ""))

@@ -1,6 +1,6 @@
 /* Overview hero and the animated page backdrop.
    Backdrop: a drafting grid with registration crosses; orange signal pulses run along the grid lines
-   and the dots near the pointer light up. Hero: headline entrance, live stats and pipeline.
+   and the dots near the pointer light up. Hero: static headline, live stats and pipeline.
    The 3D arm lives in hero3d.js. */
 (function () {
   const gsap = window.gsap;
@@ -111,61 +111,10 @@
   let resizeTimer;
   window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { drawGrid(); if (!animate) frame(0); }, 150); });
 
-  const $ = id => document.getElementById(id);
-
-  /* ---------- Headline and entrance ---------- */
-  const title = $("hero-title");
-  function splitWords(node) {
-    const out = [];
-    for (const child of [...node.childNodes]) {
-      if (child.nodeType === Node.TEXT_NODE) {
-        const frag = document.createDocumentFragment();
-        for (const part of child.textContent.split(/(\s+)/)) {
-          if (!part) continue;
-          if (/^\s+$/.test(part)) { frag.append(part); continue; }
-          const mask = document.createElement("span"); mask.className = "word";
-          const inner = document.createElement("span"); inner.textContent = part;
-          mask.append(inner); frag.append(mask); out.push(inner);
-        }
-        child.replaceWith(frag);
-      } else out.push(...splitWords(child));
-    }
-    return out;
-  }
-  if (animate) {
-    const words = splitWords(title);
-    const intro = gsap.timeline({ delay: .35 });
-    intro.from(".hero-eyebrow", { autoAlpha: 0, y: 10, duration: .5, ease: "power3.out" })
-      .from(words, { yPercent: 110, duration: .8, ease: "expo.out", stagger: .045 }, "-=.2")
-      .from(".hero-lede, .hero-actions", { autoAlpha: 0, y: 16, duration: .6, ease: "power3.out", stagger: .1 }, "-=.5")
-      .from(".hero-stats > div", { autoAlpha: 0, y: 16, duration: .5, ease: "power3.out", stagger: .08 }, "-=.4")
-      .from(".hero-arm", { autoAlpha: 0, scale: .96, duration: .9, ease: "power3.out" }, .3)
-      .from(".pipeline li", { autoAlpha: 0, y: 24, duration: .6, ease: "power3.out", stagger: .08 }, "-=.6");
-  }
-
-  /* Signal running along the pipeline. */
-  const pipeline = document.querySelector(".pipeline");
-  const runner = document.createElement("span");
-  runner.className = "pl-runner";
-  pipeline.append(runner);
-  if (animate) {
-    gsap.fromTo(runner, { left: "0%", autoAlpha: 0 }, { left: "100%", autoAlpha: 1, duration: 4.5, ease: "none", repeat: -1,
-      onUpdate() {
-        const at = this.progress();
-        pipeline.querySelectorAll("li").forEach((li, i) => li.classList.toggle("lit", Math.abs(at - (i + .5) / 5) < .1));
-      } });
-  }
-
   /* ---------- Live data ---------- */
-  const counters = {};
   function count(key, value) {
     for (const node of document.querySelectorAll(`[data-count="${key}"]`)) {
-      const suffix = node.dataset.suffix || "";
-      const from = counters[key] ?? 0;
-      counters[key] = value;
-      if (!animate) { node.textContent = Math.round(value).toLocaleString() + suffix; continue; }
-      const box = { v: from };
-      gsap.to(box, { v: value, duration: 1.6, ease: "power3.out", onUpdate: () => { node.textContent = Math.round(box.v).toLocaleString() + suffix; } });
+      node.textContent = Math.round(value).toLocaleString() + (node.dataset.suffix || "");
     }
   }
   const pretty = key => key.replaceAll("_", " ");
@@ -208,9 +157,7 @@
         row.className = "pl-bar";
         const share = j.checkpoint ? 1 : (j.step || 0) / (j.total_steps || 1000);
         row.innerHTML = `<span>${j.suffix.startsWith("c1") ? "C1" : "C2"}</span><i><b></b></i><span>${Math.round(share * 100)}%</span>`;
-        const fill = row.querySelector("b");
-        if (animate) gsap.fromTo(fill, { width: 0 }, { width: share * 100 + "%", duration: 1.4, ease: "power3.out", delay: .4 });
-        else fill.style.width = share * 100 + "%";
+        row.querySelector("b").style.width = share * 100 + "%";
         return row;
       }));
     }
